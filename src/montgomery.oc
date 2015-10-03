@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <obliv.oh>
 
-#include "big.oh"
+#include "obig.oh"
 #include "montgomery.h"
 #include "util.h"
 

@@ -8,7 +8,7 @@ $(CILPATH)/_build/libobliv.a:
 	cd $(CILPATH) && ./configure && make RELEASE=1
 
 ./a.out: montgomery.oc montgomery.c util.c $(CILPATH)/_build/libobliv.a
-	$(CILPATH)/bin/oblivcc $(CFLAGS) -I . montgomery.oc montgomery.c util.c
+	$(CILPATH)/bin/oblivcc $(CFLAGS) -I . obig.oc montgomery.oc montgomery.c util.c
 
 clean:
 	rm -f a.out
