@@ -1,0 +1,120 @@
+#ifndef OBIG_OH
+#define OBIG_OH
+
+#include <obliv.oh>
+
+typedef unsigned char byte;
+typedef obliv unsigned char obyte;
+
+typedef obliv unsigned long long big_base;
+typedef obliv unsigned long long obig_base;
+
+typedef struct obig {
+	unsigned int digits;
+	obig_base* data;
+} obig;
+
+/* memory management */
+
+void obig_init(obig* x, int bytes);
+void obig_resize(obig* x, int bytes);
+void obig_free(obig* x);
+
+// Copy functions truncate or 0-extend for mismatched lengths
+void obig_copy(obig* out, obig in);
+void obig_copy_obliv(obig* out, obig in) obliv;
+// These two copy with sign extension instead of 0-extension
+void obig_copy_signed(obig* out, obig in);
+void obig_copy_obliv_signed(obig* out, obig in) obliv;
+
+/* convenience setters */
+
+void obig_zero(*obig x);
+void obig_zero_obliv(*obig x) obliv;
+void obig_one(*obig x);
+void obig_one_obliv(*obig x) obliv;
+void obig_set(*obig x, long long y);
+void obig_set_obliv(*obig x, long long y) obliv;
+void obig_set(*obig x, obliv long long y);
+void obig_set_obliv(*obig x, obliv long long y) obliv;
+
+/* comparators */
+
+obyte obig_eq_obliv(obig x, obig y) obliv;
+obyte obig_eq_signed_obliv(obig x, obig y) obliv;
+obyte obig_gt_obliv(obig x, obig, y) obliv;
+obyte obig_gt_signed_obliv(obig x, obig y) obliv;
+obyte obig_lt_obliv(obig x, obig y) obliv;
+obyte obig_lt_signed_obliv(obig x, obig y) obliv;
+obyte obig_gte_obliv(obig x, obig y) obliv;
+obyte obig_gte_signed_obliv(obig x, obig y) obliv;
+obyte obig_lte_obliv(obig x, obig y) obliv;
+obyte obig_lte_signed_obliv(obig x, obig y) obliv;
+obyte obig_gtz_obliv(obig x) obliv;
+obyte obig_gtz_signed_obliv(obig x) obliv;
+obyte obig_ltz_signed_obliv(obig x) obliv;
+obyte obig_eqz_obliv(obig x) obliv;
+obyte obig_cmp_obliv(obig x, obig y) obliv;
+obyte obig_cmp_signed_obliv(obig x, obig y) obliv;
+
+/* in-place elementary math */
+
+void obig_shl1(obig* x);
+void obig_shr1(obig* x);
+void obig_shl(obig* x, unsigned int y);
+void obig_shr(obig* x, unsigned int y);
+void obig_shl(obig* x, obliv unsigned int y);
+void obig_shr(obig* x, obliv unsigned int y);
+void obig_neg(obig* x);
+void obig_add(obig* x, obig y);
+void obig_add(obig* x, long long y);
+void obig_add(obig* x, obliv long long y);
+void obig_sub(obig* x, obig y);
+void obig_sub(obig* x, long long y);
+void obig_sub(obig* x, obliv long long y);
+
+void obig_shl1_obliv(obig* x) obliv;
+void obig_shr1_obliv(obig* x) obliv;
+void obig_shl_obliv(obig* x, unsigned int y) obliv;
+void obig_shr_obliv(obig* x, unsigned int y) obliv;
+void obig_shl_obliv(obig* x, obliv unsigned int y) obliv;
+void obig_shr_obliv(obig* x, obliv unsigned int y) obliv;
+void obig_neg_obliv(obig* x) obliv;
+void obig_add_obliv(obig* x, obig y) obliv;
+void obig_add_obliv(obig* x, long long y) obliv;
+void obig_add_obliv(obig* x, obliv long long y) obliv;
+void obig_sub_obliv(obig* x, obig y) obliv;
+void obig_sub_obliv(obig* x, long long y) obliv;
+void obig_sub_obliv(obig* x, obliv long long y) obliv;
+
+/* nondestructive elementary math */
+
+void obig_shl1(obig* out, obig x);
+void obig_shr1(obig* out, obig x);
+void obig_shl(obig* out, obig x, unsigned int y);
+void obig_shr(obig* out, obig x, unsigned int y);
+void obig_shl(obig* out, obig x, obliv unsigned int y);
+void obig_shr(obig* out, obig x, obliv unsigned int y);
+void obig_neg(obig* out, obig x);
+void obig_add(obig* out, obig x, obig y);
+void obig_add(obig* out, obig x, long long y);
+void obig_add(obig* out, obig x, obliv long long y);
+void obig_sub(obig* out, obig x, obig y);
+void obig_sub(obig* out, obig x, long long y);
+void obig_sub(obig* out, obig x, obliv long long y);
+
+void obig_shl1_obliv(obig* out, obig x) obliv;
+void obig_shr1_obliv(obig* out, obig x) obliv;
+void obig_shl_obliv(obig* out, obig x, unsigned int y) obliv;
+void obig_shr_obliv(obig* out, obig x, unsigned int y) obliv;
+void obig_shl_obliv(obig* out, obig x, obliv unsigned int y) obliv;
+void obig_shr_obliv(obig* out, obig x, obliv unsigned int y) obliv;
+void obig_neg_obliv(obig* out, obig x) obliv;
+void obig_add_obliv(obig* out, obig x, obig y) obliv;
+void obig_add_obliv(obig* out, obig x, long long y) obliv;
+void obig_add_obliv(obig* out, obig x, obliv long long y) obliv;
+void obig_sub_obliv(obig* out, obig x, obig y) obliv;
+void obig_sub_obliv(obig* out, obig x, long long y) obliv;
+void obig_sub_obliv(obig* out, obig x, obliv long long y) obliv;
+
+#endif
