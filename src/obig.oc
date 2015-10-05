@@ -14,11 +14,10 @@ int min(int a, int b) {
 	return (a < b ? a : b);
 }
 
-// NOTE: big_digit MUST be an unsigned type
-obyte odigit_msb_is_one(obig_digit x) {
+obyte obyte_msb_is_one(obyte x) {
 	obyte result;
-	big_digit pattern = ~((big_digit)-1 >> 1);
-	obliv if (x & pattern == 0) {
+	//big_digit pattern = ~((big_digit)-1 >> 1);
+	obliv if (x & 0x80 == 0) {
 		result = 0;
 	} else {
 		result = 1;
@@ -26,10 +25,9 @@ obyte odigit_msb_is_one(obig_digit x) {
 	return result;
 }
 
-obyte odigit_msb_is_one_obliv(obig_digit x) obliv {
+obyte obyte_msb_is_one_obliv(obyte x) obliv {
 	obyte result;
-	big_digit pattern = ~((big_digit)-1 >> 1);
-	obliv if (x & pattern == 0) {
+	obliv if (x & 0x80 == 0) {
 		result = 0;
 	} else {
 		result = 1;
@@ -41,14 +39,20 @@ obyte odigit_msb_is_one_obliv(obig_digit x) obliv {
 /* memory management */
 
 void obig_init(obig* x, unsigned int bytes) {
-	x->digits = ceildiv(bytes,sizeof(big_digit));
-	x->data = malloc(sizeof(obig_digit) * x->digits);
+	x->digits = bytes; //ceildiv(bytes,sizeof(big_digit));
+	x->data = malloc(sizeof(obyte) * x->digits);
+}
+
+void obig_free(obig* x) {
+	free(x->data);
+	x->digits = 0;
+	x->data = NULL;
 }
 
 void obig_resize(obig* x, unsigned int bytes) {
 	obig temp;
-	temp.digits = ceildiv(bytes, sizeof(big_digit));
-	temp.data = malloc(sizeof(obig_digit) * temp.digits);
+	temp.digits = bytes; //ceildiv(bytes, sizeof(big_digit));
+	temp.data = malloc(sizeof(obyte) * temp.digits);
 
 	obig_copy(&temp, *x);
 
@@ -57,11 +61,9 @@ void obig_resize(obig* x, unsigned int bytes) {
 	x->data = temp.data;
 }
 
-void obig_free(obig* x) {
-	free(x->data);
-	x->digits = 0;
-	x->data = NULL;
-}
+void obig_resize_signed(obig* x, int bytes);
+void obig_match_sizes(obig* x, obig* y);
+void obig_match_sizes_signed(obig* x, obig* y);
 
 void obig_copy(obig* out, obig in) {
 	for (int ii = 0; ii < out->digits; ii++) {
@@ -212,7 +214,16 @@ void obig_aa_shl_onative(obig* x, obliv unsigned int y);
 void obig_aa_shr1(obig* x);
 void obig_aa_shr_native(obig* x, unsigned int y);
 void obig_aa_shr_onative(obig* x, obliv unsigned int y);
-void obig_aa_neg(obig* x);
+
+void obig_aa_neg_signed(obig* x) {
+	obyte rem = 1;
+	for (int ii = 0; ii < x->digits; ii ++) {
+		obliv unsigned short = (x->data[ii] ^ 0xFF) + rem;
+		x->data[ii] = temp;
+		rem = temp >> 8;
+	}
+}
+
 void obig_aa_add(obig* x, obig y);
 void obig_aa_add_native(obig* x, long long y);
 void obig_aa_add_onative(obig* x, obliv long long y);
@@ -220,19 +231,100 @@ void obig_aa_sub(obig* x, obig y);
 void obig_aa_sub_native(obig* x, long long y);
 void obig_aa_sub_onative(obig* x, obliv long long y);
 
+void obig_aa_not(obig* x) {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		x->data[ii] = ~x->data[ii];
+	}
+}
+
+void obig_aa_and(obig* x, obig y) {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		if (ii < y.digits) {
+			x->data[ii] = x->data[ii] & y.data[ii];
+		} else {
+			x->data[ii] = 0;
+		}
+	}
+}
+
+void obig_aa_or(obig* x, obig y) {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		if (ii < y.digits) {
+			x->data[ii] = x->data[ii] | y.data[ii];
+		} else {
+			x->data[ii] = x->data[ii];
+		}
+	}
+}
+
+void obig_aa_xor(obig* x, obig y) {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		if (ii < y.digits) {
+			x->data[ii] = x->data[ii] ^ y.data[ii];
+		} else {
+			x->data[ii] = x->data[ii];
+		}
+	}
+}
+
 void obig_aa_shl1_obliv(obig* x) obliv;
 void obig_aa_shl_native_obliv(obig* x, unsigned int y) obliv;
 void obig_aa_shl_onative_obliv(obig* x, obliv unsigned int y) obliv;
 void obig_aa_shr1_obliv(obig* x) obliv;
 void obig_aa_shr_native_obliv(obig* x, unsigned int y) obliv;
 void obig_aa_shr_onative_obliv(obig* x, obliv unsigned int y) obliv;
-void obig_aa_neg_obliv(obig* x) obliv;
+
+void obig_aa_neg_signed_obliv(obig* x) obliv {
+	obyte rem = 1;
+	for (int ii = 0; ii < x->digits; ii ++) {
+		obliv unsigned short = (x->data[ii] ^ 0xFF) + rem;
+		x->data[ii] = temp;
+		rem = temp >> 8;
+	}
+}
+
 void obig_aa_add_obliv(obig* x, obig y) obliv;
 void obig_aa_add_native_obliv(obig* x, long long y) obliv;
 void obig_aa_add_onative_obliv(obig* x, obliv long long y) obliv;
 void obig_aa_sub_obliv(obig* x, obig y) obliv;
 void obig_aa_sub_native_obliv(obig* x, long long y) obliv;
 void obig_aa_sub_onative_obliv(obig* x, obliv long long y) obliv;
+
+void obig_aa_not_obliv(obig* x) obliv {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		x->data[ii] = ~x->data[ii];
+	}
+}
+
+void obig_aa_and_obliv(obig* x, obig y) obliv {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		if (ii < y.digits) {
+			x->data[ii] = x->data[ii] & y.data[ii];
+		} else {
+			x->data[ii] = 0;
+		}
+	}
+}
+
+void obig_aa_or_obliv(obig* x, obig y) obliv {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		if (ii < y.digits) {
+			x->data[ii] = x->data[ii] | y.data[ii];
+		} else {
+			x->data[ii] = x->data[ii];
+		}
+	}
+}
+
+void obig_aa_xor_obliv(obig* x, obig y) obliv {
+	for (int ii = 0; ii < x->digits; ii ++) {
+		if (ii < y.digits) {
+			x->data[ii] = x->data[ii] ^ y.data[ii];
+		} else {
+			x->data[ii] = x->data[ii];
+		}
+	}
+}
 
 /* nondestructive elementary math */
 
@@ -242,7 +334,28 @@ void obig_shl_onative(obig* out, obig x, obliv unsigned int y);
 void obig_shr1(obig* out, obig x);
 void obig_shr_native(obig* out, obig x, unsigned int y);
 void obig_shr_onative(obig* out, obig x, obliv unsigned int y);
-void obig_neg(obig* out, obig x);
+
+void obig_neg_signed(obig* out, obig x) {
+	obyte rem = 1;
+	for (int ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv unsigned short temp = (x.data[ii] ^ 0xFF) + rem;
+			out->data[ii] = temp;
+			rem = temp >> 8;
+		} else {
+			obliv if (obyte_msb_is_one_obliv(x.data[x.digits - 1]) == 0) {
+				obliv unsigned short temp = 0xFF + rem;
+				x->data[ii] = temp;
+				rem = temp >> 8;
+			} else {
+				obliv unsigned short temp = 0x00 + rem;
+				x->data[ii] = temp;
+				rem = temp >> 8;
+			}
+		}
+	}
+}
+
 void obig_add(obig* out, obig x, obig y);
 void obig_add_native(obig* out, obig x, long long y);
 void obig_add_onative(obig* out, obig x, obliv long long y);
@@ -250,16 +363,65 @@ void obig_sub(obig* out, obig x, obig y);
 void obig_sub_native(obig* out, obig x, long long y);
 void obig_sub_onative(obig* out, obig x, obliv long long y);
 
+void obig_not(obig* out, obig x) {
+	for (int ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			out->data[ii] = ~x.data[ii];
+		} else {
+			out->data[ii] = 0;
+		}
+	}
+}
+
+void obig_and(obig* out, obig x, obig y);
+void obig_or(obig* out, obig x, obig y);
+void obig_xor(obig* out, obig x, obig y);
+
 void obig_shl1_obliv(obig* out, obig x) obliv;
 void obig_shl_native_obliv(obig* out, obig x, unsigned int y) obliv;
 void obig_shl_onative_obliv(obig* out, obig x, obliv unsigned int y) obliv;
 void obig_shr1_obliv(obig* out, obig x) obliv;
 void obig_shr_native_obliv(obig* out, obig x, unsigned int y) obliv;
 void obig_shr_onative_obliv(obig* out, obig x, obliv unsigned int y) obliv;
-void obig_neg_obliv(obig* out, obig x) obliv;
+
+void obig_neg_signed_obliv(obig* out, obig x) obliv {
+	obyte rem = 1;
+	for (int ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv unsigned short temp = (x.data[ii] ^ 0xFF) + rem;
+			out->data[ii] = temp;
+			rem = temp >> 8;
+		} else {
+			obliv if (obyte_msb_is_one_obliv(x.data[x.digits - 1]) == 0) {
+				obliv unsigned short temp = 0xFF + rem;
+				x->data[ii] = temp;
+				rem = temp >> 8;
+			} else {
+				obliv unsigned short temp = 0x00 + rem;
+				x->data[ii] = temp;
+				rem = temp >> 8;
+			}
+		}
+	}
+}
+
 void obig_add_obliv(obig* out, obig x, obig y) obliv;
 void obig_add_native_obliv(obig* out, obig x, long long y) obliv;
 void obig_add_onative_obliv(obig* out, obig x, obliv long long y) obliv;
 void obig_sub_obliv(obig* out, obig x, obig y) obliv;
 void obig_sub_native_obliv(obig* out, obig x, long long y) obliv;
 void obig_sub_onative_obliv(obig* out, obig x, obliv long long y) obliv;
+
+void obig_not_obliv(obig* out, obig x) obliv {
+	for (int ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			out->data[ii] = ~x.data[ii];
+		} else {
+			out->data[ii] = 0;
+		}
+	}
+}
+
+void obig_and_obliv(obig* out, obig x, obig y) obliv;
+void obig_or_obliv(obig* out, obig x, obig y) obliv;
+void obig_xor_obliv(obig* out, obig x, obig y) obliv;	
