@@ -426,7 +426,7 @@ void obig_not(obig* out, obig x) {
 		if (ii < x.digits) {
 			out->data[ii] = ~x.data[ii];
 		} else {
-			out->data[ii] = 0;
+			out->data[ii] = 0xFF;
 		}
 	}
 }
@@ -623,7 +623,7 @@ void obig_not_obliv(obig* out, obig x) obliv {
 		if (ii < x.digits) {
 			out->data[ii] = ~x.data[ii];
 		} else {
-			out->data[ii] = 0;
+			out->data[ii] = 0xFF;
 		}
 	}
 }

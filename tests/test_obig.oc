@@ -20,6 +20,8 @@ void testMain(void*varg) {
 	 ******************************************
 	 ******************************************/
 
+	fprintf(stderr, "\n");
+
 	{	// obig_set_native - random data
 		unsigned long long x;
 		obig x_test;
@@ -45,24 +47,24 @@ void testMain(void*varg) {
 
 		fprintf(stderr, "Test Item: %-60s %s\n", "obig_set_native - random data", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
 		if ((x != output)) {
-			fprintf(stderr, "\tExpected: %0llX\n\tActual: %0llX\n", x, output);
+			fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", x, output);
 		}
 
 		obig_free(&x_test);
 	}
 
-	{	// obig_set_native - random data, long output
-		unsigned int x;
+	{	// obig_set_native - random data, extended output
+		unsigned long long x;
 		obig x_test;
 
-		obig_init(&x_test, sizeof(long long));
+		obig_init(&x_test, sizeof(long long) * 2);
 
 		for (int ii = 0; ii < sizeof(long long)/sizeof(int); ii++) {
 			x <<= sizeof(int) * 8;
 			x += rand();
 		}
 
-		x = ocBroadcastInt(x, 1);
+		x = ocBroadcastLLong(x, 1);
 
 		obig_set_native(&x_test, x);
 		unsigned char temp;
@@ -74,82 +76,32 @@ void testMain(void*varg) {
 			output += temp;
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_set_native - random data, long output", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-60s %s\n", "obig_set_native - random data, extended output", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
 		if ((x != output)) {
-			fprintf(stderr, "\tExpected: %0llX\n\tActual: %0llX\n", x, output);
+			fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", x, output);
 		}
 
 		obig_free(&x_test);
 	}
 
-
-
-
-	/******************************************
-	 ******************************************
-	 *** obig_add
-	 ******************************************
-	 ******************************************/
-
-	{	// obig_add
-		unsigned int x = 0x7E48A840;
-		unsigned int y = 0x47E0DD18;
-		unsigned int expected = x + y;
-
+	{	// obig_set_native - random data, truncated output
+		unsigned long long x;
 		obig x_test;
-		obig y_test;
-		obig result;
 
 		obig_init(&x_test, sizeof(int));
-		obig_init(&y_test, sizeof(int));
-		obig_init(&result, sizeof(int));
 
-		x = ocBroadcastInt(x, 1);
-		y = ocBroadcastInt(y, 2);
-
-		obig_set_native(&x_test, x);
-		obig_set_native(&y_test, y);
-		unsigned char temp;
-		unsigned int output;
-
-		obig_add(&result, x_test, y_test);
-
-		for (int ii = result.digits -1; ii >= 0; ii--) {
-			revealOblivChar(&temp, result.data[ii], 0);
-			output <<= 8;
-			output += temp;
+		for (int ii = 0; ii < sizeof(long long)/sizeof(int); ii++) {
+			x <<= sizeof(int) * 8;
+			x += rand();
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_add", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0X\n\tActual: %0X\n", expected, output);
-		}
+		x = ocBroadcastLLong(x, 1);
 
-		obig_free(&x_test);
-		obig_free(&y_test);
-		obig_free(&result);
-	}
-
-	{	// obig_add - augmented assignment
-		unsigned int x = 0x7E48A840;
-		unsigned int y = 0x47E0DD18;
-		unsigned int expected = x+y;
-
-		obig x_test;
-		obig y_test;
-
-		obig_init(&x_test, sizeof(int));
-		obig_init(&y_test, sizeof(int));
-
-		x = ocBroadcastInt(x, 1);
-		y = ocBroadcastInt(y, 2);
+		unsigned int expected = x;
 
 		obig_set_native(&x_test, x);
-		obig_set_native(&y_test, y);
 		unsigned char temp;
 		unsigned int output;
-
-		obig_add(&x_test, x_test, y_test);
 
 		for (int ii = x_test.digits -1; ii >= 0; ii--) {
 			revealOblivChar(&temp, x_test.data[ii], 0);
@@ -157,228 +109,20 @@ void testMain(void*varg) {
 			output += temp;
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - augmented assignment", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0X\n\tActual: %0X\n", expected, output);
-		}
-
-		obig_free(&x_test);
-		obig_free(&y_test);
-	}
-
-	{	// obig_add - overflow
-		unsigned int x = 0x7E48A840;
-		unsigned int y = 0xA7E0DD18;
-		unsigned int expected = x+y;
-
-		obig x_test;
-		obig y_test;
-		obig result;
-
-		obig_init(&x_test, sizeof(int));
-		obig_init(&y_test, sizeof(int));
-		obig_init(&result, sizeof(int));
-
-		x = ocBroadcastInt(x, 1);
-		y = ocBroadcastInt(y, 2);
-
-		obig_set_native(&x_test, x);
-		obig_set_native(&y_test, y);
-		unsigned char temp;
-		unsigned int output;
-
-		obig_add(&result, x_test, y_test);
-
-		for (int ii = result.digits -1; ii >= 0; ii--) {
-			revealOblivChar(&temp, result.data[ii], 0);
-			output <<= 8;
-			output += temp;
-		}
-
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0X\n\tActual: %0X\n", expected, output);
-		}
-
-		obig_free(&x_test);
-		obig_free(&y_test);
-		obig_free(&result);
-	}
-
-	{	// obig_add - long output
-		unsigned int x = 0x7E48A840;
-		unsigned int y = 0xA7E0DD18;
-		unsigned long long expected = 0x126298558;
-
-		obig x_test;
-		obig y_test;
-		obig result;
-
-		obig_init(&x_test, sizeof(int));
-		obig_init(&y_test, sizeof(int));
-		obig_init(&result, sizeof(long long));
-
-		x = ocBroadcastInt(x, 1);
-		y = ocBroadcastInt(y, 2);
-
-		obig_set_native(&x_test, x);
-		obig_set_native(&y_test, y);
-		unsigned char temp;
-		unsigned long long output;
-
-		obig_add(&result, x_test, y_test);
-
-		for (int ii = result.digits -1; ii >= 0; ii--) {
-			revealOblivChar(&temp, result.data[ii], 0);
-			output <<= 8;
-			output += temp;
-		}
-
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - long output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0llX\n\tActual: %0llX\n", expected, output);
-		}
-
-		obig_free(&x_test);
-		obig_free(&y_test);
-		obig_free(&result);
-	}
-
-
-	/******************************************
-	 ******************************************
-	 *** obig_neg
-	 ******************************************
-	 ******************************************/
-
-	{	// obig_neg
-		unsigned int x = 0x7E48A840;
-		unsigned int expected = -x;
-
-		obig x_test;
-		obig result;
-
-		obig_init(&x_test, sizeof(int));
-		obig_init(&result, sizeof(int));
-
-		x = ocBroadcastInt(x, 1);
-
-		obig_set_native(&x_test, x);
-		unsigned char temp;
-		unsigned int output;
-
-		obig_neg(&result, x_test);
-
-		for (int ii = result.digits -1; ii >= 0; ii--) {
-			revealOblivChar(&temp, result.data[ii], 0);
-			output <<= 8;
-			output += temp;
-		}
-
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0X\n\tActual: %0X\n", expected, output);
-		}
-
-		obig_free(&x_test);
-		obig_free(&result);
-	}
-
-	{	// obig_neg - augmented assignment
-		unsigned int x = 0x7E48A840;
-		unsigned int expected = -x;
-
-		obig x_test;
-
-		obig_init(&x_test, sizeof(int));
-
-		x = ocBroadcastInt(x, 1);
-
-		obig_set_native(&x_test, x);
-		unsigned char temp;
-		unsigned int output;
-
-		obig_neg(&x_test, x_test);
-
-		for (int ii = x_test.digits -1; ii >= 0; ii--) {
-			revealOblivChar(&temp, x_test.data[ii], 0);
-			output <<= 8;
-			output += temp;
-		}
-
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg - augmented assignment", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0X\n\tActual: %0X\n", expected, output);
+		fprintf(stderr, "Test Item: %-60s %s\n", "obig_set_native - random data, truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+		if ((expected != output)) {
+			fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 		}
 
 		obig_free(&x_test);
 	}
 
-	{	// obig_neg - overflow
-		unsigned int x = 0xAE48A840;
-		unsigned int expected = -x;
 
-		obig x_test;
-		obig result;
 
-		obig_init(&x_test, sizeof(int));
-		obig_init(&result, sizeof(int));
+	#include "test_obig_components/arithmetic.oc"
+	#include "test_obig_components/bitlogic.oc"
+	
 
-		x = ocBroadcastInt(x, 1);
-
-		obig_set_native(&x_test, x);
-		unsigned char temp;
-		unsigned int output;
-
-		obig_neg(&result, x_test);
-
-		for (int ii = result.digits -1; ii >= 0; ii--) {
-			revealOblivChar(&temp, result.data[ii], 0);
-			output <<= 8;
-			output += temp;
-		}
-
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0X\n\tActual: %0X\n", expected, output);
-		}
-
-		obig_free(&x_test);
-		obig_free(&result);
-	}
-
-	{	// obig_neg - long output
-		unsigned int x = 0xAE48A840;
-		unsigned long long expected = x;
-		expected *= -1;
-
-		obig x_test;
-		obig result;
-
-		obig_init(&x_test, sizeof(int));
-		obig_init(&result, sizeof(long long));
-
-		x = ocBroadcastInt(x, 1);
-
-		obig_set_native(&x_test, x);
-		unsigned char temp;
-		unsigned long long output;
-
-		obig_neg(&result, x_test);
-
-		for (int ii = result.digits -1; ii >= 0; ii--) {
-			revealOblivChar(&temp, result.data[ii], 0);
-			output <<= 8;
-			output += temp;
-		}
-
-		fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg - long output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-		if (expected != output) {
-			fprintf(stderr, "\tExpected: %0llX\n\tActual: %0llX\n", expected, output);
-		}
-
-		obig_free(&x_test);
-		obig_free(&result);
-	}
+	fprintf(stderr, "\n");
 
 }

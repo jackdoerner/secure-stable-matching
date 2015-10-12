@@ -10,7 +10,7 @@ default: test_obig
 $(CILPATH)/_build/libobliv.a:
 	cd $(CILPATH) && ./configure && make RELEASE=1
 
-test_obig: $(TSTDEPS) test_obig.oc $(SRCPATH)/obig.oc
+test_obig: $(TSTDEPS) test_obig.oc test_obig_components/* $(SRCPATH)/obig.oc
 	$(OCC) $(CFLAGS) -I . -I $(SRCPATH) test_main.c $(SRCPATH)/util.c test_obig.oc $(SRCPATH)/obig.oc -o $@
 
 clean:
