@@ -35,9 +35,13 @@ void obig_zero_obliv(obig* x) obliv;
 void obig_one(obig* x);
 void obig_one_obliv(obig* x) obliv;
 void obig_set_native(obig* x, long long y);
-void obig_set_onative(obig* x, obliv long long y);
+//void obig_set_onative(obig* x, obliv long long y);
+void obig_set_pointed(obig* x, void* p, size_t s);
+//void obig_set_opointed(obig* x, obliv void* p, size_t s);
 void obig_set_native_obliv(obig* x, long long y) obliv;
-void obig_set_onative_obliv(obig* x, obliv long long y) obliv;
+//void obig_set_onative_obliv(obig* x, obliv long long y) obliv;
+void obig_set_pointed_obliv(obig* x, void* p, size_t s);
+//void obig_set_opointed_obliv(obig* x, obliv void* p, size_t s);
 
 /* comparators */
 

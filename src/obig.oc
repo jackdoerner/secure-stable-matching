@@ -1,4 +1,9 @@
+#include <stdint.h>
+#include <stdio.h>
+
 #include "obig.oh"
+
+#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 
 /* Utility functions to be used only internally */
 
@@ -157,10 +162,69 @@ void obig_one_obliv(obig* x) obliv {
 	}
 }
 
-void obig_set_native(obig* x, long long y);
-void obig_set_onative(obig* x, obliv long long y);
-void obig_set_native_obliv(obig* x, long long y) obliv;
-void obig_set_onative_obliv(obig* x, obliv long long y) obliv;
+void obig_set_native(obig* x, long long y) {
+	obig_set_pointed(x, &y, sizeof(y));
+}
+
+/*void obig_set_onative(obig* x, obliv long long y) {
+	obig_set_opointed(x, &y, sizeof(long long));
+}*/
+
+void obig_set_pointed(obig* x, void* p, size_t s) {
+	for (unsigned int ii = 0; ii < x->digits; ii++) {
+		if (ii < s) {
+			if (IS_BIG_ENDIAN) {
+				x->data[x->digits - 1 - ii] = ((unsigned char*) p)[ii];
+			} else {
+				x->data[ii] = ((unsigned char*) p)[ii];
+			}
+		} else {
+			x->data[ii] = 0;
+		}
+	}
+}
+
+/*void obig_set_opointed(obig* x, obliv void* p, size_t s) {
+	for (unsigned int ii = 0; ii < x->digits; ii++) {
+		if (x < s) {
+			x->data[ii] = *p >> (ii * 8);
+		} else {
+			x->data[ii] = 0;
+		}
+	}
+}*/
+
+void obig_set_native_obliv(obig* x, long long y) obliv {
+	obig_set_pointed_obliv(x, &y, sizeof(y));
+}
+
+/*void obig_set_onative_obliv(obig* x, obliv long long y) obliv {
+	obig_set_opointed(x, &y, sizeof(long long));
+}*/
+
+void obig_set_pointed_obliv(obig* x, void* p, size_t s) obliv {
+	for (unsigned int ii = 0; ii < x->digits; ii++) {
+		if (ii < s) {
+			if (IS_BIG_ENDIAN) {
+				x->data[x->digits - 1 - ii] = ((unsigned char*) p)[ii];
+			} else {
+				x->data[ii] = ((unsigned char*) p)[ii];
+			}
+		} else {
+			x->data[ii] = 0;
+		}
+	}
+}
+
+/*void obig_set_opointed_obliv(obig* x, obliv void* p, size_t s) obliv {
+	for (unsigned int ii = 0; ii < x->digits; ii++) {
+		if (x < s) {
+			x->data[ii] = *p >> (ii * 8);
+		} else {
+			x->data[ii] = 0;
+		}
+	}
+}*/
 
 /* comparators */
 
@@ -300,7 +364,7 @@ void obig_neg(obig* out, obig x) {
 		} else {
 			//obliv if (obyte_msb_is_one_obliv(x.data[x.digits - 1]) == 0) {
 				obliv unsigned short temp = 0xFF + rem;
-				x.data[ii] = temp;
+				out->data[ii] = temp;
 				rem = temp >> 8;
 			//} else {
 			//	obliv unsigned short temp = 0x00 + rem;
