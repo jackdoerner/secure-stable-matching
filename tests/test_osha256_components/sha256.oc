@@ -1,3 +1,5 @@
+fprintf(stderr, "\n");
+
 {
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
 	uint8_t digest2[SHA256_DIGEST_LENGTH];
@@ -95,7 +97,6 @@
 			revealOblivChar(&temp, digest[ii], 0);
 			fprintf(stderr, "%02hhX", temp);
 		}
+		fprintf(stderr, "\n");
 	}
-
-	fprintf(stderr, "\n");
 }
