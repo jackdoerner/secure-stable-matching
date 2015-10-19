@@ -1,0 +1,19 @@
+#ifndef OBLIV_SHA256_OH
+#define OBLIV_SHA256_OH
+
+#include <obliv.oh>
+
+#define OSHA256_BLOCK 64
+#define OSHA256_DIGEST_LENGTH 32
+
+typedef struct oSHA256_Context {
+	obliv uint32_t state[8];
+	uint64_t count;
+	obliv unsigned char data[OSHA256_BLOCK];
+} oSHA256_CTX;
+
+void oSHA256_Init(oSHA256_CTX *);
+void oSHA256_Update(oSHA256_CTX *, obliv const uint8_t *, size_t);
+void oSHA256_Final(obliv uint8_t[OSHA256_DIGEST_LENGTH], oSHA256_CTX *);
+
+#endif

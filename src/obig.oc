@@ -184,15 +184,15 @@ void obig_set_pointed(obig* x, void* p, size_t s) {
 	}
 }
 
-/*void obig_set_opointed(obig* x, obliv void* p, size_t s) {
+void obig_set_opointed(obig* x, void* p, size_t s) {
 	for (unsigned int ii = 0; ii < x->digits; ii++) {
 		if (x < s) {
-			x->data[ii] = *p >> (ii * 8);
+			//x->data[ii] = *p >> (ii * 8);
 		} else {
 			x->data[ii] = 0;
 		}
 	}
-}*/
+}
 
 void obig_set_native_obliv(obig* x, long long y) obliv {
 	obig_set_pointed_obliv(x, &y, sizeof(y));
