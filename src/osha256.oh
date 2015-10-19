@@ -9,11 +9,21 @@
 typedef struct oSHA256_Context {
 	obliv uint32_t state[8];
 	uint64_t count;
-	obliv unsigned char data[OSHA256_BLOCK];
+	obliv uint8_t data[OSHA256_BLOCK];
 } oSHA256_CTX;
 
 void oSHA256_Init(oSHA256_CTX *);
 void oSHA256_Update(oSHA256_CTX *, obliv const uint8_t *, size_t);
 void oSHA256_Final(obliv uint8_t[OSHA256_DIGEST_LENGTH], oSHA256_CTX *);
+
+typedef struct {
+	oSHA256_CTX ictx;
+	oSHA256_CTX octx;
+} oHMAC_SHA256_CTX;
+
+void oHMAC_SHA256_Init(oHMAC_SHA256_CTX *, obliv const uint8_t *, size_t);
+void oHMAC_SHA256_Update(oHMAC_SHA256_CTX *, obliv const uint8_t *, size_t);
+void oHMAC_SHA256_Final(obliv uint8_t[OSHA256_DIGEST_LENGTH], oHMAC_SHA256_CTX *);
+void oPBKDF2_SHA256(obliv const uint8_t *, size_t, obliv const uint8_t *, size_t, uint64_t, obliv uint8_t *, size_t);
 
 #endif

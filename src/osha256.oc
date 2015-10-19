@@ -34,15 +34,22 @@ void be32enc_vect(obliv uint8_t * dst, obliv const uint32_t * src, size_t len) {
 	}
 }
 
-void be64enc(obliv uint8_t * p, uint64_t x) {
-	p[7] = x & 0xff;
-	p[6] = (x >> 8) & 0xff;
-	p[5] = (x >> 16) & 0xff;
-	p[4] = (x >> 24) & 0xff;
-	p[3] = (x >> 32) & 0xff;
-	p[2] = (x >> 40) & 0xff;
-	p[1] = (x >> 48) & 0xff;
-	p[0] = (x >> 56) & 0xff;
+void be32enc(obliv uint8_t * dst, uint32_t x) {
+	dst[3] = x & 0xff;
+	dst[2] = (x >> 8) & 0xff;
+	dst[1] = (x >> 16) & 0xff;
+	dst[0] = (x >> 24) & 0xff;
+}
+
+void be64enc(obliv uint8_t * dst, uint64_t x) {
+	dst[7] = x & 0xff;
+	dst[6] = (x >> 8) & 0xff;
+	dst[5] = (x >> 16) & 0xff;
+	dst[4] = (x >> 24) & 0xff;
+	dst[3] = (x >> 32) & 0xff;
+	dst[2] = (x >> 40) & 0xff;
+	dst[1] = (x >> 48) & 0xff;
+	dst[0] = (x >> 56) & 0xff;
 }
 
 void oSHA256_Init(oSHA256_CTX *ctx) {
@@ -183,3 +190,136 @@ void oSHA256_Final(obliv uint8_t digest[OSHA256_DIGEST_LENGTH], oSHA256_CTX * ct
 	oSHA256_Pad(ctx);
 	be32enc_vect(digest, ctx->state, OSHA256_DIGEST_LENGTH);
 }
+
+
+/* Now HMAC and PBKDF2 functions */
+
+/**
+ * HMAC_SHA256_Init(ctx, K, Klen):
+ * Initialize the HMAC-SHA256 context ${ctx} with ${Klen} bytes of key from
+ * ${K}.
+ */
+void oHMAC_SHA256_Init(oHMAC_SHA256_CTX * ctx, obliv const uint8_t * K, size_t Klen) {
+	obliv uint8_t pad[64];
+	obliv uint8_t khash[OSHA256_DIGEST_LENGTH];
+	size_t ii;
+
+	/* If Klen > 64, the key is really SHA256(K). */
+	if (Klen > 64) {
+		oSHA256_Init(&ctx->ictx);
+		oSHA256_Update(&ctx->ictx, K, Klen);
+		oSHA256_Final(khash, &ctx->ictx);
+		K = khash;
+		Klen = OSHA256_DIGEST_LENGTH;
+	}
+
+	/* Inner SHA256 operation is SHA256(K xor [block of 0x36] || data). */
+	oSHA256_Init(&ctx->ictx);
+	for (ii = 0; ii < Klen; ii++)
+		pad[ii] = 0x36 ^ K[ii];
+	for (; ii < 64; ii++)
+		pad[ii] = 0x36;
+	oSHA256_Update(&ctx->ictx, pad, 64);
+
+	/* Outer SHA256 operation is SHA256(K xor [block of 0x5c] || hash). */
+	oSHA256_Init(&ctx->octx);
+	for (ii = 0; ii < Klen; ii++)
+		pad[ii] = 0x5c ^ K[ii];
+	for (; ii < 64; ii++)
+		pad[ii] = 0x5c;
+	oSHA256_Update(&ctx->octx, pad, 64);
+}
+
+/**
+ * HMAC_SHA256_Update(ctx, in, len):
+ * Input ${len} bytes from ${in} into the HMAC-SHA256 context ${ctx}.
+ */
+void oHMAC_SHA256_Update(oHMAC_SHA256_CTX * ctx, obliv const uint8_t * in, size_t len) {
+
+	/* Feed data to the inner SHA256 operation. */
+	oSHA256_Update(&ctx->ictx, in, len);
+}
+
+/**
+ * HMAC_SHA256_Final(digest, ctx):
+ * Output the HMAC-SHA256 of the data input to the context ${ctx} into the
+ * buffer ${digest}.
+ */
+void oHMAC_SHA256_Final(obliv uint8_t digest[OSHA256_DIGEST_LENGTH], oHMAC_SHA256_CTX * ctx) {
+	obliv uint8_t ihash[OSHA256_DIGEST_LENGTH];
+
+	/* Finish the inner SHA256 operation. */
+	oSHA256_Final(ihash, &ctx->ictx);
+
+	/* Feed the inner hash to the outer SHA256 operation. */
+	oSHA256_Update(&ctx->octx, ihash, OSHA256_DIGEST_LENGTH);
+
+	/* Finish the outer SHA256 operation. */
+	oSHA256_Final(digest, &ctx->octx);
+}
+
+/**
+ * PBKDF2_SHA256(passwd, passwdlen, salt, saltlen, c, buf, dkLen):
+ * Compute PBKDF2(passwd, salt, c, dkLen) using HMAC-SHA256 as the PRF, and
+ * write the output to buf.  The value dkLen must be at most 32 * (2^32 - 1).
+ */
+void oPBKDF2_SHA256(obliv const uint8_t * passwd, size_t passwdlen, obliv const uint8_t * salt, size_t saltlen, uint64_t c, uint8_t * buf, size_t dkLen) {
+	oHMAC_SHA256_CTX PShctx, hctx;
+	size_t ii;
+	obliv uint8_t ivec[4];
+	obliv uint8_t U[OSHA256_DIGEST_LENGTH];
+	obliv uint8_t T[OSHA256_DIGEST_LENGTH];
+	uint64_t jj;
+	int kk;
+	size_t clen;
+
+	/* Compute HMAC state after processing P and S. */
+	oHMAC_SHA256_Init(&PShctx, passwd, passwdlen);
+	oHMAC_SHA256_Update(&PShctx, salt, saltlen);
+
+	/* Iterate through the blocks. */
+	for (ii = 0; ii * 32 < dkLen; ii++) {
+		/* Generate INT(i + 1). */
+		be32enc(ivec, (uint32_t)(ii + 1));
+
+		/* Compute U_1 = PRF(P, S || INT(i)). */
+		for (kk=0; kk < 8; kk++) {
+			hctx.ictx.state[kk] = PShctx.ictx.state[kk];
+			hctx.octx.state[kk] = PShctx.octx.state[kk];
+		}
+		for (kk=0; kk < OSHA256_BLOCK; kk++) {
+			hctx.ictx.data[kk] = PShctx.ictx.data[kk];
+			hctx.octx.data[kk] = PShctx.octx.data[kk];
+		}
+		hctx.ictx.count = PShctx.ictx.count;
+		hctx.octx.count = PShctx.octx.count;
+
+		oHMAC_SHA256_Update(&hctx, ivec, 4);
+		oHMAC_SHA256_Final(U, &hctx);
+
+		/* T_i = U_1 ... */
+		for (kk = 0; kk < OSHA256_DIGEST_LENGTH; kk++) {
+			T[kk] = U[kk];
+		}
+
+		for (jj = 2; jj <= c; jj++) {
+			/* Compute U_j. */
+			oHMAC_SHA256_Init(&hctx, passwd, passwdlen);
+			oHMAC_SHA256_Update(&hctx, U, OSHA256_DIGEST_LENGTH);
+			oHMAC_SHA256_Final(U, &hctx);
+
+			/* ... xor U_j ... */
+			for (kk = 0; kk < OSHA256_DIGEST_LENGTH; kk++)
+				T[kk] ^= U[kk];
+		}
+
+		/* Copy as many bytes as necessary into buf. */
+		clen = dkLen - ii * 32;
+		if (clen > 32)
+			clen = 32;
+		for (kk = 0; kk < clen; kk++) {
+			buf[ii*32+kk] = T[kk];
+		}
+	}
+}
+

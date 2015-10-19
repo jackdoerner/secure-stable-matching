@@ -13,7 +13,7 @@ $(CILPATH)/_build/libobliv.a:
 test_obig: $(TSTDEPS) test_obig.oc test_obig_components/* $(SRCPATH)/obig.oc
 	$(OCC) $(CFLAGS) -I . -I $(SRCPATH) test_main.c $(SRCPATH)/util.c test_obig.oc $(SRCPATH)/obig.oc -o $@
 
-test_osha256: $(TSTDEPS) test_osha256.oc $(SRCPATH)/osha256.oc
+test_osha256: $(TSTDEPS) test_osha256.oc test_osha256_components/* $(SRCPATH)/osha256.oc
 	$(OCC) $(CFLAGS) -I . -I $(SRCPATH) -lssl -lcrypto test_main.c $(SRCPATH)/util.c test_osha256.oc $(SRCPATH)/osha256.oc -o $@
 
 test_osha512: $(TSTDEPS) test_osha512.oc $(SRCPATH)/osha512.oc

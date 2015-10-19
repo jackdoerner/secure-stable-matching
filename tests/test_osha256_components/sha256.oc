@@ -1,0 +1,101 @@
+{
+	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
+	uint8_t digest2[SHA256_DIGEST_LENGTH];
+	obliv uint8_t message[445];
+	char plaintext[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+	int msglen = 445;
+
+	for (int ii = 0; ii < msglen; ii++) {
+		message[ii] = ocBroadcastChar(plaintext[ii], 1);
+	}
+
+	oSHA256_CTX ctx;
+	oSHA256_Init(&ctx);
+	SHA256_CTX ctx2;
+	SHA256_Init(&ctx2);
+
+	uint32_t state[8];
+	for (int ii = 0; ii < 8; ii++) {
+		revealOblivInt(&state[ii], ctx.state[ii], 0);
+	}
+
+	bool success =  ctx2.h[0] == state[0] && ctx2.h[1] == state[1] && ctx2.h[2] == state[2] && ctx2.h[3] == state[3] && \
+					ctx2.h[4] == state[4] && ctx2.h[5] == state[5] && ctx2.h[6] == state[6] && ctx2.h[7] == state[7];
+	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA256_Init", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (!success) {
+		fprintf(stderr, "\tExpected:\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);
+		fprintf(stderr, "\tActual: \t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			state[0], state[1], state[2], state[3], state[4], state[5], state[6], state[7], state[8]);
+	}
+
+	oSHA256_Update(&ctx, message, OSHA256_BLOCK);
+	SHA256_Update(&ctx2, plaintext, OSHA256_BLOCK);
+
+	for (int ii = 0; ii < 8; ii++) {
+		revealOblivInt(&state[ii], ctx.state[ii], 0);
+	}
+
+	bool success =  ctx2.h[0] == state[0] && ctx2.h[1] == state[1] && ctx2.h[2] == state[2] && ctx2.h[3] == state[3] && \
+					ctx2.h[4] == state[4] && ctx2.h[5] == state[5] && ctx2.h[6] == state[6] && ctx2.h[7] == state[7];
+	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA256_Update - first round", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (!success) {
+		fprintf(stderr, "\tExpected:\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);
+		fprintf(stderr, "\tActual: \t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			state[0], state[1], state[2], state[3], state[4], state[5], state[6], state[7], state[8]);
+	}
+
+	oSHA256_Update(&ctx, &message[OSHA256_BLOCK], msglen - OSHA256_BLOCK);
+	SHA256_Update(&ctx2, &plaintext[OSHA256_BLOCK], msglen - OSHA256_BLOCK);
+
+	for (int ii = 0; ii < 8; ii++) {
+		revealOblivInt(&state[ii], ctx.state[ii], 0);
+	}
+
+	bool success =  ctx2.h[0] == state[0] && ctx2.h[1] == state[1] && ctx2.h[2] == state[2] && ctx2.h[3] == state[3] && \
+					ctx2.h[4] == state[4] && ctx2.h[5] == state[5] && ctx2.h[6] == state[6] && ctx2.h[7] == state[7];
+	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA256_Update - subsequent rounds", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (!success) {
+		fprintf(stderr, "\tExpected:\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);
+		fprintf(stderr, "\tActual: \t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			state[0], state[1], state[2], state[3], state[4], state[5], state[6], state[7], state[8]);
+	}
+
+	oSHA256_Final(digest, &ctx);
+	SHA256_Final(digest2, &ctx2);
+
+	for (int ii = 0; ii < 8; ii++) {
+		revealOblivInt(&state[ii], ctx.state[ii], 0);
+	}
+
+	bool success =  ctx2.h[0] == state[0] && ctx2.h[1] == state[1] && ctx2.h[2] == state[2] && ctx2.h[3] == state[3] && \
+					ctx2.h[4] == state[4] && ctx2.h[5] == state[5] && ctx2.h[6] == state[6] && ctx2.h[7] == state[7];
+
+	for (int ii = 0; ii < OSHA256_DIGEST_LENGTH; ii++) {
+		uint8_t temp;
+		revealOblivChar(&temp, digest[ii], 0);
+		success &= (temp == digest2[ii]);
+	}
+
+	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA256_Final", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	if(!success){
+		fprintf(stderr, "\tExpected State:\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);
+		fprintf(stderr, "\tActual State: \t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\t%08X\n",\
+			state[0], state[1], state[2], state[3], state[4], state[5], state[6], state[7], state[8]);
+		fprintf(stderr, "\tExpected Digest:\t");
+		for (int ii = 0; ii < SHA256_DIGEST_LENGTH; ii++) {
+			fprintf(stderr, "%02hhX", digest2[ii]);
+		}
+		fprintf(stderr, "\n\tActual Digest: \t\t");
+		for (int ii = 0; ii < OSHA256_DIGEST_LENGTH; ii++) {
+			uint8_t temp;
+			revealOblivChar(&temp, digest[ii], 0);
+			fprintf(stderr, "%02hhX", temp);
+		}
+	}
+
+	fprintf(stderr, "\n");
+}
