@@ -1,5 +1,7 @@
 fprintf(stderr, "\n");
 
+/* test vectors contained in this file are taken from http://tools.ietf.org/html/rfc4231 */
+
 {	
 	uint8_t data_raw[] = {
 		0x48, 0x69, 0x20, 0x54, 0x68, 0x65, 0x72, 0x65

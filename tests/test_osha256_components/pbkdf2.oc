@@ -1,5 +1,7 @@
 fprintf(stderr, "\n");
 
+/* test vectors contained in this file are taken from http://stackoverflow.com/questions/5130513/pbkdf2-hmac-sha2-test-vectors */
+
 {	
 	uint8_t password_raw[] = {
 		'p', 'a', 's', 's', 'w', 'o', 'r', 'd'
@@ -120,7 +122,8 @@ fprintf(stderr, "\n");
 		's', 'a', 'l', 't', 'S', 'A', 'L', 'T',
 		's', 'a', 'l', 't', 'S', 'A', 'L', 'T',
 		's', 'a', 'l', 't', 'S', 'A', 'L', 'T',
-		's', 'a', 'l', 't', 'S', 'A', 'L', 'T'
+		's', 'a', 'l', 't', 'S', 'A', 'L', 'T',
+		's', 'a', 'l', 't'
 	};
 	int saltlen = 36;
 	obliv uint8_t salt[36];
@@ -153,6 +156,59 @@ fprintf(stderr, "\n");
 	}
 
 	fprintf(stderr, "Test Item: %-60s %s\n", "oPBKDF2_SHA256 - 4096 iterations, 40 byte output", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (!success) {
+		fprintf(stderr, "\tExpected Digest:\t");
+		for (int ii = 0; ii < dkLen; ii++) {
+			fprintf(stderr, "%02hhX", expected_output[ii]);
+		}
+		fprintf(stderr, "\n\tActual Digest: \t\t");
+		for (int ii = 0; ii < dkLen; ii++) {
+			uint8_t temp;
+			revealOblivChar(&temp, output[ii], 0);
+			fprintf(stderr, "%02hhX", temp);
+		}
+		fprintf(stderr, "\n");
+	}
+}
+
+{	
+	uint8_t password_raw[] = {
+		'p', 'a', 's', 's', '\0', 'w', 'o', 'r', 'd',
+	};
+	int passwordlen = 9;
+	obliv uint8_t password[9];
+	uint8_t salt_raw[] = {
+		's', 'a', '\0', 'l', 't'
+	};
+	int saltlen = 5;
+	obliv uint8_t salt[5];
+
+	int c = 4096;
+	
+	uint8_t expected_output[] = {
+		0x89, 0xb6, 0x9d, 0x05, 0x16, 0xf8, 0x29, 0x89, 0x3c, 0x69, 0x62, 0x26, 0x65, 0x0a, 0x86, 0x87
+	};
+	int dkLen = 16;
+	obliv uint8_t output[16];
+
+	for (int ii = 0; ii < passwordlen; ii++) {
+		password[ii] = ocBroadcastChar(password_raw[ii], 1);
+	}
+
+	for (int ii = 0; ii < saltlen; ii++) {
+		salt[ii] = ocBroadcastChar(salt_raw[ii], 1);
+	}
+
+	oPBKDF2_SHA256(password, passwordlen, salt, saltlen, c, output, dkLen);
+
+	bool success = true;
+	for (int ii = 0; ii < dkLen; ii++) {
+		uint8_t temp;
+		revealOblivChar(&temp, output[ii], 0);
+		success &= (temp == expected_output[ii]);
+	}
+
+	fprintf(stderr, "Test Item: %-60s %s\n", "oPBKDF2_SHA256 - 4096 iterations, 16 byte output, with nulls", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < dkLen; ii++) {
