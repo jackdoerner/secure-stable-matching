@@ -1,0 +1,19 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+
+#include "oscrypt.oh"
+#include "test_generic.h"
+
+static const char TESTNAME[] = "oscrypt";
+
+char* testName() {
+	return TESTNAME;
+}
+
+void testMain(void*varg) {
+
+	fprintf(stderr, "\n");
+
+}
