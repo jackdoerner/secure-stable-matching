@@ -5,7 +5,7 @@ TSTDEPS=test_main.c $(CILPATH)/_build/libobliv.a
 REMOTE_HOST=localhost
 CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include
 
-default: test_obig test_osha256 test_osha512 test_osalsa20 test_oscrypt
+default: test_obig test_osha256 test_osha512 test_osalsa20 test_ochacha20 test_oscrypt
 
 $(CILPATH)/_build/libobliv.a:
 	cd $(CILPATH) && ./configure && make RELEASE=1
@@ -21,6 +21,9 @@ test_osha512: $(TSTDEPS) test_osha512.oc $(SRCPATH)/osha512.oc
 
 test_osalsa20: $(TSTDEPS) test_osalsa20.oc $(SRCPATH)/osalsa20.oc
 	$(OCC) $(CFLAGS) -I . -I $(SRCPATH) test_main.c $(SRCPATH)/util.c test_osalsa20.oc $(SRCPATH)/osalsa20.oc -o $@
+
+test_ochacha20: $(TSTDEPS) test_ochacha20.oc $(SRCPATH)/ochacha20.oc
+	$(OCC) $(CFLAGS) -I . -I $(SRCPATH) test_main.c $(SRCPATH)/util.c test_ochacha20.oc $(SRCPATH)/ochacha20.oc -o $@
 
 test_oscrypt: $(TSTDEPS) test_oscrypt.oc $(SRCPATH)/oscrypt.oc
 	$(OCC) $(CFLAGS) -I . -I $(SRCPATH) test_main.c $(SRCPATH)/util.c test_oscrypt.oc $(SRCPATH)/oscrypt.oc -o $@

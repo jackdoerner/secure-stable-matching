@@ -1,6 +1,8 @@
 #ifndef OBLIV_SALSA20_OH
 #define OBLIV_SALSA20_OH
 
+#include <obliv.oh>
+
 #define oSalsa20_8(B) oSalsa20(B, 8)
 #define oSalsa20_12(B) oSalsa20(B, 12)
 #define oSalsa20_20(B) oSalsa20(B, 20)
