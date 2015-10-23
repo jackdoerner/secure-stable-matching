@@ -1,4 +1,4 @@
-#include "ochacha20.oh"
+#include "ochacha.oh"
 
 #define Rotate(a,b) (((a) << (b)) | ((a) >> (32 - (b))))
 #define QR(a,b,c,d) a += b; d ^= a; d = Rotate(d,16); \
@@ -6,7 +6,7 @@
 					a += b; d ^= a; d = Rotate(d,8); \
 					c += d; b ^= c; b = Rotate(b,7);
 
-void oChacha20(obliv uint8_t B[64], int rounds) {
+void ochacha(obliv uint8_t B[64], int rounds) {
 	obliv uint32_t x[16];
 	size_t ii, jj;
 
@@ -17,7 +17,7 @@ void oChacha20(obliv uint8_t B[64], int rounds) {
 		}
 	}
 
-	oChacha20_Kernel(x, rounds);
+	ochacha_core(x, rounds);
 
 	for (ii = 0; ii < 16; ii++) {
 
@@ -28,7 +28,7 @@ void oChacha20(obliv uint8_t B[64], int rounds) {
 	}
 }
 
-void oChacha20_Kernel(obliv uint32_t x[16], int rounds) {
+void ochacha_core(obliv uint32_t x[16], int rounds) {
 	for (size_t ii = 0; ii < rounds; ii += 2) {
 
 		QR(x[0],x[4],x[8],x[12]);

@@ -1,8 +1,7 @@
-#include <stdio.h>
 #include <obliv.oh>
 
 #include "obig.oh"
-#include "montgomery.h"
+#include "omonty.oh"
 #include "util.h"
 
 void copy(obyte* dest, obyte* src, unsigned int bytes) {
@@ -383,92 +382,4 @@ void montgomeryLadder(obyte* x1, obyte* x, obyte* n, obyte* m) {
 		}
 	}
 	
-}
-
-void readString(obliv char* dest, int n, const char* src,int party)
-{
-  OblivInputs specs[BYTES];
-  int i;
-  for(i=0;i<n;++i) setupOblivChar(specs+i,dest+i,src[i]);
-  feedOblivInputs(specs,n,party);
-}
-
-void montgomeryMain(void* vargs) {
-	fprintf(stderr, "Executing Montgomery\n");
-
-	protocolIO *args = vargs;
-
-	obyte x[BYTES];
-	obyte n[BYTES];
-	obyte m[BYTES];
-	obyte r[BYTES];
-
-	for(int ii=0;ii<BYTES;ii++) {
-	fprintf(stderr, "%02X ", args->x[BYTES - 1 -ii] & 0xff);
-	}
-	fprintf(stderr, "\n");
-	for(int ii=0;ii<BYTES;ii++) {
-	fprintf(stderr, "%02X ", args->m[BYTES - 1 -ii] & 0xff);
-	}
-	fprintf(stderr, "\n");
-	for(int ii=0;ii<BYTES;ii++) {
-	fprintf(stderr, "%02X ", args->n[BYTES - 1 -ii] & 0xff);
-	}
-	fprintf(stderr, "\n");
-
-	feedOblivCharArray(x, args->x, BYTES, 1);
-	feedOblivCharArray(m, args->m, BYTES, 1);
-	feedOblivCharArray(n, args->n, BYTES, 2);
-
-	//subtract(r, x, n);
-
-	//oAddInPlace(x, n, BYTES);
-	//oShiftLeftOneBitInPlace(x, BYTES);
-	//shiftRightOneBitInPlace(x, BYTES);
-	/*for (int ii = 0; ii < BYTES; ii++) {
-		r[ii] = x[ii];
-	}*/
-
-	//twoToTheK(r, x[0], BYTES);
-
-	//r[0] = montgomeryFindKForM(n, BYTES);
-
-	obliv int k = extendedEuclid(r, x, n);
-
-	/*obyte longx[2*BYTES];
-	int ii =0;
-	for (; ii < BYTES; ii++) {
-		longx[ii] = x[ii];
-	}
-	for (; ii < 2*BYTES; ii++) {
-		longx[ii] = 0;
-	}
-	montgomeryReduce(r, x, n);*/
-
-	//montgomeryLadder(r, x, n, m);
-
-	//x[0] = 255;
-	//n[0] = 14;
-	//r[0] = cmp(x, n, BYTES);
-
-	//r[0] = 0x01;
-	//r[1] = 0xFF;
-	//r[2] = 0xFF;
-	//r[3] = 0xFF;
-	//oTwosComplimentInPlace(r, BYTES);
-
-	unsigned int temp;
-	revealOblivInt(&temp, k, 0);
-	fprintf(stderr, "%d\n", temp);
-
-	for(int ii=0;ii<BYTES;ii++) {
-		unsigned char temp;
-		revealOblivChar(&temp, r[BYTES - 1 -ii], 0);
-		fprintf(stderr, "%02X ", temp & 0xff);
-	}
-	fprintf(stderr, "\n");
-
-	for(int ii=0;ii<BYTES;ii++) revealOblivChar(args->result + ii,r[ii],0);
-
-	fprintf(stderr,"Yao gate count: %u\n",yaoGateCount());
 }

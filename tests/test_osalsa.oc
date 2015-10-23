@@ -3,10 +3,10 @@
 #include <obliv.oh>
 #include <stdbool.h>
 
-#include "osalsa20.oh"
+#include "osalsa.oh"
 #include "test_generic.h"
 
-static const char TESTNAME[] = "osalsa20";
+static const char TESTNAME[] = "osalsa";
 
 char* testName() {
 	return TESTNAME;
@@ -29,7 +29,7 @@ void testMain(void*varg) {
 			input[ii] = input_raw[ii];
 		}
 
-		oSalsa20_20(input);
+		osalsa20(input);
 
 		bool success = true;
 		for (int ii = 0; ii < 64; ii++) {
@@ -38,7 +38,7 @@ void testMain(void*varg) {
 			success &= (temp == expected_output[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "oSalsa20_20 - Test Case 1", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oSalsa20 - Test Case 1", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			fprintf(stderr, "\tExpected Output:\t");
 			for (int ii = 0; ii < 64; ii++) {
@@ -67,7 +67,7 @@ void testMain(void*varg) {
 			input[ii] = input_raw[ii];
 		}
 
-		oSalsa20_20(input);
+		osalsa20(input);
 
 		bool success = true;
 		for (int ii = 0; ii < 64; ii++) {
@@ -76,7 +76,7 @@ void testMain(void*varg) {
 			success &= (temp == expected_output[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "oSalsa20_20 - Test Case 2", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oSalsa20 - Test Case 2", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			fprintf(stderr, "\tExpected Output:\t");
 			for (int ii = 0; ii < 64; ii++) {
@@ -105,7 +105,7 @@ void testMain(void*varg) {
 			input[ii] = input_raw[ii];
 		}
 
-		oSalsa20_20(input);
+		osalsa20(input);
 
 		bool success = true;
 		for (int ii = 0; ii < 64; ii++) {
@@ -114,7 +114,7 @@ void testMain(void*varg) {
 			success &= (temp == expected_output[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "oSalsa20_20 - Test Case 3", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oSalsa20 - Test Case 3", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			fprintf(stderr, "\tExpected Output:\t");
 			for (int ii = 0; ii < 64; ii++) {

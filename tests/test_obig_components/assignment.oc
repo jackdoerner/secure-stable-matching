@@ -29,7 +29,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_set_native - random data", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_native - random data", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if ((x != output)) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", x, output);
 	}
@@ -60,7 +60,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_set_native - random data, extended output", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_native - random data, extended output", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if ((x != output)) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", x, output);
 	}
@@ -93,7 +93,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_set_native - random data, truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_native - random data, truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if ((expected != output)) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}

@@ -41,7 +41,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 1", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 1", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < SHA256_DIGEST_LENGTH; ii++) {
@@ -96,7 +96,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 2", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 2", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < SHA256_DIGEST_LENGTH; ii++) {
@@ -154,7 +154,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 3", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 3", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < SHA256_DIGEST_LENGTH; ii++) {
@@ -212,7 +212,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 4", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 4", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < SHA256_DIGEST_LENGTH; ii++) {
@@ -267,7 +267,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 5", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 5", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < SHA256_DIGEST_LENGTH/2; ii++) {
@@ -332,7 +332,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 6", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 6", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < SHA256_DIGEST_LENGTH; ii++) {
@@ -403,7 +403,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 7", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oHMAC_SHA256 - RFC4231 Test Case 7", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < SHA256_DIGEST_LENGTH; ii++) {

@@ -7,17 +7,17 @@ typedef unsigned char byte;
 typedef obliv unsigned char obyte;
 
 typedef struct obig {
-	unsigned int digits;
+	size_t digits;
 	obyte* data;
 } obig;
 
 /* memory management */
 
-void obig_init(obig* x, int bytes);
+void obig_init(obig* x, size_t bytes);
 void obig_free(obig* x);
 
-void obig_resize(obig* x, int bytes);
-void obig_resize_signed(obig* x, int bytes);
+void obig_resize(obig* x, size_t bytes);
+void obig_resize_signed(obig* x, size_t bytes);
 void obig_match_sizes(obig* x, obig* y);
 void obig_match_sizes_signed(obig* x, obig* y);
 

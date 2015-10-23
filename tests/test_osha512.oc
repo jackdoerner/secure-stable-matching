@@ -38,7 +38,7 @@ void testMain(void*varg) {
 
 	bool success =  ctx2.h[0] == state[0] && ctx2.h[1] == state[1] && ctx2.h[2] == state[2] && ctx2.h[3] == state[3] && \
 					ctx2.h[4] == state[4] && ctx2.h[5] == state[5] && ctx2.h[6] == state[6] && ctx2.h[7] == state[7];
-	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA512_Init", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oSHA512_Init", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected:\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\n",\
 			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);
@@ -55,7 +55,7 @@ void testMain(void*varg) {
 
 	bool success =  ctx2.h[0] == state[0] && ctx2.h[1] == state[1] && ctx2.h[2] == state[2] && ctx2.h[3] == state[3] && \
 					ctx2.h[4] == state[4] && ctx2.h[5] == state[5] && ctx2.h[6] == state[6] && ctx2.h[7] == state[7];
-	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA512_Update - first round", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oSHA512_Update - first round", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected:\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\n",\
 			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);
@@ -72,7 +72,7 @@ void testMain(void*varg) {
 
 	bool success =  ctx2.h[0] == state[0] && ctx2.h[1] == state[1] && ctx2.h[2] == state[2] && ctx2.h[3] == state[3] && \
 					ctx2.h[4] == state[4] && ctx2.h[5] == state[5] && ctx2.h[6] == state[6] && ctx2.h[7] == state[7];
-	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA512_Update - subsequent rounds", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oSHA512_Update - subsequent rounds", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected:\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\n",\
 			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);
@@ -91,7 +91,7 @@ void testMain(void*varg) {
 		success &= (temp == digest2[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oSHA512_Final", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oSHA512_Final", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if(!success){
 		fprintf(stderr, "\tExpected State:\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\t%016llX\n",\
 			ctx2.h[0], ctx2.h[1], ctx2.h[2], ctx2.h[3], ctx2.h[4], ctx2.h[5], ctx2.h[6], ctx2.h[7]);

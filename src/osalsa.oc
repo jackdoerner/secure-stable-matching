@@ -1,6 +1,6 @@
-#include "osalsa20.oh"
+#include "osalsa.oh"
 
-void oSalsa20(obliv uint8_t B[64], int rounds) {
+void osalsa(obliv uint8_t B[64], int rounds) {
 	obliv uint32_t x[16];
 	size_t ii, jj;
 
@@ -11,7 +11,7 @@ void oSalsa20(obliv uint8_t B[64], int rounds) {
 		}
 	}
 
-	oSalsa20_Kernel(x, rounds);
+	osalsa_core(x, rounds);
 
 	for (ii = 0; ii < 16; ii++) {
 
@@ -22,7 +22,7 @@ void oSalsa20(obliv uint8_t B[64], int rounds) {
 	}
 }
 
-void oSalsa20_Kernel(obliv uint32_t x[16], int rounds) {
+void osalsa_core(obliv uint32_t x[16], int rounds) {
 	for (size_t ii = 0; ii < rounds; ii += 2) {
 #define R(a,b) (((a) << (b)) | ((a) >> (32 - (b))))
 		/* Operate on columns. */

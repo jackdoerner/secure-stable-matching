@@ -32,7 +32,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -66,7 +66,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -99,7 +99,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -134,7 +134,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -170,7 +170,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -206,7 +206,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -243,7 +243,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -279,7 +279,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_add - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -321,7 +321,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -350,7 +350,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg - augmented assignment", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - augmented assignment", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -380,7 +380,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -412,7 +412,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -444,7 +444,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_neg - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -489,7 +489,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -525,7 +525,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -559,7 +559,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -592,7 +592,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -627,7 +627,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -663,7 +663,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -700,7 +700,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - extended output, x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - extended output, x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -737,7 +737,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - extended output, x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - extended output, x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -773,7 +773,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "obig_sub - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}

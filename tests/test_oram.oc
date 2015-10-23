@@ -1,0 +1,182 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+
+#include "oram.oh"
+#include "test_generic.h"
+
+static const char TESTNAME[] = "oram";
+
+char* testName() {
+	return TESTNAME;
+}
+
+void shuffle(uint32_t *array, size_t n) {
+    if (n > 1) {
+        size_t i;
+        for (i = 0; i < n - 1; i++) 
+        {
+          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+          int t = array[j];
+          array[j] = array[i];
+          array[i] = t;
+        }
+    }
+}
+
+void testMain(void*varg) {
+
+	{
+		uint32_t input_raw[256];
+		uint32_t order_raw[256];
+
+		for (int ii = 0; ii < 256; ii++) {
+			input_raw[ii] = ii;
+			order_raw[ii] = ii;
+		}
+
+		shuffle(input_raw, 256);
+		shuffle(order_raw, 256);
+
+		oram o;
+		oram_init(&o, 256);
+
+		for (int ii = 0; ii < 256; ii++) {
+			obliv size_t index = order_raw[ii];
+			obliv uint32_t value = input_raw[ii];
+			oram_write(&o, value, index);
+		}
+
+		bool success = true;
+
+		for (int ii = 0; ii < 256; ii++) {
+			uint32_t temp;
+			obliv uint32_t value;
+			obliv size_t index = order_raw[ii];
+			oram_read(&value, &o, index);
+			revealOblivInt(&temp, value, 0);
+			success &= (temp == input_raw[ii]);
+		}
+
+		oram_free(&o);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oram_write/oram_read", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+
+		oram o;
+		oram_init(&o, 256);
+
+		bool success = true;
+
+		for (int ii = -2; ii < 258; ii++) {
+			bool temp;
+			obliv bool write_success;
+			obliv size_t index = ii;
+			obliv uint32_t value = ii;
+			write_success = oram_write(&o, value, index);
+			revealOblivBool(&temp, write_success, 0);
+			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
+		}
+
+		oram_free(&o);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oram_write - bounds checking", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+		uint32_t input_raw[256];
+		uint32_t order_raw[256];
+
+		for (int ii = 0; ii < 256; ii++) {
+			input_raw[ii] = ii;
+			order_raw[ii] = ii;
+		}
+
+		shuffle(input_raw, 256);
+		shuffle(order_raw, 256);
+
+		oram o;
+		oram_init(&o, 256);
+
+		for (int ii = 0; ii < 256; ii++) {
+			obliv size_t index = order_raw[ii];
+			obliv uint32_t value = input_raw[ii];
+			oram_write(&o, value, index);
+		}
+
+		bool success = true;
+
+		for (int ii = -2; ii < 258; ii++) {
+			bool temp;
+			obliv bool read_success;
+			obliv uint32_t value;
+			obliv size_t index = ii;
+			read_success = oram_read(&value, &o, index);
+			revealOblivBool(&temp, read_success, 0);
+			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
+		}
+
+		oram_free(&o);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oram_read - bounds checking", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+
+		oram o;
+		oram_init(&o, 128);
+
+		bool success = true;
+
+		for (int ii = -2; ii < 130; ii++) {
+			bool temp;
+			obliv bool write_success;
+			obliv size_t index = ii;
+			obliv uint32_t value = ii;
+			write_success = oram_write(&o, value, index);
+			revealOblivBool(&temp, write_success, 0);
+			success &= (temp == true && (ii >= 0 || ii < 128)) != (temp == false && (ii < 0 || ii >= 128));
+		}
+
+		oram_expand(&o, 256);
+
+		for (int ii = -2; ii < 128; ii++) {
+			bool temp;
+			uint32_t tempval;
+			obliv bool read_success;
+			obliv size_t index = ii;
+			obliv uint32_t value;
+			read_success = oram_read(&value, &o, index);
+			revealOblivBool(&temp, read_success, 0);
+			revealOblivInt(&tempval, value, 0);
+			success &= (temp == true && (ii >= 0 || ii < 256) && tempval == ii) != (temp == false && (ii < 0 || ii >= 256));
+		}
+
+
+		for (int ii = 128; ii < 258; ii++) {
+			bool temp;
+			obliv bool write_success;
+			obliv size_t index = ii;
+			obliv uint32_t value = ii;
+			write_success = oram_write(&o, value, index);
+			revealOblivBool(&temp, write_success, 0);
+			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
+		}
+
+		oram_free(&o);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oram_resize", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+
+
+	fprintf(stderr, "\n");
+
+}

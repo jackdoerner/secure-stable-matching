@@ -1,1 +1,42 @@
 #include "oscrypt.oh"
+
+void blockmix_salsa8(obliv const uint32_t * Bin, obliv uint32_t * Bout, obliv uint32_t * X, size_t r) {
+	size_t ii, jj;
+
+	/* 1: X <-- B_{2r - 1} */
+	for (jj = 0; jj < 64; jj++) {
+		X[jj] = Bin[(2*r -1) * 16 + jj];
+	}
+
+	/* 2: for i = 0 to 2r - 1 do */
+	for (ii = 0; ii < 2 * r; ii += 2) {
+		/* 3: X <-- H(X \xor B_i) */
+
+		for (jj = 0; jj < 64; jj++) {
+			X[jj] ^= Bin[ii * 16 + jj];
+		}
+
+		osalsa8(X);
+
+		/* 4: Y_i <-- X */
+		/* 6: B' <-- (Y_0, Y_2 ... Y_{2r-2}, Y_1, Y_3 ... Y_{2r-1}) */
+
+		/* 3: X <-- H(X \xor B_i) */
+		for (jj = 0; jj < 64; jj++) {
+			Bout[ii * 8 + jj] = X[jj];
+			X[jj] ^= Bin[ii * 16 + 16 + jj];
+		}
+
+		osalsa8(X);
+
+		/* 4: Y_i <-- X */
+		/* 6: B' <-- (Y_0, Y_2 ... Y_{2r-2}, Y_1, Y_3 ... Y_{2r-1}) */
+		for (jj = 0; jj < 64; jj++) {
+			Bout[ii * 8 + r * 16 + jj] = X[jj];
+		}
+	}
+}
+
+void scrypt_smix(obliv uint8_t *, size_t, uint64_t, obliv uint8_t *, obliv uint8_t *);
+
+obliv int oscrypt(obliv const uint8_t *, size_t, obliv const uint8_t *, size_t, uint64_t, uint32_t, uint32_t, obliv uint8_t *, size_t);

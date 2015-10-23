@@ -40,7 +40,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oPBKDF2_SHA256 - one iteration, 32 byte output", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oPBKDF2_SHA256 - one iteration, 32 byte output", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < dkLen; ii++) {
@@ -94,7 +94,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oPBKDF2_SHA256 - two iterations, 32 byte output", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oPBKDF2_SHA256 - two iterations, 32 byte output", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < dkLen; ii++) {
@@ -155,7 +155,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oPBKDF2_SHA256 - 4096 iterations, 40 byte output", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oPBKDF2_SHA256 - 4096 iterations, 40 byte output", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < dkLen; ii++) {
@@ -208,7 +208,7 @@ fprintf(stderr, "\n");
 		success &= (temp == expected_output[ii]);
 	}
 
-	fprintf(stderr, "Test Item: %-60s %s\n", "oPBKDF2_SHA256 - 4096 iterations, 16 byte output, with nulls", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "oPBKDF2_SHA256 - 4096 iterations, 16 byte output, with nulls", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (!success) {
 		fprintf(stderr, "\tExpected Digest:\t");
 		for (int ii = 0; ii < dkLen; ii++) {

@@ -3,10 +3,10 @@
 #include <obliv.oh>
 #include <stdbool.h>
 
-#include "ochacha20.oh"
+#include "ochacha.oh"
 #include "test_generic.h"
 
-static const char TESTNAME[] = "ochacha20";
+static const char TESTNAME[] = "ochacha";
 
 char* testName() {
 	return TESTNAME;
@@ -35,7 +35,7 @@ void testMain(void*varg) {
 			input[ii] = input_raw[ii];
 		}
 
-		oChacha20_20(input);
+		ochacha20(input);
 
 		bool success = true;
 		for (int ii = 0; ii < 64; ii++) {
@@ -44,7 +44,7 @@ void testMain(void*varg) {
 			success &= (temp == expected_output[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "oChacha20_20 - Test Case 1", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oChacha20 - Test Case 1", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			fprintf(stderr, "\tExpected Output:\t");
 			for (int ii = 0; ii < 64; ii++) {
@@ -79,7 +79,7 @@ void testMain(void*varg) {
 			input[ii] = input_raw[ii];
 		}
 
-		oChacha20_20(input);
+		ochacha20(input);
 
 		bool success = true;
 		for (int ii = 0; ii < 64; ii++) {
@@ -88,7 +88,7 @@ void testMain(void*varg) {
 			success &= (temp == expected_output[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "oChacha20_20 - Test Case 2", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oChacha20 - Test Case 2", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			fprintf(stderr, "\tExpected Output:\t");
 			for (int ii = 0; ii < 64; ii++) {
@@ -123,7 +123,7 @@ void testMain(void*varg) {
 			input[ii] = input_raw[ii];
 		}
 
-		oChacha20_20(input);
+		ochacha20(input);
 
 		bool success = true;
 		for (int ii = 0; ii < 64; ii++) {
@@ -132,7 +132,7 @@ void testMain(void*varg) {
 			success &= (temp == expected_output[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-60s %s\n", "oChacha20_20 - Test Case 3", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oChacha20 - Test Case 3", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			fprintf(stderr, "\tExpected Output:\t");
 			for (int ii = 0; ii < 64; ii++) {
