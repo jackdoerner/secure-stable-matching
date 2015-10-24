@@ -25,33 +25,6 @@ static uint32_t SHA256_k[64] = {
 	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-void be32enc_vect(obliv uint8_t * dst, obliv const uint32_t * src, size_t len) {
-	for (size_t ii = 0; ii < len / 4; ii++) {
-		dst[ii * 4 + 3] = src[ii] & 0xFF;
-		dst[ii * 4 + 2] = (src[ii] >> 8) & 0xFF;
-		dst[ii * 4 + 1] = (src[ii] >> 16) & 0xFF;
-		dst[ii * 4 + 0] = (src[ii] >> 24) & 0xFF;
-	}
-}
-
-void be32enc(obliv uint8_t * dst, uint32_t x) {
-	dst[3] = x & 0xff;
-	dst[2] = (x >> 8) & 0xff;
-	dst[1] = (x >> 16) & 0xff;
-	dst[0] = (x >> 24) & 0xff;
-}
-
-void be64enc(obliv uint8_t * dst, uint64_t x) {
-	dst[7] = x & 0xff;
-	dst[6] = (x >> 8) & 0xff;
-	dst[5] = (x >> 16) & 0xff;
-	dst[4] = (x >> 24) & 0xff;
-	dst[3] = (x >> 32) & 0xff;
-	dst[2] = (x >> 40) & 0xff;
-	dst[1] = (x >> 48) & 0xff;
-	dst[0] = (x >> 56) & 0xff;
-}
-
 void oSHA256_Init(oSHA256_CTX *ctx) {
 	ctx->state[0] = 0x6a09e667;
 	ctx->state[1] = 0xbb67ae85;

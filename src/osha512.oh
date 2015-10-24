@@ -2,6 +2,7 @@
 #define OBLIV_SHA512_OH
 
 #include <obliv.oh>
+#include "endian.oh"
 
 #define OSHA512_BLOCK 128
 #define OSHA512_DIGEST_LENGTH 64

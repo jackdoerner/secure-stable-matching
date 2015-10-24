@@ -2,6 +2,7 @@
 #define OBLIV_SHA256_OH
 
 #include <obliv.oh>
+#include "endian.oh"
 
 #define OSHA256_BLOCK 64
 #define OSHA256_DIGEST_LENGTH 32

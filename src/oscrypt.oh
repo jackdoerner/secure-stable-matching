@@ -2,9 +2,15 @@
 #define OBLIV_SCRYPT_OH
 
 #include <obliv.oh>
+#include "endian.oh"
+#include "osha256.oh"
 #include "osalsa.oh"
 #include "oram.oh"
 
-obliv int oscrypt(obliv const uint8_t *, size_t, obliv const uint8_t *, size_t, uint64_t, uint32_t, uint32_t, obliv uint8_t *, size_t);
+void oscrypt_blockmix_salsa8(obliv const uint32_t *, obliv uint32_t *, size_t);
+
+void oscrypt_smix(obliv uint8_t *, size_t, uint64_t);
+
+void oscrypt(obliv const uint8_t *, size_t, obliv const uint8_t *, size_t, uint64_t, size_t, size_t, obliv uint8_t *, size_t);
 
 #endif

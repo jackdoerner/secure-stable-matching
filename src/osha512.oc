@@ -35,30 +35,6 @@ static uint64_t SHA512_k[80] = {
     0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 };
 
-void be64enc_vect(obliv uint8_t * dst, obliv const uint64_t * src, size_t len) {
-	for (size_t ii = 0; ii < len / 8; ii++) {
-		dst[ii * 8 + 7] = src[ii] & 0xFF;
-		dst[ii * 8 + 6] = (src[ii] >> 8) & 0xFF;
-		dst[ii * 8 + 5] = (src[ii] >> 16) & 0xFF;
-		dst[ii * 8 + 4] = (src[ii] >> 24) & 0xFF;
-		dst[ii * 8 + 3] = (src[ii] >> 32) & 0xFF;
-		dst[ii * 8 + 2] = (src[ii] >> 40) & 0xFF;
-		dst[ii * 8 + 1] = (src[ii] >> 48) & 0xFF;
-		dst[ii * 8 + 0] = (src[ii] >> 56) & 0xFF;
-	}
-}
-
-void be64enc(obliv uint8_t * p, uint64_t x) {
-	p[7] = x & 0xff;
-	p[6] = (x >> 8) & 0xff;
-	p[5] = (x >> 16) & 0xff;
-	p[4] = (x >> 24) & 0xff;
-	p[3] = (x >> 32) & 0xff;
-	p[2] = (x >> 40) & 0xff;
-	p[1] = (x >> 48) & 0xff;
-	p[0] = (x >> 56) & 0xff;
-}
-
 void oSHA512_Init(oSHA512_CTX *ctx) {
 	ctx->state[0] = 0x6a09e667f3bcc908;
 	ctx->state[1] = 0xbb67ae8584caa73b;
