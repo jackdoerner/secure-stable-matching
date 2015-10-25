@@ -10,13 +10,16 @@ fprintf(stderr, "\n");
 	unsigned int x = 0x7E48A840;
 	unsigned int expected = ~x;
 
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
 	obig x_test;
 	obig result;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
+	obig_set_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -41,11 +44,14 @@ fprintf(stderr, "\n");
 	unsigned int x = 0x7E48A840;
 	unsigned int expected = ~x;
 
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
 	obig x_test;
 
 	obig_init(&x_test, sizeof(int));
 
-	obig_set_native(&x_test, x);
+	obig_set_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -70,13 +76,16 @@ fprintf(stderr, "\n");
 	unsigned long long expected = x;
 	expected = ~expected;
 
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
 	obig x_test;
 	obig result;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_native(&x_test, x);
+	obig_set_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -102,13 +111,16 @@ fprintf(stderr, "\n");
 	unsigned short expected = x;
 	expected = ~expected;
 
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
 	obig x_test;
 	obig result;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_native(&x_test, x);
+	obig_set_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned short output;
 
@@ -145,6 +157,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x & y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -153,8 +170,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -181,14 +198,19 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x & y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -214,14 +236,19 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x & y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -247,6 +274,11 @@ fprintf(stderr, "\n");
 	unsigned short y = 0xDD18;
 	unsigned int expected = x & y;
 
+	obliv unsigned int xo;
+	obliv unsigned short yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivShort(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -255,8 +287,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(short));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -283,6 +315,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x & y;
 
+	obliv unsigned short xo;
+	obliv unsigned int yo;
+	xo = feedOblivShort(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -291,8 +328,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -320,6 +357,11 @@ fprintf(stderr, "\n");
 	unsigned long long expected = x;
 	expected &= y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -328,8 +370,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -356,6 +398,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0xA7E0DD18;
 	unsigned short expected = x & y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -364,8 +411,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned short output;
 
@@ -402,6 +449,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x | y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -410,8 +462,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -438,14 +490,19 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x | y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -471,14 +528,19 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x | y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -504,6 +566,11 @@ fprintf(stderr, "\n");
 	unsigned short y = 0xDD18;
 	unsigned int expected = x | y;
 
+	obliv unsigned int xo;
+	obliv unsigned short yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivShort(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -512,8 +579,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(short));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -540,6 +607,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x | y;
 
+	obliv unsigned short xo;
+	obliv unsigned int yo;
+	xo = feedOblivShort(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -548,8 +620,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -577,6 +649,11 @@ fprintf(stderr, "\n");
 	unsigned long long expected = x;
 	expected |= y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -585,8 +662,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -613,6 +690,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0xA7E0DD18;
 	unsigned short expected = x | y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -621,8 +703,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned short output;
 
@@ -659,6 +741,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x ^ y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -667,8 +754,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -695,14 +782,19 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x ^ y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -728,14 +820,19 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x ^ y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -761,6 +858,11 @@ fprintf(stderr, "\n");
 	unsigned short y = 0xDD18;
 	unsigned int expected = x ^ y;
 
+	obliv unsigned int xo;
+	obliv unsigned short yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivShort(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -769,8 +871,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(short));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -797,6 +899,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0x47E0DD18;
 	unsigned int expected = x ^ y;
 
+	obliv unsigned short xo;
+	obliv unsigned int yo;
+	xo = feedOblivShort(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -805,8 +912,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -834,6 +941,11 @@ fprintf(stderr, "\n");
 	unsigned long long expected = x;
 	expected ^= y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -842,8 +954,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -870,6 +982,11 @@ fprintf(stderr, "\n");
 	unsigned int y = 0xA7E0DD18;
 	unsigned short expected = x ^ y;
 
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
 	obig x_test;
 	obig y_test;
 	obig result;
@@ -878,8 +995,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_native(&x_test, x);
-	obig_set_native(&y_test, y);
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned short output;
 

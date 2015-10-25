@@ -1,13 +1,14 @@
 /******************************************
  ******************************************
- *** obig_set_native
+ *** obig_set_onative
  ******************************************
  ******************************************/
 
 fprintf(stderr, "\n");
 
-{	// obig_set_native - random data
+{	// obig_set_onative - random data
 	unsigned long long x;
+	obliv unsigned long long xo;
 	obig x_test;
 
 	obig_init(&x_test, sizeof(long long));
@@ -17,9 +18,9 @@ fprintf(stderr, "\n");
 		x += rand();
 	}
 
-	x = ocBroadcastLLong(x, 1);
+	xo = feedOblivLLong(x, 1);
 
-	obig_set_native(&x_test, x);
+	obig_set_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -29,7 +30,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_native - random data", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_onative - random data", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if ((x != output)) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", x, output);
 	}
@@ -37,8 +38,9 @@ fprintf(stderr, "\n");
 	obig_free(&x_test);
 }
 
-{	// obig_set_native - random data, extended output
+{	// obig_set_onative - random data, extended output
 	unsigned long long x;
+	obliv unsigned long long xo;
 	obig x_test;
 
 	obig_init(&x_test, sizeof(long long) * 2);
@@ -48,9 +50,9 @@ fprintf(stderr, "\n");
 		x += rand();
 	}
 
-	x = ocBroadcastLLong(x, 1);
+	xo = feedOblivLLong(x, 1);
 
-	obig_set_native(&x_test, x);
+	obig_set_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -60,7 +62,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_native - random data, extended output", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_onative - random data, extended output", (x == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if ((x != output)) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", x, output);
 	}
@@ -68,8 +70,9 @@ fprintf(stderr, "\n");
 	obig_free(&x_test);
 }
 
-{	// obig_set_native - random data, truncated output
+{	// obig_set_onative - random data, truncated output
 	unsigned long long x;
+	obliv unsigned long long xo;
 	obig x_test;
 
 	obig_init(&x_test, sizeof(int));
@@ -79,11 +82,12 @@ fprintf(stderr, "\n");
 		x += rand();
 	}
 
-	x = ocBroadcastLLong(x, 1);
+	xo = feedOblivLLong(x, 1);
 
 	unsigned int expected = x;
 
-	obig_set_native(&x_test, x);
+	obig_set_onative(&x_test, xo);
+	
 	unsigned char temp;
 	unsigned int output;
 
@@ -93,7 +97,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_native - random data, truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_set_onative - random data, truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if ((expected != output)) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}

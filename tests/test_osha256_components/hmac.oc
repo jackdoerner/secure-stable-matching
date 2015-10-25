@@ -20,11 +20,11 @@ fprintf(stderr, "\n");
 	};
 
 	for (int ii = 0; ii < datalen; ii++) {
-		data[ii] = ocBroadcastChar(data_raw[ii], 1);
+		data[ii] = feedOblivChar(data_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < keylen; ii++) {
-		key[ii] = ocBroadcastChar(key_raw[ii], 1);
+		key[ii] = feedOblivChar(key_raw[ii], 2);
 	}
 
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
@@ -75,11 +75,11 @@ fprintf(stderr, "\n");
 	};
 	
 	for (int ii = 0; ii < datalen; ii++) {
-		data[ii] = ocBroadcastChar(data_raw[ii], 1);
+		data[ii] = feedOblivChar(data_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < keylen; ii++) {
-		key[ii] = ocBroadcastChar(key_raw[ii], 1);
+		key[ii] = feedOblivChar(key_raw[ii], 2);
 	}
 
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
@@ -133,11 +133,11 @@ fprintf(stderr, "\n");
 	};
 	
 	for (int ii = 0; ii < datalen; ii++) {
-		data[ii] = ocBroadcastChar(data_raw[ii], 1);
+		data[ii] = feedOblivChar(data_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < keylen; ii++) {
-		key[ii] = ocBroadcastChar(key_raw[ii], 1);
+		key[ii] = feedOblivChar(key_raw[ii], 2);
 	}
 
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
@@ -191,11 +191,11 @@ fprintf(stderr, "\n");
 	};
 	
 	for (int ii = 0; ii < datalen; ii++) {
-		data[ii] = ocBroadcastChar(data_raw[ii], 1);
+		data[ii] = feedOblivChar(data_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < keylen; ii++) {
-		key[ii] = ocBroadcastChar(key_raw[ii], 1);
+		key[ii] = feedOblivChar(key_raw[ii], 2);
 	}
 
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
@@ -246,11 +246,11 @@ fprintf(stderr, "\n");
 	};
 	
 	for (int ii = 0; ii < datalen; ii++) {
-		data[ii] = ocBroadcastChar(data_raw[ii], 1);
+		data[ii] = feedOblivChar(data_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < keylen; ii++) {
-		key[ii] = ocBroadcastChar(key_raw[ii], 1);
+		key[ii] = feedOblivChar(key_raw[ii], 2);
 	}
 
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
@@ -311,11 +311,11 @@ fprintf(stderr, "\n");
 	};
 	
 	for (int ii = 0; ii < datalen; ii++) {
-		data[ii] = ocBroadcastChar(data_raw[ii], 1);
+		data[ii] = feedOblivChar(data_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < keylen; ii++) {
-		key[ii] = ocBroadcastChar(key_raw[ii], 1);
+		key[ii] = feedOblivChar(key_raw[ii], 2);
 	}
 
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];
@@ -382,11 +382,11 @@ fprintf(stderr, "\n");
 	};
 	
 	for (int ii = 0; ii < datalen; ii++) {
-		data[ii] = ocBroadcastChar(data_raw[ii], 1);
+		data[ii] = feedOblivChar(data_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < keylen; ii++) {
-		key[ii] = ocBroadcastChar(key_raw[ii], 1);
+		key[ii] = feedOblivChar(key_raw[ii], 2);
 	}
 
 	obliv uint8_t digest[OSHA256_DIGEST_LENGTH];

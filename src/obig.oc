@@ -161,13 +161,29 @@ void obig_one_obliv(obig* x) obliv {
 	}
 }
 
-void obig_set_native(obig* x, long long y) {
-	obig_set_pointed(x, &y, sizeof(y));
+void obig_set_onative(obig* x, obliv unsigned long long y) {
+	for (size_t ii = 0; ii < x->digits; ii++) {
+		if (ii < 16) {
+			x->data[ii] = y >> (8 * ii);
+		} else {
+			x->data[ii] = 0;
+		}
+	}
 }
 
-/*void obig_set_onative(obig* x, obliv long long y) {
-	obig_set_opointed(x, &y, sizeof(long long));
-}*/
+void obig_set_onative_signed(obig* x, obliv long long y) {
+	for (size_t ii = 0; ii < x->digits; ii++) {
+		if (ii < 16) {
+			x->data[ii] = y >> (8 * ii);
+		} else {
+			obliv if (y < 0) {
+				x->data[ii] = 0xFF;
+			} else {
+				x->data[ii] = 0;
+			}
+		}
+	}
+}
 
 void obig_set_pointed(obig* x, void* p, size_t s) {
 	for (size_t ii = 0; ii < x->digits; ii++) {
@@ -183,23 +199,29 @@ void obig_set_pointed(obig* x, void* p, size_t s) {
 	}
 }
 
-void obig_set_opointed(obig* x, void* p, size_t s) {
+void obig_set_onative_obliv(obig* x, obliv unsigned long long y) obliv {
 	for (size_t ii = 0; ii < x->digits; ii++) {
-		if (x < s) {
-			//x->data[ii] = *p >> (ii * 8);
+		if (ii < 16) {
+			x->data[ii] = y >> (8 * ii);
 		} else {
 			x->data[ii] = 0;
 		}
 	}
 }
 
-void obig_set_native_obliv(obig* x, long long y) obliv {
-	obig_set_pointed_obliv(x, &y, sizeof(y));
+void obig_set_onative_signed_obliv(obig* x, obliv long long y) obliv {
+	for (size_t ii = 0; ii < x->digits; ii++) {
+		if (ii < 16) {
+			x->data[ii] = y >> (8 * ii);
+		} else {
+			obliv if (y < 0) {
+				x->data[ii] = 0xFF;
+			} else {
+				x->data[ii] = 0;
+			}
+		}
+	}
 }
-
-/*void obig_set_onative_obliv(obig* x, obliv long long y) obliv {
-	obig_set_opointed(x, &y, sizeof(long long));
-}*/
 
 void obig_set_pointed_obliv(obig* x, void* p, size_t s) obliv {
 	for (size_t ii = 0; ii < x->digits; ii++) {
@@ -214,16 +236,6 @@ void obig_set_pointed_obliv(obig* x, void* p, size_t s) obliv {
 		}
 	}
 }
-
-/*void obig_set_opointed_obliv(obig* x, obliv void* p, size_t s) obliv {
-	for (unsigned int ii = 0; ii < x->digits; ii++) {
-		if (x < s) {
-			x->data[ii] = *p >> (ii * 8);
-		} else {
-			x->data[ii] = 0;
-		}
-	}
-}*/
 
 /* comparators */
 

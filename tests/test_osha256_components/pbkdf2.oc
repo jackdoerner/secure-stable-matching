@@ -24,11 +24,11 @@ fprintf(stderr, "\n");
 	obliv uint8_t output[32];
 
 	for (int ii = 0; ii < passwordlen; ii++) {
-		password[ii] = ocBroadcastChar(password_raw[ii], 1);
+		password[ii] = feedOblivChar(password_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < saltlen; ii++) {
-		salt[ii] = ocBroadcastChar(salt_raw[ii], 1);
+		salt[ii] = feedOblivChar(salt_raw[ii], 2);
 	}
 
 	oPBKDF2_SHA256(password, passwordlen, salt, saltlen, c, output, dkLen);
@@ -78,11 +78,11 @@ fprintf(stderr, "\n");
 	obliv uint8_t output[32];
 
 	for (int ii = 0; ii < passwordlen; ii++) {
-		password[ii] = ocBroadcastChar(password_raw[ii], 1);
+		password[ii] = feedOblivChar(password_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < saltlen; ii++) {
-		salt[ii] = ocBroadcastChar(salt_raw[ii], 1);
+		salt[ii] = feedOblivChar(salt_raw[ii], 2);
 	}
 
 	oPBKDF2_SHA256(password, passwordlen, salt, saltlen, c, output, dkLen);
@@ -139,11 +139,11 @@ fprintf(stderr, "\n");
 	obliv uint8_t output[40];
 
 	for (int ii = 0; ii < passwordlen; ii++) {
-		password[ii] = ocBroadcastChar(password_raw[ii], 1);
+		password[ii] = feedOblivChar(password_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < saltlen; ii++) {
-		salt[ii] = ocBroadcastChar(salt_raw[ii], 1);
+		salt[ii] = feedOblivChar(salt_raw[ii], 2);
 	}
 
 	oPBKDF2_SHA256(password, passwordlen, salt, saltlen, c, output, dkLen);
@@ -192,11 +192,11 @@ fprintf(stderr, "\n");
 	obliv uint8_t output[16];
 
 	for (int ii = 0; ii < passwordlen; ii++) {
-		password[ii] = ocBroadcastChar(password_raw[ii], 1);
+		password[ii] = feedOblivChar(password_raw[ii], 1);
 	}
 
 	for (int ii = 0; ii < saltlen; ii++) {
-		salt[ii] = ocBroadcastChar(salt_raw[ii], 1);
+		salt[ii] = feedOblivChar(salt_raw[ii], 2);
 	}
 
 	oPBKDF2_SHA256(password, passwordlen, salt, saltlen, c, output, dkLen);

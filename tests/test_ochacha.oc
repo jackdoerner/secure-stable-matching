@@ -32,7 +32,7 @@ void testMain(void*varg) {
 		};
 
 		for (int ii = 0; ii < 64; ii++) {
-			input[ii] = input_raw[ii];
+			input[ii] = feedOblivChar(input_raw[ii], 1);
 		}
 
 		ochacha20(input);
@@ -76,7 +76,7 @@ void testMain(void*varg) {
 		};
 
 		for (int ii = 0; ii < 64; ii++) {
-			input[ii] = input_raw[ii];
+			input[ii] = feedOblivChar(input_raw[ii], 1);
 		}
 
 		ochacha20(input);
@@ -120,7 +120,7 @@ void testMain(void*varg) {
 		};
 
 		for (int ii = 0; ii < 64; ii++) {
-			input[ii] = input_raw[ii];
+			input[ii] = feedOblivChar(input_raw[ii], 1);
 		}
 
 		ochacha20(input);

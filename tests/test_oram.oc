@@ -43,8 +43,8 @@ void testMain(void*varg) {
 		oram_init(&o, 256);
 
 		for (int ii = 0; ii < 256; ii++) {
-			obliv size_t index = order_raw[ii];
-			obliv uint32_t value = input_raw[ii];
+			obliv size_t index = feedOblivLong(order_raw[ii], 1);
+			obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
 			oram_write(&o, value, index);
 		}
 
@@ -53,7 +53,7 @@ void testMain(void*varg) {
 		for (int ii = 0; ii < 256; ii++) {
 			uint32_t temp;
 			obliv uint32_t value;
-			obliv size_t index = order_raw[ii];
+			obliv size_t index = feedOblivLong(order_raw[ii], 1);
 			oram_read(&value, &o, index);
 			revealOblivInt(&temp, value, 0);
 			success &= (temp == input_raw[ii]);
@@ -75,8 +75,8 @@ void testMain(void*varg) {
 		for (int ii = -2; ii < 258; ii++) {
 			bool temp;
 			obliv bool write_success;
-			obliv size_t index = ii;
-			obliv uint32_t value = ii;
+			obliv size_t index = feedOblivLong(ii, 1);
+			obliv uint32_t value = feedOblivInt(ii, 2);
 			write_success = oram_write(&o, value, index);
 			revealOblivBool(&temp, write_success, 0);
 			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
@@ -104,8 +104,8 @@ void testMain(void*varg) {
 		oram_init(&o, 256);
 
 		for (int ii = 0; ii < 256; ii++) {
-			obliv size_t index = order_raw[ii];
-			obliv uint32_t value = input_raw[ii];
+			obliv size_t index = feedOblivLong(order_raw[ii], 1);
+			obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
 			oram_write(&o, value, index);
 		}
 
@@ -115,7 +115,7 @@ void testMain(void*varg) {
 			bool temp;
 			obliv bool read_success;
 			obliv uint32_t value;
-			obliv size_t index = ii;
+			obliv size_t index = feedOblivLong(ii, 1);
 			read_success = oram_read(&value, &o, index);
 			revealOblivBool(&temp, read_success, 0);
 			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
@@ -137,8 +137,8 @@ void testMain(void*varg) {
 		for (int ii = -2; ii < 130; ii++) {
 			bool temp;
 			obliv bool write_success;
-			obliv size_t index = ii;
-			obliv uint32_t value = ii;
+			obliv size_t index = feedOblivLong(ii, 1);
+			obliv uint32_t value = feedOblivInt(ii, 2);
 			write_success = oram_write(&o, value, index);
 			revealOblivBool(&temp, write_success, 0);
 			success &= (temp == true && (ii >= 0 || ii < 128)) != (temp == false && (ii < 0 || ii >= 128));
@@ -150,7 +150,7 @@ void testMain(void*varg) {
 			bool temp;
 			uint32_t tempval;
 			obliv bool read_success;
-			obliv size_t index = ii;
+			obliv size_t index = feedOblivLong(ii, 1);
 			obliv uint32_t value;
 			read_success = oram_read(&value, &o, index);
 			revealOblivBool(&temp, read_success, 0);
@@ -162,8 +162,8 @@ void testMain(void*varg) {
 		for (int ii = 128; ii < 258; ii++) {
 			bool temp;
 			obliv bool write_success;
-			obliv size_t index = ii;
-			obliv uint32_t value = ii;
+			obliv size_t index = feedOblivLong(ii, 1);
+			obliv uint32_t value = feedOblivInt(ii, 2);
 			write_success = oram_write(&o, value, index);
 			revealOblivBool(&temp, write_success, 0);
 			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));

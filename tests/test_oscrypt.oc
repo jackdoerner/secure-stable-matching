@@ -40,7 +40,7 @@ void testMain(void*varg) {
 		obliv uint32_t output[32];
 
 		for (int ii = 0; ii < 32; ii++) {
-			input[ii] = input_raw[ii];
+			input[ii] = feedOblivInt(input_raw[ii], 1);
 		}
 
 		oscrypt_blockmix_salsa8(input, output, 1);
@@ -109,7 +109,7 @@ void testMain(void*varg) {
 		};
 
 		for (int ii = 0; ii < 128; ii++) {
-			input[ii] = input_raw[ii];
+			input[ii] = feedOblivChar(input_raw[ii], 1);
 		}
 
 		oscrypt_smix(input, 1, 16);
@@ -161,11 +161,11 @@ void testMain(void*varg) {
 		};
 
 		for (int ii = 0; ii < passwd_len; ii++) {
-			passwd[ii] = passwd_raw[ii];
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
 		}
 
 		for (int ii = 0; ii < salt_len; ii++) {
-			salt[ii] = salt_raw[ii];
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
 		}
 
 		oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
@@ -218,11 +218,11 @@ void testMain(void*varg) {
 		};
 
 		for (int ii = 0; ii < passwd_len; ii++) {
-			passwd[ii] = passwd_raw[ii];
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
 		}
 
 		for (int ii = 0; ii < salt_len; ii++) {
-			salt[ii] = salt_raw[ii];
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
 		}
 
 		oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
@@ -276,11 +276,11 @@ void testMain(void*varg) {
 		};
 
 		for (int ii = 0; ii < passwd_len; ii++) {
-			passwd[ii] = passwd_raw[ii];
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
 		}
 
 		for (int ii = 0; ii < salt_len; ii++) {
-			salt[ii] = salt_raw[ii];
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
 		}
 
 		oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);

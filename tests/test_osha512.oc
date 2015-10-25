@@ -23,7 +23,7 @@ void testMain(void*varg) {
 	int msglen = 445;
 
 	for (int ii = 0; ii < msglen; ii++) {
-		message[ii] = ocBroadcastChar(plaintext[ii], 1);
+		message[ii] = feedOblivChar(plaintext[ii], 1);
 	}
 	
 	oSHA512_CTX ctx;

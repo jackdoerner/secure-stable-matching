@@ -8,7 +8,7 @@ fprintf(stderr, "\n");
 	int msglen = 445;
 
 	for (int ii = 0; ii < msglen; ii++) {
-		message[ii] = ocBroadcastChar(plaintext[ii], 1);
+		message[ii] = feedOblivChar(plaintext[ii], 1);
 	}
 
 	oSHA256_CTX ctx;
