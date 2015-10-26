@@ -260,8 +260,8 @@ void testMain(void*varg) {
 		char salt_raw[4] = "NaCl";
 		obliv uint8_t salt[4];
 		int salt_len = 4;
-		int N = 8;
-		int r = 1024;
+		int N = 1024;
+		int r = 8;
 		int p = 16;
 		obliv uint8_t result[64];
 		uint8_t expected_result[64] = {
