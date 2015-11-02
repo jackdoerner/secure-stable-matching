@@ -36,8 +36,8 @@ obliv uint64_t integerify(obliv uint32_t * B, size_t r) {
 }
 
 void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
-	obliv uint32_t * X = malloc(32 * r * sizeof(obliv uint32_t));
-	obliv uint32_t * Y = malloc(32 * r * sizeof(obliv uint32_t));
+	obliv uint32_t * X = calloc(32 * r, sizeof(obliv uint32_t));
+	obliv uint32_t * Y = calloc(32 * r, sizeof(obliv uint32_t));
 	obliv uint64_t index, blockint;
 	obliv uint32_t temp;
 	oram V;
@@ -95,7 +95,7 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 }
 
 void oscrypt(obliv const uint8_t * passwd, size_t passwdlen, obliv const uint8_t * salt, size_t saltlen, uint64_t N, size_t r, size_t p, obliv uint8_t * buf, size_t buflen) {
-	obliv uint8_t * B = malloc(p * 128 * r * sizeof(obliv uint8_t));
+	obliv uint8_t * B = calloc(p * 128 * r, sizeof(obliv uint8_t));
 
 	oPBKDF2_SHA256(passwd, passwdlen, salt, saltlen, 1, B, p * 128 * r);
 

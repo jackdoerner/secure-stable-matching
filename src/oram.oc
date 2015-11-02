@@ -2,14 +2,14 @@
 
 void oram_init(oram* o, size_t size) {
 	o->size = size;
-	o->data = malloc(sizeof(oram_base) * o->size);
+	o->data = calloc(o->size, sizeof(oram_base));
 }
 
 void oram_expand(oram* o, size_t new_size) {
 	if (new_size < o->size) return;
 
 	oram_base * old_data = o->data;
-	o->data = malloc(sizeof(oram_base) * new_size);
+	o->data = calloc(new_size, sizeof(oram_base));
 	memcpy(o->data, old_data, sizeof(oram_base) * o->size);
 	o->size = new_size;
 	free(old_data);
