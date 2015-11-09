@@ -1,0 +1,28 @@
+#pragma once
+#include"copy.oh"
+
+// Utilities used for implementing variants of ocShuffleData
+typedef struct OcPermNetwork
+{
+  unsigned* perm_share;
+  unsigned *a,*b;
+  obliv bool *oc1,*oc2;
+  bool *c;
+  size_t n,sc,lc,*level_size;
+  OcCopy* cpy;
+}OcPermNetwork;
+
+void ocPermNetworkCleanup(OcPermNetwork* w);
+OcPermNetwork ocPermNetworkRandom(size_t n);
+void ocPermNetworkPerm(OcPermNetwork* w,obliv int perm[]);
+void ocPermNetworkPermInv(const OcPermNetwork* w,obliv int perm[]);
+void ocPermNetworkApply(const OcPermNetwork* w, OcCopy* cpy, void* data);
+void ocPermNetworkHalfApply(const OcPermNetwork* w, OcCopy* cpy, void* data);
+void ocShuffleData(const OcCopy* cpy,void* data,size_t n,
+                   void* perm_out,bool isyao);
+
+// Finds inverse of a given permutation, of the same size as the one
+// used in w. TODO We can reuse much of the initialization machinery.
+// Assumes that input is actually a permutation: insecure otherwise!
+void ocPermInverseAssumingPerm(const OcPermNetwork* w,
+                               obliv int inv[],const obliv int perm[]);

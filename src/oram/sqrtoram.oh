@@ -1,0 +1,10 @@
+#pragma once
+#include"copy.oh"
+
+typedef struct OcSqrtOram OcSqrtOram;
+
+void ocSqrtOramRead(OcSqrtOram* ram,obliv int index,void* data);
+void ocSqrtOramWrite(OcSqrtOram* ram,void* data,obliv int index);
+
+OcSqrtOram* ocSqrtOramNew(OcCopy* cpy,void* data,int n);
+void ocSqrtOramRelease(OcSqrtOram* ram);

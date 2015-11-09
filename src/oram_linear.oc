@@ -1,0 +1,76 @@
+#include "oram.oh"
+
+struct oram {
+	size_t size;
+	oram_base * data;
+};
+
+void oram_init(oram* o, size_t size) {
+	o->size = size;
+	o->data = calloc(o->size, sizeof(oram_base));
+}
+
+oram * oram_new(size_t size) {
+	oram * ram = malloc(sizeof(oram));
+	oram_init(ram, size);
+	return ram;
+}
+
+void oram_expand(oram* o, size_t new_size) {
+	if (new_size < o->size) return;
+
+	oram_base * old_data = o->data;
+	o->data = calloc(new_size, sizeof(oram_base));
+	memcpy(o->data, old_data, sizeof(oram_base) * o->size);
+	o->size = new_size;
+	free(old_data);
+}
+
+void oram_free(oram* o) {
+	free(o->data);
+	o->size = 0;
+	o->data = NULL;
+}
+
+obliv bool oram_read(oram_base * output, oram * o, obliv size_t index) {
+	obliv bool success = false;
+	for (size_t ii = 0; ii < o->size; ii++) {
+		obliv if (ii == index) {
+			*output = o->data[ii];
+			success = true;
+		}
+	}
+	return success;
+}
+
+obliv bool oram_read_obliv(oram_base * output, oram * o, obliv size_t index) obliv {
+	obliv bool success = false;
+	for (size_t ii = 0; ii < o->size; ii++) {
+		obliv if (ii == index) {
+			*output = o->data[ii];
+			success = true;
+		}
+	}
+	return success;
+}
+
+obliv bool oram_write(oram * o, oram_base input, obliv size_t index) {
+	obliv bool success = false;
+	for (size_t ii = 0; ii < o->size; ii++) {
+		obliv if (ii == index) {
+			o->data[ii] = input;
+			success = true;
+		}
+	}
+	return success;
+}
+
+obliv bool oram_write_obliv(oram * o, oram_base input, obliv size_t index) obliv {
+	obliv bool success = false;
+	for (size_t ii = 0; ii < o->size; ii++) {
+		obliv if (ii == index) {
+			o->data[ii] = input;
+		}
+	}
+	return success;
+}

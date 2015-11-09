@@ -1,65 +1,69 @@
 #include "oram.oh"
+#include "oram/sqrtoram.oh"
+
+struct oram {
+	size_t size;
+	OcSqrtOram * data;
+};
 
 void oram_init(oram* o, size_t size) {
-	o->size = size;
-	o->data = calloc(o->size, sizeof(oram_base));
+	void * blank = calloc(size, sizeof(oram_base));
+	o->data = ocSqrtOramNew(&ocCopyInt, blank, size);
+	free(blank);
 }
 
-void oram_expand(oram* o, size_t new_size) {
-	if (new_size < o->size) return;
-
-	oram_base * old_data = o->data;
-	o->data = calloc(new_size, sizeof(oram_base));
-	memcpy(o->data, old_data, sizeof(oram_base) * o->size);
-	o->size = new_size;
-	free(old_data);
+oram * oram_new(size_t size) {
+	oram * ram = malloc(sizeof(oram));
+	oram_init(ram, size);
+	return ram;
 }
 
 void oram_free(oram* o) {
-	free(o->data);
+	ocSqrtOramRelease(o->data);
 	o->size = 0;
 	o->data = NULL;
 }
 
 obliv bool oram_read(oram_base * output, oram * o, obliv size_t index) {
 	obliv bool success = false;
-	for (size_t ii = 0; ii < o->size; ii++) {
-		obliv if (ii == index) {
-			*output = o->data[ii];
-			success = true;
-		}
-	}
+
+	//obliv if ((index < o->size) & (index >= 0)) {
+		ocSqrtOramRead(o->data, index, output);
+	//	success = true;
+	//}
+
 	return success;
 }
 
-obliv bool oram_read_obliv(oram_base * output, oram * o, obliv size_t index) obliv {
+/*obliv bool oram_read_obliv(oram_base * output, oram * o, obliv size_t index) obliv {
 	obliv bool success = false;
-	for (size_t ii = 0; ii < o->size; ii++) {
-		obliv if (ii == index) {
-			*output = o->data[ii];
-			success = true;
-		}
+
+	obliv if ((index < o->size) & (index >= 0)) {
+		ocSqrtOramRead(o->data, index, output);
+		success = true;
 	}
+
 	return success;
-}
+}*/
 
 obliv bool oram_write(oram * o, oram_base input, obliv size_t index) {
 	obliv bool success = false;
-	for (size_t ii = 0; ii < o->size; ii++) {
-		obliv if (ii == index) {
-			o->data[ii] = input;
-			success = true;
-		}
-	}
+	
+	//obliv if ((index < o->size) & (index >= 0)) {
+		ocSqrtOramWrite(o->data, &input, index);
+	//	success = true;
+	//}
+
 	return success;
 }
 
-obliv bool oram_write_obliv(oram * o, oram_base input, obliv size_t index) obliv {
+/*obliv bool oram_write_obliv(oram * o, oram_base input, obliv size_t index) obliv {
 	obliv bool success = false;
-	for (size_t ii = 0; ii < o->size; ii++) {
-		obliv if (ii == index) {
-			o->data[ii] = input;
-		}
+	
+	obliv if ((index < o->size) & (index >= 0)) {
+		ocSqrtOramWrite(o->data, &input, index);
+		success = true;
 	}
+
 	return success;
-}
+}*/

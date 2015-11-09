@@ -1,0 +1,6 @@
+#pragma once
+
+/* Essentially does this, but more optimized:
+   for(int i=0;i<indlim;++i) dest[i] = (en && i==ind); */
+void decoderEn(obliv bool* dest,obliv bool en,
+               obliv unsigned ind,unsigned indlim);

@@ -1,17 +1,14 @@
-#ifndef OBLIV_LINEAR_ORAM_OH
-#define OBLIV_LINEAR_ORAM_OH
+#ifndef OBLIV_RAM_OH
+#define OBLIV_RAM_OH
 
 #include <stdbool.h>
 #include <obliv.oh>
 
 typedef obliv uint32_t oram_base;
 
-typedef struct oram {
-	size_t size;
-	oram_base * data;
-} oram;
+typedef struct oram oram;
 
-void oram_init(oram *, size_t);
+oram * oram_new(size_t);
 void oram_expand(oram *, size_t);
 void oram_free(oram *);
 

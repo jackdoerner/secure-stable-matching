@@ -1,0 +1,316 @@
+// Implements a silly 4-block ORAM that improves over linear scan by at most
+// 10%. Used only as a stepping-stone, till we implement a full-blown n-block
+// one, which has more moving parts.
+#include<assert.h>
+#include<stdlib.h>
+#include<math.h>
+#include"waksman.h"
+#include<bcrandom.h>
+#include<obliv.oh>
+#include"decoder.oh"
+#include"sqrtoram.oh"
+#include"shuffle.oh"
+
+/* Positionmaps export the following interface:
+   They store logical->physical index mapping, as well as a "used" flag
+   for each index. Used are all initialized to false.
+   getPos(obliv int logicalIndex,obliv bool fake)
+     --> int physicalIndex of some unused element. If "fake" is true,
+         this will be a uniformly randomly selected unused index. Otherwise,
+         it will be the one corresponding to logicalIndex. In either case, 
+         the returned entry is now marked "used", and will no longer be
+         returned.  Note: secret logical index may not be random. Physical
+         index is uniformly random.
+         It is an error to ask for an index (with fake==false) when the 
+         corresponding entry has already been used.
+   callsRemaining --> int says how many getPos() calls are allowed before we
+         run out of unused elements.
+   reinitialize(obliv int physical[]) --> O(n log n) shuffle, everything 
+         reinitialized.  Everybody also gets new physical indices as specified.
+         It is assumed that physical is a uniformly randomly selected
+         secret permutation of [0,n).
+   */
+
+// Todo: Cube-root, when we implement it, will have to return two indices with
+// getPos. May also have different levels of reinitialize.
+typedef struct SqrtPosMap
+{
+  void* data;
+  int n;
+  int (*getPos)(struct SqrtPosMap*,obliv int,obliv bool);
+  int callsRemaining;
+  void (*reinitialize)(struct SqrtPosMap*,obliv int*);
+  void (*release)(struct SqrtPosMap*);
+} SqrtPosMap;
+
+// Linear scan maps
+typedef struct SqrtPosMapLinear
+{
+  obliv int *physical;
+  obliv bool *used,*decoder;
+} SqrtPosMapLinear;
+
+void sqrtPosMapLinearRelease(SqrtPosMap* map)
+{
+  SqrtPosMapLinear* mapdata=map->data;
+  free(mapdata->physical);
+  free(mapdata->used);
+  free(mapdata->decoder);
+  free(map);
+}
+void sqrtPosMapLinearReinitialize(SqrtPosMap* map,obliv int physical[])
+{
+  SqrtPosMapLinear* mapdata = map->data;
+  memcpy(mapdata->physical,physical,map->n*sizeof(obliv int));
+  memset(mapdata->used,0,map->n*sizeof(obliv bool));
+  map->callsRemaining=map->n;
+}
+int 
+sqrtPosMapLinearGetPos(SqrtPosMap* map,obliv int logical,obliv bool fake)
+{
+  SqrtPosMapLinear* mapdata = map->data;
+  decoderEn(mapdata->decoder,true,logical,map->n);
+  obliv int result;
+  for(int i=0;i<map->n;++i) 
+    obliv if((!fake&mapdata->decoder[i]) ^ (fake&!mapdata->used[i]))
+      result = mapdata->physical[i];
+  int res;
+  revealOblivInt(&res,result,0);
+  map->callsRemaining--;
+  return res;
+}
+
+SqrtPosMap* sqrtPosMapLinearNew(obliv int physical[],int n)
+{
+  SqrtPosMap* map = malloc(sizeof*map);
+  map->n=n;
+  map->getPos=sqrtPosMapLinearGetPos;
+  map->callsRemaining=n;
+  map->reinitialize=sqrtPosMapLinearReinitialize;
+  map->release=sqrtPosMapLinearRelease;
+  
+  SqrtPosMapLinear* mapdata = malloc(sizeof*mapdata);
+  mapdata->physical=malloc(n*sizeof(physical[0]));
+  memcpy(mapdata->physical,physical,n*sizeof(physical[0]));
+  mapdata->used=calloc(n,sizeof(obliv bool));
+  mapdata->decoder=calloc(n,sizeof(obliv bool));
+  map->data=mapdata;
+  return map;
+}
+
+struct OcSqrtOram
+{
+  int packingLog,packing; // packing = (1<<packingLog)
+  OcCopy* cpy;
+  obliv int *shuffi,*stashi; // logical index
+  void *shuff,*stash; // payloads
+  bool* usedShuff;
+  obliv int* physicalTemp;
+  int n,time,period;
+  SqrtPosMap* pos;
+  int indexBits;
+};
+
+// Forward declarations of OcSqrtOram methods
+void ocSqrtOramReinitialize(OcSqrtOram* oram,const void* data);
+void ocSqrtOramRelease(OcSqrtOram* oram);
+OcSqrtOram* ocSqrtOramNew(OcCopy* cpy,const void* data,int n);
+OcSqrtOram* ocSqrtOramNewAux(OcCopy* cpy,void* data,int n,int period);
+void ocSqrtOramAccess(OcSqrtOram* ram,obliv int index,bool doRead,void* data);
+
+void sqrtPosMapRecurRelease(SqrtPosMap* map)
+{
+  OcSqrtOram* mapdata = map->data;
+  free(mapdata->cpy);
+  ocSqrtOramRelease(mapdata);
+  free(map);
+}
+void sqrtPosMapRecurReinitialize(SqrtPosMap* map,obliv int physical[])
+{
+  OcSqrtOram* mapdata = map->data;
+  ocSqrtOramReinitialize(map->data,physical); // -- constructor should call XXX
+  map->callsRemaining = mapdata->period;
+}
+// Very, very similar to an ordinary ORAM access
+int sqrtPosMapRecurGetPos(SqrtPosMap* map,obliv int logical,obliv bool fake)
+{
+  // Each block of this oram holds pk obliv integers. The decoderEn ... for()
+  // constructs loop through elements inside a single block.
+  OcSqrtOram* mapdata = map->data;
+  const int pk = mapdata->packing, pkl = mapdata->packingLog;
+  // Go through stash for equality
+  logical&=(1<<mapdata->indexBits)-1; // assuming indices are within bounds
+  obliv int msb = (logical>>pkl), lsb = (logical&(pk-1));
+  assert(pk<=16);
+  obliv bool decoder[16];
+  int i;
+  obliv int data;
+  obliv bool found=fake;
+  for(i=0;i<mapdata->time;++i) obliv if(mapdata->stashi[i]==msb)
+  { ~obliv(en) decoderEn(decoder,en,lsb,pk);
+    found=true;
+    for(int j=0;j<pk;++j) obliv if(decoder[j])
+      data=((obliv int*)mapdata->stash)[i*pk+j];
+  }
+  // Recursive step: fake lookup if already found
+  int lookupIndex = mapdata->pos->getPos(mapdata->pos,msb,found);
+  mapdata->usedShuff[lookupIndex]=true;
+  obliv int* fetched = ((obliv int*)mapdata->shuff)+lookupIndex*pk;
+  // Decide what to reveal
+  decoderEn(decoder,fake|!found,lsb,pk);
+  for(i=0;i<pk;++i) obliv if(decoder[i])
+    data = fetched[i];
+
+  // move to stash
+  memcpy(((obliv int*)mapdata->stash)+mapdata->time*pk,fetched,
+         pk*sizeof(obliv int));
+  mapdata->stashi[mapdata->time] = mapdata->shuffi[lookupIndex];
+  mapdata->time++;
+
+  int res;
+  revealOblivInt(&res,data,0);
+  return res;
+}
+SqrtPosMap* sqrtPosMapRecurNew(obliv int physical[],int n,int period)
+{
+  const int pkl = 3; // TODO tweak
+  const int pk = (1<<pkl);
+  int nn = (n+pk-1)/pk;
+  if(nn<period) return sqrtPosMapLinearNew(physical,n); // too small
+
+  OcCopy* cpy = malloc(sizeof*cpy);
+  *cpy = ocCopyIntN(pk);
+  obliv int* phytemp = malloc(nn*pk*sizeof(obliv int));
+  memcpy(phytemp,physical,n*sizeof(obliv int));
+  memset(phytemp+n,0,(nn*pk-n)*sizeof(obliv int));
+  // Force recursion levels to stay in sync
+  OcSqrtOram* oram = ocSqrtOramNewAux(cpy,phytemp,nn,period);
+  free(phytemp);
+  oram->packingLog = pkl;
+  oram->packing = pk;
+
+  SqrtPosMap* map = malloc(sizeof*map);
+  map->data=oram;
+  map->n = nn;
+  map->callsRemaining = period;
+  map->getPos = sqrtPosMapRecurGetPos;
+  map->reinitialize = sqrtPosMapRecurReinitialize;
+  map->release = sqrtPosMapRecurRelease;
+  return map;
+}
+
+// --------------- OcSqrtOram -----------------------------------------------
+
+
+static void* element(OcCopy* cpy,void* arr,int x) obliv
+  { return x*cpy->eltsize+(char*)arr; }
+
+void ocSqrtOramShuffleData(OcSqrtOram* ram)
+{
+  OcPermNetwork w = ocPermNetworkRandom(ram->n);
+  ocPermNetworkHalfApply(&w,ram->cpy,ram->shuff);
+  ocPermNetworkHalfApply(&w,&ocCopyInt,ram->shuffi);
+  ocPermInverseAssumingPerm(&w,ram->physicalTemp,ram->shuffi);
+  for(int i=0;i<ram->n;++i) ram->physicalTemp[i]&=(1<<ram->indexBits)-1;
+  ocPermNetworkCleanup(&w);
+}
+
+// Shuffles stash and stores it into "shuff". Stash gets "emptied"
+// by resetting 'time' to 0, and used to all false. Finally,
+// 'pos' gets initialized according to the shuffle permutation.
+void ocSqrtOramRefresh(OcSqrtOram* ram)
+{
+  int i,j=0;
+  // Copy stash elements into the empty slots of shuff
+  for(i=0;i<ram->n;++i) if(ram->usedShuff[i])
+  { ram->shuffi[i]=ram->stashi[j];
+    ocCopy(ram->cpy,element(ram->cpy,ram->shuff,i),
+                    element(ram->cpy,ram->stash,j));
+    j++;
+  }
+  ocSqrtOramShuffleData(ram);
+  ram->pos->reinitialize(ram->pos,ram->physicalTemp);
+  for(i=0;i<ram->n;++i) ram->usedShuff[i]=false;
+  ram->time=0;
+}
+void ocSqrtOramReinitialize(OcSqrtOram* ram,void* data)
+{
+  int i,j=0;
+  ocCopyN(ram->cpy,ram->shuff,data,ram->n);
+  for(i=0;i<ram->n;++i) ram->shuffi[i]=i;
+  ocSqrtOramShuffleData(ram);
+  ram->pos->reinitialize(ram->pos,ram->physicalTemp);
+  for(i=0;i<ram->n;++i) ram->usedShuff[i]=false;
+  ram->time=0;
+}
+
+int indexBits(int n) { return n>1?1+indexBits((n+1)/2):0; }
+
+OcSqrtOram* ocSqrtOramNewAux(OcCopy* cpy,void* data,int n,int period)
+{
+  assert(*((char*)ocCurrentProto()->extra)==OC_PD_TYPE_YAO);
+  OcSqrtOram* ram = malloc(sizeof*ram);
+  ram->n=n;
+  ram->cpy=cpy;
+  ram->shuff = malloc(cpy->eltsize*n);
+  ocCopyN(cpy,ram->shuff,data,n);
+  int i;
+  ram->stash = malloc(cpy->eltsize*period);
+  ram->shuffi = calloc(n,sizeof(obliv int));
+  ram->stashi = calloc(period,sizeof(obliv int));
+  for(i=0;i<n;++i) ram->shuffi[i]=i;
+  ram->physicalTemp = calloc(n,sizeof(obliv int));
+  ram->indexBits = indexBits(n);
+  ocSqrtOramShuffleData(ram);
+  ram->pos = sqrtPosMapRecurNew(ram->physicalTemp,n,period);
+  ram->usedShuff = calloc(n,sizeof(bool));
+  ram->period=period;
+  ram->time=0;
+  return ram;
+}
+
+OcSqrtOram* ocSqrtOramNew(OcCopy* cpy,void* data,int n)
+{ int period = (int)(1e-7+ceil(sqrt(waksmanSwapCount(n))));
+  return ocSqrtOramNewAux(cpy,data,n,period);
+}
+
+void ocSqrtOramRelease(OcSqrtOram* ram)
+{
+  free(ram->usedShuff);
+  ram->pos->release(ram->pos);
+  free(ram->stashi);
+  free(ram->shuffi);
+  free(ram->stash);
+  free(ram->shuff);
+  free(ram->physicalTemp);
+  free(ram);
+}
+void ocSqrtOramAccess(OcSqrtOram* ram, obliv int index,bool doRead,void* data)
+{
+  int i;
+  obliv bool found=false;
+  // Scan through stash
+  for(i=0;i<ram->time;++i) obliv if(index==ram->stashi[i])
+  { if(doRead) ocCopy(ram->cpy,data,element(ram->cpy,ram->stash,i));
+    else ocCopy(ram->cpy,element(ram->cpy,ram->stash,i),data);
+    found=true;
+  }
+  // Fake/unfake posmap lookup
+  int lookupIndex = ram->pos->getPos(ram->pos,index,found);
+  // Access one more element from shuffled array
+  ocCopy(ram->cpy,element(ram->cpy,ram->stash,ram->time),
+                  element(ram->cpy,ram->shuff,lookupIndex));
+  ram->stashi[ram->time]=ram->shuffi[lookupIndex];
+  obliv if(!found)
+  { if(doRead) ocCopy(ram->cpy,data,element(ram->cpy,ram->stash,ram->time));
+    else ocCopy(ram->cpy,element(ram->cpy,ram->stash,ram->time),data);
+  }
+  ram->time++;
+  if(ram->time==ram->period) ocSqrtOramRefresh(ram);
+}
+
+void ocSqrtOramRead(OcSqrtOram* ram,obliv int index,void* data)
+  { ocSqrtOramAccess(ram,index,true,data); }
+
+void ocSqrtOramWrite(OcSqrtOram* ram,void* data,obliv int index)
+  { ocSqrtOramAccess(ram,index,false,data); }

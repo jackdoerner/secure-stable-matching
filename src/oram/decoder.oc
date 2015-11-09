@@ -1,0 +1,15 @@
+#include"decoder.oh"
+// Low-level decoder method: meant to be used inside ~obliv(en) {...}
+void decoderEnAux(obliv bool* dest,obliv bool en,
+                  obliv unsigned ind,unsigned indlim,unsigned step)
+{
+  if(indlim==1) { *dest=en; return; }
+  obliv bool en1=((ind&1)&en); // FIXME "&&" should have worked too
+  obliv bool en0=(en1!=en);
+  ind>>=1;
+  decoderEnAux(dest,en0,ind,(indlim+1)/2,step*2);
+  decoderEnAux(dest+step,en1,ind,indlim/2,step*2);
+}
+void decoderEn(obliv bool* dest,obliv bool en,
+               obliv unsigned ind,unsigned indlim)
+  { decoderEnAux(dest,en,ind,indlim,1); }

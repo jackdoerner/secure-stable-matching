@@ -1,0 +1,121 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "oscrypt.oh"
+#include "test_generic.h"
+
+#define SAMPLES 30
+
+static const char TESTNAME[] = "oscrypt_benchmark";
+
+char* testName() {
+	return TESTNAME;
+}
+
+uint64_t GetTimeStamp() {
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
+}
+
+void testMain(void*varg) {
+
+	fprintf(stdout, "==========\nTEST CASE 1\n----------\n");
+
+	uint64_t tally = 0;
+
+	for (int ii = 0; ii < SAMPLES; ii++) {
+		char passwd_raw[0] = "";
+		obliv uint8_t passwd[0];
+		int passwd_len = 0;
+		char salt_raw[0] = "";
+		obliv uint8_t salt[0];
+		int salt_len = 0;
+		int N = 16;
+		int r = 1;
+		int p = 1;
+		obliv uint8_t result[64];
+		uint8_t expected_result[64] = {
+			0x77, 0xd6, 0x57, 0x62, 0x38, 0x65, 0x7b, 0x20,
+			0x3b, 0x19, 0xca, 0x42, 0xc1, 0x8a, 0x04, 0x97,
+   			0xf1, 0x6b, 0x48, 0x44, 0xe3, 0x07, 0x4a, 0xe8,
+   			0xdf, 0xdf, 0xfa, 0x3f, 0xed, 0xe2, 0x14, 0x42,
+   			0xfc, 0xd0, 0x06, 0x9d, 0xed, 0x09, 0x48, 0xf8,
+   			0x32, 0x6a, 0x75, 0x3a, 0x0f, 0xc8, 0x1f, 0x17,
+   			0xe8, 0xd3, 0xe0, 0xfb, 0x2e, 0x0d, 0x36, 0x28,
+   			0xcf, 0x35, 0xe2, 0x0c, 0x38, 0xd1, 0x89, 0x06
+		};
+
+		for (int ii = 0; ii < passwd_len; ii++) {
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
+		}
+
+		for (int ii = 0; ii < salt_len; ii++) {
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
+		}
+
+		uint64_t startTime = GetTimeStamp();
+
+		oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
+
+		uint64_t endTime = GetTimeStamp();
+
+		fprintf(stdout, "%d\n", endTime - startTime);
+		tally += endTime - startTime;
+
+	}
+
+	fprintf(stderr, "Test Case 1: %d microseconds avg\n", tally / SAMPLES);
+
+	tally = 0;
+
+	fprintf(stdout, "==========\nTEST CASE 2\n----------\n");
+
+	for (int ii = 0; ii < SAMPLES; ii++) {
+		char passwd_raw[13] = "pleaseletmein";
+		obliv uint8_t passwd[13];
+		int passwd_len = 13;
+		char salt_raw[14] = "SodiumChloride";
+		obliv uint8_t salt[14];
+		int salt_len = 14;
+		int N = 16;
+		int r = 8;
+		int p = 1;
+		obliv uint8_t result[64];
+		uint8_t expected_result[64] = {
+			0x25, 0xa9, 0xfa, 0x20, 0x7f, 0x87, 0xca, 0x09,
+			0xa4, 0xef, 0x8b, 0x9f, 0x77, 0x7a, 0xca, 0x16,
+			0xbe, 0xb7, 0x84, 0xae, 0x18, 0x30, 0xbf, 0xbf,
+			0xd3, 0x83, 0x25, 0xaa, 0xbb, 0x93, 0x77, 0xdf,
+			0x1b, 0xa7, 0x84, 0xd7, 0x46, 0xea, 0x27, 0x3b,
+			0xf5, 0x16, 0xa4, 0x6f, 0xbf, 0xac, 0xf5, 0x11,
+			0xc5, 0xbe, 0xba, 0x4c, 0x4a, 0xb3, 0xac, 0xc7,
+			0xfa, 0x6f, 0x46, 0x0b, 0x6c, 0x0f, 0x47, 0x7b,
+		};
+
+		for (int ii = 0; ii < passwd_len; ii++) {
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
+		}
+
+		for (int ii = 0; ii < salt_len; ii++) {
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
+		}
+
+		uint64_t startTime = GetTimeStamp();
+
+		oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
+
+		uint64_t endTime = GetTimeStamp();
+
+		fprintf(stdout, "%d\n", endTime - startTime);
+		tally += endTime - startTime;
+
+	}
+
+	fprintf(stderr, "Test Case 2: %d microseconds avg\n", tally / SAMPLES);
+
+}

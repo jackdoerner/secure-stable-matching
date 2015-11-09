@@ -40,8 +40,8 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 	obliv uint32_t * Y = calloc(32 * r, sizeof(obliv uint32_t));
 	obliv uint64_t index, blockint;
 	obliv uint32_t temp;
-	oram V;
-	oram_init(&V, 32*r*N);
+	oram * V;
+	V = oram_new(32*r*N);
 
 	for (size_t jj = 0; jj < 32 * r; jj++) {
 		X[jj] = le32dec(&B[4*jj]);
@@ -50,14 +50,14 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 	for (uint64_t ii = 0; ii < N; ii += 2) {
 		for (size_t jj = 0; jj < 32 * r; jj++) {
 			index = 32 * r * ii + jj;
-			oram_write(&V, X[jj], index);
+			oram_write(V, X[jj], index);
 		} 
 
 		oscrypt_blockmix_salsa8(X, Y, r);
 
 		for (size_t jj = 0; jj < 32 * r; jj++) {
 			index = 32 * r * (ii + 1) + jj;
-			oram_write(&V, Y[jj], index);
+			oram_write(V, Y[jj], index);
 		}
 
 		oscrypt_blockmix_salsa8(Y, X, r);
@@ -68,7 +68,7 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 
 		for (size_t jj = 0; jj < 32 * r; jj++) {
 			index = 32 * r * blockint + jj;
-			oram_read(&temp, &V, index);
+			oram_read(&temp, V, index);
 			X[jj] ^= temp;
 		}
 
@@ -78,7 +78,7 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 
 		for (size_t jj = 0; jj < 32 * r; jj++) {
 			index = 32 * r * blockint + jj;
-			oram_read(&temp, &V, index);
+			oram_read(&temp, V, index);
 			Y[jj] ^= temp;
 		}
 
@@ -89,7 +89,7 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 		le32enc(&B[4 * jj], X[jj]);
 	}
 
-	oram_free(&V);
+	oram_free(V);
 	free(X);
 	free(Y);
 }
