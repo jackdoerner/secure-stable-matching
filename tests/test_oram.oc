@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <obliv.oh>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "oram.oh"
 #include "test_generic.h"
@@ -32,7 +33,7 @@ void testMain(void*varg) {
 		uint32_t order_raw[256];
 
 		for (int ii = 0; ii < 256; ii++) {
-			input_raw[ii] = ii;
+			input_raw[ii] = rand();
 			order_raw[ii] = ii;
 		}
 
@@ -44,19 +45,7 @@ void testMain(void*varg) {
 		for (int ii = 0; ii < 256; ii++) {
 			obliv size_t index = feedOblivLong(order_raw[ii], 1);
 			obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
-			obliv uint32_t temp;
-			uint32_t temp2;
-			oram_read(&temp, o, index);
-			revealOblivInt(&temp2, temp, 0);
-			fprintf(stderr, "\t%d %08X %08X", ii, temp2, input_raw[ii]);
 			oram_write(o, value, index);
-			oram_read(&temp, o, index);
-			revealOblivInt(&temp2, temp, 0);
-			if (input_raw[ii] != temp2) {
-				fprintf(stderr, " %08X !!!\n", temp2);
-			} else {
-				fprintf(stderr, " %08X\n", temp2);
-			}
 		}
 
 		bool success = true;
@@ -86,7 +75,7 @@ void testMain(void*varg) {
 			bool temp;
 			obliv bool write_success;
 			obliv size_t index = feedOblivLong(ii, 1);
-			obliv uint32_t value = feedOblivInt(ii, 2);
+			obliv uint32_t value = feedOblivInt(rand(), 2);
 			write_success = oram_write(o, value, index);
 			revealOblivBool(&temp, write_success, 0);
 			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
@@ -103,7 +92,7 @@ void testMain(void*varg) {
 		uint32_t order_raw[256];
 
 		for (int ii = 0; ii < 256; ii++) {
-			input_raw[ii] = ii;
+			input_raw[ii] = rand();
 			order_raw[ii] = ii;
 		}
 
