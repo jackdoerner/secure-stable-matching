@@ -71,9 +71,13 @@ sqrtPosMapLinearGetPos(SqrtPosMap* map,obliv int logical,obliv bool fake)
   SqrtPosMapLinear* mapdata = map->data;
   decoderEn(mapdata->decoder,true,logical,map->n);
   obliv int result;
+  obliv bool first=true;
   for(int i=0;i<map->n;++i) 
-    obliv if((!fake&mapdata->decoder[i]) ^ (fake&!mapdata->used[i]))
+    obliv if((!fake&mapdata->decoder[i]) ^ (fake&!mapdata->used[i]&first))
+    { first=false;
+      mapdata->used[i]=true;
       result = mapdata->physical[i];
+    }
   int res;
   revealOblivInt(&res,result,0);
   map->callsRemaining--;

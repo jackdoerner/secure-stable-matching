@@ -192,7 +192,9 @@ void ocShuffleData(const OcCopy* cpy,void* data,size_t n,
   ocPermNetworkCleanup(&w);
 }
 
-int bitcount(int x) { return x<=1?1:1+bitcount(x/2); }
+//int bitcount(int x) { return x<=1?1:1+bitcount(x/2); }
+int bitcount(int n) { return n>1?1+bitcount((n+1)/2):0; }
+
 void
 ocPermInverseAssumingPerm(OcPermNetwork* w,
   obliv int inv[],const obliv int perm[])
