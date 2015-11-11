@@ -42,7 +42,7 @@ void testMain(void*varg) {
 
 		uint64_t tally = 0;
 
-		oram * o = oram_new(256);
+		oram * o = oram_new(256, 1);
 
 		for (int ii = 0; ii < SAMPLES; ii++) {
 			
@@ -61,7 +61,7 @@ void testMain(void*varg) {
 				obliv size_t index = feedOblivLong(order_raw[ii], 1);
 				obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
 				uint64_t startTime = GetTimeStamp();
-				oram_write(o, value, index);
+				oram_write(o, &value, index);
 				uint64_t endTime = GetTimeStamp();
 				fprintf(stdout, "%d\n", endTime - startTime);
 				tally += endTime - startTime;
@@ -81,7 +81,7 @@ void testMain(void*varg) {
 
 		uint64_t tally = 0;
 
-		oram * o = oram_new(256);
+		oram * o = oram_new(256, 1);
 
 		uint32_t input_raw[256];
 		uint32_t order_raw[256];
@@ -97,7 +97,7 @@ void testMain(void*varg) {
 		for (int ii = 0; ii < 256; ii++) {
 			obliv size_t index = feedOblivLong(order_raw[ii], 1);
 			obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
-			oram_write(o, value, index);
+			oram_write(o, &value, index);
 		}
 
 		for (int ii = 0; ii < SAMPLES; ii++) {

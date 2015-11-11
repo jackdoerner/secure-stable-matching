@@ -7,7 +7,7 @@ TSTDEPS=test_main.o $(SRCPATH)/util.o
 ORAMDEPS=$(SRCPATH)/oram/copy.o $(SRCPATH)/oram/copy.oo $(SRCPATH)/oram/decoder.oo $(SRCPATH)/oram/shuffle.oo $(SRCPATH)/oram/sqrtoram.oo $(SRCPATH)/oram/waksman.o
 REMOTE_HOST=localhost
 CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRCPATH)
-BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oram test_oscrypt bench_oscrypt bench_oram bench_oram_linear
+BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oram test_oscrypt bench_oscrypt bench_oscrypt_linear bench_oram bench_oram_linear test_oscrypt_linear test_oram_linear 
 
 default: $(OBLIVCC) $(BINS)
 
@@ -29,9 +29,15 @@ test_ochacha: $(TSTDEPS) test_ochacha.oo $(SRCPATH)/ochacha.oo
 
 test_oram: $(TSTDEPS) test_oram.oo $(SRCPATH)/oram.oo $(ORAMDEPS)
 
+test_oram_linear: $(TSTDEPS) test_oram.oo $(SRCPATH)/oram_linear.oo
+
 test_oscrypt: $(TSTDEPS) test_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram.oo $(ORAMDEPS)
 
+test_oscrypt_linear: $(TSTDEPS) test_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram_linear.oo
+
 bench_oscrypt: $(TSTDEPS) bench_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram.oo $(ORAMDEPS)
+
+bench_oscrypt_linear: $(TSTDEPS) bench_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram_linear.oo
 
 bench_oram: $(TSTDEPS) bench_oram.oo $(SRCPATH)/oram.oo $(ORAMDEPS)
 

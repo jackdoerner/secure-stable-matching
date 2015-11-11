@@ -8,13 +8,14 @@ typedef obliv uint32_t oram_base;
 
 typedef struct oram oram;
 
-oram * oram_new(size_t);
-void oram_expand(oram *, size_t);
+oram * oram_new(size_t, size_t);
+oram * oram_from_array(size_t, size_t, oram_base *);
+//void oram_expand(oram *, size_t);
 void oram_free(oram *);
 
 obliv bool oram_read(oram_base *, oram *, obliv size_t);
 obliv bool oram_read_obliv(oram_base *, oram *, obliv size_t) obliv;
-obliv bool oram_write(oram *, oram_base, obliv size_t);
-obliv bool oram_write_obliv(oram *, oram_base, obliv size_t) obliv;
+obliv bool oram_write(oram *, oram_base *, obliv size_t);
+obliv bool oram_write_obliv(oram *, oram_base *, obliv size_t) obliv;
 
 #endif

@@ -40,12 +40,12 @@ void testMain(void*varg) {
 		shuffle(input_raw, 256);
 		shuffle(order_raw, 256);
 
-		oram * o = oram_new(256);
+		oram * o = oram_new(256, 1);
 
 		for (int ii = 0; ii < 256; ii++) {
 			obliv size_t index = feedOblivLong(order_raw[ii], 1);
 			obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
-			oram_write(o, value, index);
+			oram_write(o, &value, index);
 		}
 
 		bool success = true;
@@ -67,7 +67,7 @@ void testMain(void*varg) {
 
 	{
 
-		oram * o = oram_new(256);
+		oram * o = oram_new(256, 1);
 
 		bool success = true;
 
@@ -76,7 +76,7 @@ void testMain(void*varg) {
 			obliv bool write_success;
 			obliv size_t index = feedOblivLong(ii, 1);
 			obliv uint32_t value = feedOblivInt(rand(), 2);
-			write_success = oram_write(o, value, index);
+			write_success = oram_write(o, &value, index);
 			revealOblivBool(&temp, write_success, 0);
 			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
 		}
@@ -99,12 +99,12 @@ void testMain(void*varg) {
 		shuffle(input_raw, 256);
 		shuffle(order_raw, 256);
 
-		oram * o = oram_new(256);
+		oram * o = oram_new(256, 1);
 
 		for (int ii = 0; ii < 256; ii++) {
 			obliv size_t index = feedOblivLong(order_raw[ii], 1);
 			obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
-			oram_write(o, value, index);
+			oram_write(o, &value, index);
 		}
 
 		bool success = true;

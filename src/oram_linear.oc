@@ -2,17 +2,28 @@
 
 struct oram {
 	size_t size;
+	size_t elct;
 	oram_base * data;
 };
 
-void oram_init(oram* o, size_t size) {
+void oram_init(oram* o, size_t size, size_t elct) {
 	o->size = size;
-	o->data = calloc(o->size, sizeof(oram_base));
+	o->elct = elct;
+	o->data = calloc(o->size * o->elct, sizeof(oram_base));
 }
 
-oram * oram_new(size_t size) {
+oram * oram_new(size_t size, size_t elct) {
 	oram * ram = malloc(sizeof(oram));
-	oram_init(ram, size);
+	oram_init(ram, size, elct);
+	return ram;
+}
+
+oram * oram_from_array(size_t size, size_t elct, oram_base * src) {
+	oram * ram = malloc(sizeof(oram));
+	oram_init(ram, size, elct);
+	for (size_t ii = 0; ii < ram->size * ram->elct; ii++) {
+		ram->data[ii] = src[ii];
+	}
 	return ram;
 }
 
@@ -20,8 +31,8 @@ void oram_expand(oram* o, size_t new_size) {
 	if (new_size < o->size) return;
 
 	oram_base * old_data = o->data;
-	o->data = calloc(new_size, sizeof(oram_base));
-	memcpy(o->data, old_data, sizeof(oram_base) * o->size);
+	o->data = calloc(new_size * o->elct, sizeof(oram_base));
+	memcpy(o->data, old_data, sizeof(oram_base) * o->size * o->elct);
 	o->size = new_size;
 	free(old_data);
 }
@@ -29,14 +40,18 @@ void oram_expand(oram* o, size_t new_size) {
 void oram_free(oram* o) {
 	free(o->data);
 	o->size = 0;
+	o->elct = 0;
 	o->data = NULL;
+	free(o);
 }
 
 obliv bool oram_read(oram_base * output, oram * o, obliv size_t index) {
 	obliv bool success = false;
 	for (size_t ii = 0; ii < o->size; ii++) {
 		obliv if (ii == index) {
-			*output = o->data[ii];
+			for (size_t jj = 0; jj < o->elct; jj++) {
+				output[jj] = o->data[ii*o->elct + jj];	
+			}
 			success = true;
 		}
 	}
@@ -47,29 +62,36 @@ obliv bool oram_read_obliv(oram_base * output, oram * o, obliv size_t index) obl
 	obliv bool success = false;
 	for (size_t ii = 0; ii < o->size; ii++) {
 		obliv if (ii == index) {
-			*output = o->data[ii];
+			for (size_t jj = 0; jj < o->elct; jj++) {
+				output[jj] = o->data[ii*o->elct + jj];	
+			}
 			success = true;
 		}
 	}
 	return success;
 }
 
-obliv bool oram_write(oram * o, oram_base input, obliv size_t index) {
+obliv bool oram_write(oram * o, oram_base * input, obliv size_t index) {
 	obliv bool success = false;
 	for (size_t ii = 0; ii < o->size; ii++) {
 		obliv if (ii == index) {
-			o->data[ii] = input;
+			for (size_t jj = 0; jj < o->elct; jj++) {
+				o->data[ii*o->elct + jj] = input[jj];	
+			}
 			success = true;
 		}
 	}
 	return success;
 }
 
-obliv bool oram_write_obliv(oram * o, oram_base input, obliv size_t index) obliv {
+obliv bool oram_write_obliv(oram * o, oram_base * input, obliv size_t index) obliv {
 	obliv bool success = false;
 	for (size_t ii = 0; ii < o->size; ii++) {
 		obliv if (ii == index) {
-			o->data[ii] = input;
+			for (size_t jj = 0; jj < o->elct; jj++) {
+				o->data[ii*o->elct + jj] = input[jj];	
+			}
+			success = true;
 		}
 	}
 	return success;
