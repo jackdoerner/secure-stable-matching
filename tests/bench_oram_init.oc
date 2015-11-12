@@ -10,7 +10,7 @@
 
 #define SAMPLES 30
 
-static const char TESTNAME[] = "oram_benchmark";
+static const char TESTNAME[] = "oram_init_benchmark";
 
 char* testName() {
 	return TESTNAME;

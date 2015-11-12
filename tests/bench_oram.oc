@@ -8,7 +8,7 @@
 #include "oram.oh"
 #include "test_generic.h"
 
-#define SAMPLES 3000
+#define SAMPLES 1000
 
 static const char TESTNAME[] = "oram_benchmark";
 
