@@ -8,7 +8,7 @@
 #include "oram.oh"
 #include "test_generic.h"
 
-#define SAMPLES 300
+#define SAMPLES 3000
 
 static const char TESTNAME[] = "oram_benchmark";
 
@@ -16,107 +16,84 @@ char* testName() {
 	return TESTNAME;
 }
 
+int elcts[9] = {4,8,16,32,64,128,256,512,1024};
+int elszs[9] = {1,2,4,8,16,32,64,128,256};
+
 uint64_t GetTimeStamp() {
     struct timeval tv;
     gettimeofday(&tv,NULL);
     return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
 }
 
-void shuffle(uint32_t *array, size_t n) {
-    if (n > 1) {
-        size_t i;
-        for (i = 0; i < n - 1; i++) 
-        {
-          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
-          int t = array[j];
-          array[j] = array[i];
-          array[i] = t;
-        }
-    }
-}
-
 void testMain(void*varg) {
 
-	{
-		fprintf(stdout, "==========\nORAM WRITE\n----------\n");
+	fprintf(stdout, "==========\nORAM ACCESS (WRITE) (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
 
-		uint64_t tally = 0;
+	for (int ii = 0; ii < 9; ii++) {
+		int elct = elcts[ii];
+		for (int jj = 0; jj < 9; jj++) {
+			int elsz = elszs[jj];
 
-		oram * o = oram_new(256, 1);
+			uint64_t tally = 0;
+			obliv uint32_t * input = calloc(elsz * elct, sizeof(obliv uint32_t));
+			for (int kk = 0; kk < (elsz * elct); kk++) input[kk] = feedOblivInt(rand(), 1);
 
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			
-			uint32_t input_raw[256];
-			uint32_t order_raw[256];
+			oram * o = oram_new(elct, elsz);
 
-			for (int ii = 0; ii < 256; ii++) {
-				input_raw[ii] = rand();
-				order_raw[ii] = ii;
-			}
+			fprintf(stdout, "%d,%d", elct, elsz);
 
-			shuffle(input_raw, 256);
-			shuffle(order_raw, 256);
-
-			for (int ii = 0; ii < 256; ii++) {
-				obliv size_t index = feedOblivLong(order_raw[ii], 1);
-				obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
+			for (int kk = 0; kk < SAMPLES; kk++) {
+				uint32_t index_raw = ocBroadcastInt(rand() % elct, 2);
+				obliv uint32_t index = feedOblivInt(index_raw, 2);
 				uint64_t startTime = GetTimeStamp();
-				oram_write(o, &value, index);
+				oram_write(o, &input[index_raw*elsz], index);
 				uint64_t endTime = GetTimeStamp();
-				fprintf(stdout, "%d\n", endTime - startTime);
+				fprintf(stdout, ",%d", endTime - startTime);
 				tally += endTime - startTime;
 			}
 
+			free(input);
+			oram_free(o);
+			fprintf(stdout, "\n");
+			fprintf(stderr, "Write (count:%d, size: %d): %d microseconds avg\n", elct, elsz, tally / (SAMPLES));
+
 		}
-
-		oram_free(o);
-
-		
-
-		fprintf(stderr, "Test Case 1: %d microseconds avg\n", tally / (SAMPLES*256));
 	}
 
-	{
-		fprintf(stdout, "==========\nORAM READ\n----------\n");
+	/*fprintf(stdout, "==========\nORAM READ (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
 
-		uint64_t tally = 0;
+	for (int ii = 0; ii < 9; ii++) {
+		int elct = elcts[ii];
+		for (int jj = 0; jj < 9; jj++) {
+			int elsz = elszs[jj];
 
-		oram * o = oram_new(256, 1);
+			uint64_t tally = 0;
+			obliv uint32_t * output = calloc(elsz, sizeof(obliv uint32_t));
 
-		uint32_t input_raw[256];
-		uint32_t order_raw[256];
+			oram * o = oram_new(elct, elsz);
 
-		for (int ii = 0; ii < 256; ii++) {
-			input_raw[ii] = rand();
-			order_raw[ii] = ii;
-		}
+			for (int index=0; index < elct; index++) {
+				for (int kk = 0; kk < elsz; kk++) output[kk] = feedOblivInt(rand(), 1);
+				oram_write(o, output, index);
+			}
 
-		shuffle(input_raw, 256);
-		shuffle(order_raw, 256);
+			fprintf(stdout, "%d,%d", elct, elsz);
 
-		for (int ii = 0; ii < 256; ii++) {
-			obliv size_t index = feedOblivLong(order_raw[ii], 1);
-			obliv uint32_t value = feedOblivInt(input_raw[ii], 2);
-			oram_write(o, &value, index);
-		}
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			
-			for (int ii = 0; ii < 256; ii++) {
-				obliv uint32_t value;
-				obliv size_t index = feedOblivLong(order_raw[ii], 1);
+			for (int kk = 0; kk < SAMPLES; kk++) {
+				obliv uint32_t index = feedOblivInt(rand() % elct, 2);
 				uint64_t startTime = GetTimeStamp();
-				oram_read(&value, o, index);
+				oram_read(output, o, index);
 				uint64_t endTime = GetTimeStamp();
-				fprintf(stdout, "%d\n", endTime - startTime);
+				fprintf(stdout, ",%d", endTime - startTime);
 				tally += endTime - startTime;
 			}
 
+			free(output);
+			oram_free(o);
+			fprintf(stdout, "\n");
+			fprintf(stderr, "Read (count:%d, size: %d): %d microseconds avg\n", elct, elsz, tally / (SAMPLES));
+
 		}
-
-		oram_free(o);
-
-		fprintf(stderr, "Test Case 2: %d microseconds avg\n", tally / (SAMPLES*256));
-	}
+	}*/
 
 }

@@ -1,0 +1,60 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "oram.oh"
+#include "test_generic.h"
+
+#define SAMPLES 30
+
+static const char TESTNAME[] = "oram_benchmark";
+
+char* testName() {
+	return TESTNAME;
+}
+
+int elcts[9] = {4,8,16,32,64,128,256,512,1024};
+int elszs[9] = {1,2,4,8,16,32,64,128,256};
+
+uint64_t GetTimeStamp() {
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
+}
+
+void testMain(void*varg) {
+
+	fprintf(stdout, "==========\nORAM INIT (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
+
+	for (int ii = 0; ii < 9; ii++) {
+		int elct = elcts[ii];
+		for (int jj = 0; jj < 9; jj++) {
+			int elsz = elszs[jj];
+
+			uint64_t tally = 0;
+			obliv uint32_t * input = calloc(elsz * elct, sizeof(obliv uint32_t));
+			
+
+			fprintf(stdout, "%d,%d", elct, elsz);
+
+			for (int kk = 0; kk < SAMPLES; kk++) {
+				for (int kkkkk = 0; kkkkk < (elsz * elct); kkkkk++) input[kkkkk] = feedOblivInt(rand(), 1);
+				uint64_t startTime = GetTimeStamp();
+				oram * o = oram_from_array(elct, elsz, input);
+				uint64_t endTime = GetTimeStamp();
+				oram_free(o);
+				fprintf(stdout, ",%d", endTime - startTime);
+				tally += endTime - startTime;
+			}
+
+			free(input);
+			fprintf(stdout, "\n");
+			fprintf(stderr, "Init (count:%d, size: %d): %d microseconds avg\n", elct, elsz, tally / (SAMPLES));
+
+		}
+	}
+
+}
