@@ -4,7 +4,7 @@
 #include "uint128.h"
 
 
-// code from http://stackoverflow.com/questions/11656241/how-to-print-uint128-t-number-using-gcc
+// some code from http://stackoverflow.com/questions/11656241/how-to-print-uint128-t-number-using-gcc
 
 /*
 ** Using documented GCC type unsigned __int128 instead of undocumented
@@ -24,7 +24,7 @@ struct uint128_t {
     unsigned __int128 val;
 };
 
-uint128_t * GetTimeStamp128() {
+uint128_t * uint128_current_timestamp() {
     struct timeval tv;
     gettimeofday(&tv,NULL);
     uint128_t * result = malloc(sizeof(uint128_t));

@@ -5,7 +5,7 @@
 
 typedef struct uint128_t uint128_t;
 
-uint128_t * GetTimeStamp128();
+uint128_t * uint128_current_timestamp();
 
 uint128_t * uint128_new();
 uint128_t * uint128_add(uint128_t *, uint128_t *);

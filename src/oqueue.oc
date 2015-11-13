@@ -1,0 +1,55 @@
+#include "oqueue.oh"
+
+oring_queue * oring_queue_new(size_t size) {
+	oring_queue * result = malloc(sizeof(oring_queue));
+	result->ring = oram_new(size+1, 1);
+	result->size = size;
+	result->head = 0;
+	result->tail = 0;
+	return result;
+}
+
+void oring_queue_free(oring_queue * queue) {
+	oram_free(queue->ring);
+	free(queue);
+}
+
+void oring_queue_push(oring_queue * queue, obliv uint32_t input) {
+	oram_write(queue->ring, &input, queue->tail);
+	obliv if (queue->tail < queue->size) {
+		queue->tail++;	
+	} else {
+		queue->tail=0;
+	}
+}
+
+void oring_queue_push_obliv(oring_queue * queue, obliv uint32_t input) obliv {
+	oram_write_obliv(queue->ring, &input, queue->tail);
+	obliv if (queue->tail < queue->size) {
+		queue->tail++;	
+	} else {
+		queue->tail=0;
+	}
+}
+
+void oring_queue_pop(obliv uint32_t * output, oring_queue * queue) {
+	obliv if (queue->head != queue->tail) {
+		oram_read_obliv(output, queue->ring, queue->head);
+		obliv if (queue->head < queue->size) {
+			queue->head++;	
+		} else {
+			queue->head=0;
+		}
+	}
+}
+
+void oring_queue_pop_obliv(obliv uint32_t * output, oring_queue * queue) obliv {
+	obliv if (queue->head != queue->tail) {
+		oram_read_obliv(output, queue->ring, queue->head);
+		obliv if (queue->head < queue->size) {
+			queue->head++;	
+		} else {
+			queue->head=0;
+		}
+	}
+}

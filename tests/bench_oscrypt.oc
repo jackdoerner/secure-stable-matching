@@ -400,11 +400,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint128_t * startTime = GetTimeStamp128();
+			uint128_t * startTime = uint128_current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint128_t * endTime = GetTimeStamp128();
+			uint128_t * endTime = uint128_current_timestamp();
 
 			uint128_t * runtime = uint128_subtract(endTime, startTime);
 			free(endTime); free(startTime);

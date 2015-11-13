@@ -1,0 +1,30 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "ograph.oh"
+#include "oqueue.oh"
+#include "test_generic.h"
+
+#define SAMPLES 30
+
+static const char TESTNAME[] = "bfs_benchmark";
+
+char* testName() {
+	return TESTNAME;
+}
+
+uint64_t GetTimeStamp() {
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
+}
+
+void testMain(void*varg) {
+
+	
+
+}

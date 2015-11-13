@@ -1,0 +1,22 @@
+#ifndef OBLIV_QUEUE
+#define OBLIV_QUEUE
+
+#include <obliv.oh>
+#include "oram.oh"
+
+typedef struct oring_queue {
+	oram * ring;
+	obliv size_t head;
+	obliv size_t tail;
+	size_t size;
+} oring_queue;
+
+oring_queue * oring_queue_new(size_t size);
+void oring_queue_free(oring_queue *);
+
+void oring_queue_push(oring_queue *, obliv uint32_t);
+void oring_queue_push_obliv(oring_queue *, obliv uint32_t) obliv;
+void oring_queue_pop(obliv uint32_t *, oring_queue *);
+void oring_queue_pop_obliv(obliv uint32_t *, oring_queue *) obliv;
+
+#endif

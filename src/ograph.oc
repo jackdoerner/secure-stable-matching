@@ -1,0 +1,55 @@
+#include "ograph.oh"
+
+ograph_adjacency_matrix * ograph_build_adjacency_matrix(size_t vertices, ograph_edge * edges_input, size_t edges) {
+	ograph_adjacency_matrix * result = malloc(sizeof(ograph_adjacency_matrix));
+	result->matrix = oram_new(vertices * vertices, 1);
+	result->vertices = vertices;
+	result->edges = edges;
+	obliv uint32_t one = 1;
+
+	for (size_t ii = 0; ii < edges; ii++) {
+		ograph_edge * this_edge = &edges_input[ii];
+		oram_write(result->matrix, &one, this_edge->v1 * vertices + this_edge->v2);
+	}
+
+	return result;
+}
+
+void ograph_adjacency_matrix_add_edges(ograph_adjacency_matrix * adj, ograph_edge * edges_input, size_t edges) {
+	adj->edges += edges;
+	obliv uint32_t one = 1;
+
+	for (size_t ii = 0; ii < edges; ii++) {
+		ograph_edge * this_edge = &edges_input[ii];
+		oram_write(adj->matrix, &one, this_edge->v1 * adj->vertices + this_edge->v2);
+	}
+}
+
+void ograph_free_adjacency_matrix(ograph_adjacency_matrix * adj) {
+	oram_free(adj->matrix);
+	free(adj);
+}
+
+ograph_vertex_list * ograph_get_adjacent_vertices(ograph_adjacency_matrix * adj, obliv uint32_t vertex) {
+	ograph_vertex_list * result = malloc(sizeof(ograph_vertex_list));
+	result->public_size = (adj->vertices < adj->edges) ? adj->vertices : adj->edges;
+	result->size = 0;
+	result->list = oram_new(result->public_size, 1);
+
+	for (size_t ii = 0; ii < adj->vertices; ii++) {
+		obliv uint32_t is_adjacent;
+		obliv uint32_t ii_priv = ii;
+		oram_read(&is_adjacent, adj->matrix, vertex*adj->vertices+ii);
+		obliv if (is_adjacent > 0) {
+			oram_write_obliv(result->list, &ii_priv, result->size);
+			result->size++;
+		}
+	}
+
+	return result;
+}
+
+void ograph_free_vertex_list(ograph_vertex_list * vlist) {
+	oram_free(vlist->list);
+	free(vlist);
+}
