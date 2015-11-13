@@ -56,6 +56,7 @@ void sqrtPosMapLinearRelease(SqrtPosMap* map)
   free(mapdata->physical);
   free(mapdata->used);
   free(mapdata->decoder);
+  free(mapdata);
   free(map);
 }
 void sqrtPosMapLinearReinitialize(SqrtPosMap* map,obliv int physical[])

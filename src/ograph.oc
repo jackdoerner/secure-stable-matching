@@ -92,7 +92,7 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 			ograph_get_adjacent_vertices_obliv(adjacent_vertices, adj, this_vertex);
 			for (size_t jj = 0; jj < adjacent_vertices->public_size; jj++) {
 				obliv if (jj < adjacent_vertices->size) {
-					this_vertex = adjacent_vertices->list[jj];
+					oram_read_obliv(&this_vertex, adjacent_vertices->list, jj);
 					oram_read_obliv(&this_distance, visited_vertices, this_vertex);
 					obliv if (this_distance == 0) {
 						this_distance = last_distance + 1;
@@ -107,7 +107,10 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 	ograph_vertex_list * result = ograph_vertex_list_new(adj->vertices);
 
 	for (size_t ii = 0; ii < adj->vertices; ii++) {
-		oram_read(&result->list[ii], visited_vertices, ii);
+		obliv uint32_t temp;
+		oram_read(&temp, visited_vertices, ii);
+		temp -= 1;
+		oram_write(result->list, &temp, ii);
 	}
 
 	oram_free(visited_vertices);

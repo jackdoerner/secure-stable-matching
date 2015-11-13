@@ -1,0 +1,18 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "oqueue.oh"
+#include "test_generic.h"
+
+static const char TESTNAME[] = "ograph";
+
+char* testName() {
+	return TESTNAME;
+}
+
+void testMain(void*varg) {
+
+}

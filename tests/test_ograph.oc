@@ -1,0 +1,87 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "ograph.oh"
+#include "oram.oh"
+#include "test_generic.h"
+
+static const char TESTNAME[] = "ograph";
+
+char* testName() {
+	return TESTNAME;
+}
+
+void testMain(void*varg) {
+
+	{
+
+		fprintf(stderr, "Node distance from node 1:\n");
+
+		int adjacency_count = 5;
+		int vertices = 10;
+
+		int adjacencies[10] = { 1, 2, 
+								1, 3,
+								1, 7,
+								2, 4,
+								7, 9
+							  };
+
+		if (ocCurrentParty() == 2) {
+			adjacencies[0] = 5; adjacencies[1] = 9;
+			adjacencies[2] = 0; adjacencies[3] = 8;
+			adjacencies[6] = 3; adjacencies[7] = 9;
+			adjacencies[8] = 9; adjacencies[9] = 1;
+		}
+
+		int expected_results[10] = {-1, 0, 1, 1, 2, -1, -1, 1, -1, 2};
+
+		ograph_edge * edges = calloc(adjacency_count * 2, sizeof(ograph_edge));
+
+		for (int party = 1; party < 3; party++) {
+			for (int ii = 0; ii <adjacency_count; ii ++) {
+				edges[(party-1)*adjacency_count+ii].v1 = feedOblivInt(adjacencies[2*ii], party);
+				edges[(party-1)*adjacency_count+ii].v2 = feedOblivInt(adjacencies[2*ii+1], party);
+			}
+		}
+
+		ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, 2*adjacency_count);
+
+		ograph_vertex_list * result = ograph_breadth_first_search(adj, feedOblivInt(1, 1));
+
+		free(edges);
+		ograph_free_adjacency_matrix(adj);
+
+		bool success = true;
+
+		for (int ii = 0; ii < result->public_size; ii++) {
+			obliv uint32_t temp;
+			uint32_t temp2;
+			oram_read(&temp, result->list, ii);
+			revealOblivInt(&temp2, temp, 0);
+			success &= (temp2 == expected_results[ii]) ;
+		}
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "ograph_breadth_first_search - 10 adjacencies", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		if (!success) {
+			for (int ii = 0; ii < result->public_size; ii++) {
+				obliv uint32_t temp;
+				uint32_t temp2;
+				oram_read(&temp, result->list, ii);
+				revealOblivInt(&temp2, temp, 0);
+				if (temp2 != expected_results[ii]) {
+					fprintf(stderr, "\tElement:\t\t\t %d\n", ii);
+					fprintf(stderr, "\t\tExpected Output:\t %d\n", expected_results[ii]);
+					fprintf(stderr, "\t\tActual Output:\t\t %d\n", temp2);
+				}
+			}
+		}
+
+		ograph_free_vertex_list(result);
+
+	}
+
+}
