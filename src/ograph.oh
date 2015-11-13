@@ -24,7 +24,12 @@ typedef struct ograph_adjacency_matrix {
 ograph_adjacency_matrix * ograph_build_adjacency_matrix(size_t, ograph_edge *, size_t);
 void ograph_adjacency_matrix_add_edges(ograph_adjacency_matrix *, ograph_edge *, size_t);
 void ograph_free_adjacency_matrix(ograph_adjacency_matrix *);
-ograph_vertex_list * ograph_get_adjacent_vertices(ograph_adjacency_matrix *, obliv uint32_t);
+
+ograph_vertex_list * ograph_vertex_list_new(size_t);
+void ograph_get_adjacent_vertices(ograph_vertex_list *, ograph_adjacency_matrix *, obliv uint32_t);
+void ograph_get_adjacent_vertices_obliv(ograph_vertex_list *, ograph_adjacency_matrix *, obliv uint32_t) obliv;
 void ograph_free_vertex_list(ograph_vertex_list *);
+
+ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix *, obliv uint32_t);
 
 #endif

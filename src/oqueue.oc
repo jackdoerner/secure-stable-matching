@@ -14,6 +14,10 @@ void oring_queue_free(oring_queue * queue) {
 	free(queue);
 }
 
+obliv bool oring_queue_empty(oring_queue * queue) {
+	return (queue->head == queue->tail);
+}
+
 void oring_queue_push(oring_queue * queue, obliv uint32_t input) {
 	oram_write(queue->ring, &input, queue->tail);
 	obliv if (queue->tail < queue->size) {

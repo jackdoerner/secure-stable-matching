@@ -14,6 +14,7 @@ typedef struct oring_queue {
 oring_queue * oring_queue_new(size_t size);
 void oring_queue_free(oring_queue *);
 
+obliv bool oring_queue_empty(oring_queue *);
 void oring_queue_push(oring_queue *, obliv uint32_t);
 void oring_queue_push_obliv(oring_queue *, obliv uint32_t) obliv;
 void oring_queue_pop(obliv uint32_t *, oring_queue *);
