@@ -35,9 +35,9 @@ test_oscrypt: $(TSTDEPS) test_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha25
 
 test_oscrypt_linear: $(TSTDEPS) test_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram_linear.oo
 
-bench_oscrypt: $(TSTDEPS) bench_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram.oo $(ORAMDEPS)
+bench_oscrypt: $(TSTDEPS) bench_oscrypt.oo $(SRCPATH)/uint128.o $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram.oo $(ORAMDEPS)
 
-bench_oscrypt_linear: $(TSTDEPS) bench_oscrypt.oo $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram_linear.oo
+bench_oscrypt_linear: $(TSTDEPS) bench_oscrypt.oo $(SRCPATH)/uint128.o $(SRCPATH)/oscrypt.oo $(SRCPATH)/osha256.oo $(SRCPATH)/osalsa.oo $(SRCPATH)/endian.oo $(SRCPATH)/oram_linear.oo
 
 bench_oram: $(TSTDEPS) bench_oram.oo $(SRCPATH)/oram.oo $(ORAMDEPS)
 
