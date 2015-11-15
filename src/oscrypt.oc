@@ -40,25 +40,17 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 	obliv uint32_t * Y = calloc(32 * r, sizeof(oram_base));
 	obliv uint32_t * temp = calloc(32 * r, sizeof(oram_base));
 	obliv uint32_t * V1 = calloc(32 * r * N, sizeof(oram_base));
-	obliv uint64_t index, blockint;
-	obliv bool result;
-	//obliv uint32_t temp;
+	obliv uint64_t blockint;
 
 	for (size_t jj = 0; jj < 32 * r; jj++) {
 		X[jj] = le32dec(&B[4*jj]);
 	}
 
 	for (uint64_t ii = 0; ii < N; ii += 2) {
-		//for (size_t jj = 0; jj < 32 * r; jj++) {
-		//	V1[32 * r * ii + jj] = X[jj];
-		//} 
 		memcpy(&V1[32*r*ii], X, 32*r*sizeof(oram_base));
 
 		oscrypt_blockmix_salsa8(X, Y, r);
 
-		//for (size_t jj = 0; jj < 32 * r; jj++) {
-		//	V1[32 * r * (ii + 1) + jj] = Y[jj];
-		//}
 		memcpy(&V1[32*r*(ii+1)], Y, 32*r*sizeof(oram_base));
 
 		oscrypt_blockmix_salsa8(Y, X, r);
@@ -72,8 +64,6 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 		oram_read(temp, V2, blockint);
 
 		for (size_t jj = 0; jj < 32 * r; jj++) {
-		//	index = 32 * r * blockint + jj;
-		//	oram_read(&temp, V2, index);
 			X[jj] ^= temp[jj];
 		}
 
@@ -84,8 +74,6 @@ void oscrypt_smix(obliv uint8_t * B, size_t r, uint64_t N) {
 		oram_read(temp, V2, blockint);
 
 		for (size_t jj = 0; jj < 32 * r; jj++) {
-		//	index = 32 * r * blockint + jj;
-		//	oram_read(&temp, V2, index);
 			Y[jj] ^= temp[jj];
 		}
 

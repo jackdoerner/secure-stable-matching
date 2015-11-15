@@ -3,31 +3,52 @@
 
 ograph_adjacency_matrix * ograph_build_adjacency_matrix(size_t vertices, ograph_edge * edges_input, size_t edges) {
 	ograph_adjacency_matrix * result = malloc(sizeof(ograph_adjacency_matrix));
-	result->matrix = oram_new(vertices * vertices, 1);
+	result->matrix = oram_new(edges, 3);
+	result->layout = oram_new(vertices, 2);
 	result->vertices = vertices;
 	result->edges = edges;
+	oram * edge_counts = oram_new(vertices, 3);
+	obliv uint32_t three32_1[3];
+	obliv uint32_t three32_2[3];
+	obliv uint32_t three32_3[3];
+	
 	obliv uint32_t one = 1;
 
 	for (size_t ii = 0; ii < edges; ii++) {
-		ograph_edge * this_edge = &edges_input[ii];
-		oram_write(result->matrix, &one, this_edge->v1 * vertices + this_edge->v2);
+		oram_read(three32_1, edge_counts, edges_input[ii].v1);
+		three32_1[1]++;
+		oram_write(edge_counts, three32_1, edges_input[ii].v1);
 	}
 
+	obliv uint32_t total = 0;
+	for (size_t ii = 0; ii < vertices; ii++) {
+		oram_read(three32_1, edge_counts, ii);
+		three32_1[0] = total;
+		oram_write(result->layout, three32_1, ii);
+		oram_write(edge_counts, three32_1, ii);
+		total += three32_1[1];
+	}
+
+	for (size_t ii = 0; ii < edges; ii++) {
+		oram_read(three32_1, edge_counts, edges_input[ii].v1);
+		oram_read(three32_2, edge_counts, edges_input[ii].v2);
+
+		three32_3[0]=edges_input[ii].v2;
+		three32_3[1]=three32_2[0];
+		three32_3[2]=three32_2[1];
+
+		oram_write(result->matrix, three32_3, three32_1[0] + three32_1[2]);
+		three32_1[2] += 1;
+		oram_write(edge_counts, three32_1, edges_input[ii].v1);
+	}
+
+	oram_free(edge_counts);
 	return result;
-}
-
-void ograph_adjacency_matrix_add_edges(ograph_adjacency_matrix * adj, ograph_edge * edges_input, size_t edges) {
-	adj->edges += edges;
-	obliv uint32_t one = 1;
-
-	for (size_t ii = 0; ii < edges; ii++) {
-		ograph_edge * this_edge = &edges_input[ii];
-		oram_write(adj->matrix, &one, this_edge->v1 * adj->vertices + this_edge->v2);
-	}
 }
 
 void ograph_free_adjacency_matrix(ograph_adjacency_matrix * adj) {
 	oram_free(adj->matrix);
+	oram_free(adj->layout);
 	free(adj);
 }
 
@@ -35,71 +56,71 @@ ograph_vertex_list * ograph_vertex_list_new(size_t size) {
 	ograph_vertex_list * result = malloc(sizeof(ograph_vertex_list));
 	result->public_size = size;
 	result->size = 0;
-	result->list = oram_new(result->public_size, 1);
-
+	result->elsz = 1;
+	result->list = calloc(result->public_size, sizeof(obliv uint32_t));
 	return result;
 }
 
-void ograph_get_adjacent_vertices(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex) {
-
-	for (size_t ii = 0; ii < adj->vertices; ii++) {
-		obliv uint32_t is_adjacent;
-		obliv uint32_t ii_priv = ii;
-		oram_read(&is_adjacent, adj->matrix, vertex*adj->vertices+ii);
-		obliv if (is_adjacent > 0) {
-			oram_write_obliv(out->list, &ii_priv, out->size);
-			out->size++;
-		}
-	}
-
+void ograph_get_nth_adjacent_vertex(uint32_t * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex, obliv uint32_t n) {
+	obliv uint32_t two32[2];
+	oram_read(two32, adj->layout, vertex);
+	oram_read(out, adj->matrix, two32[0]+n);
 }
 
-void ograph_get_adjacent_vertices_obliv(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex) obliv {
+void ograph_get_nth_adjacent_vertex_from_triple(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t * vertex, obliv uint32_t n) {
+	oram_read(out, adj->matrix, vertex[1]+n);
+}
 
-	for (size_t ii = 0; ii < adj->vertices; ii++) {
-		obliv uint32_t is_adjacent;
-		obliv uint32_t ii_priv = ii;
-		oram_read_obliv(&is_adjacent, adj->matrix, vertex*adj->vertices+ii);
-		obliv if (is_adjacent > 0) {
-			oram_write_obliv(out->list, &ii_priv, out->size);
-			out->size++;
-		}
-	}
+void ograph_get_nth_adjacent_vertex_obliv(uint32_t * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex, obliv uint32_t n) obliv {
+	obliv uint32_t two32[2];
+	oram_read_obliv(two32, adj->layout, vertex);
+	oram_read_obliv(out, adj->matrix, two32[0]+n);
+}
 
+void ograph_get_nth_adjacent_vertex_from_triple_obliv(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t * vertex, obliv uint32_t n) obliv {
+	oram_read_obliv(out, adj->matrix, vertex[1]+n);
 }
 
 void ograph_free_vertex_list(ograph_vertex_list * vlist) {
-	oram_free(vlist->list);
+	free(vlist->list);
 	free(vlist);
 }
 
 ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, obliv uint32_t source_vertex) {
 	oram * visited_vertices = oram_new(adj->vertices, 1);
-	oring_queue * q = oring_queue_new(adj->vertices);
-	ograph_vertex_list * adjacent_vertices = ograph_vertex_list_new((adj->vertices < adj->edges) ? adj->vertices : adj->edges);
+	oring_queue * q = oring_queue_new(adj->vertices, 3);
+
 	obliv uint32_t one = 1;
 	obliv uint32_t visited_vertices_count = 1;
-	obliv uint32_t this_vertex, last_distance, this_distance;
+	obliv uint32_t this_vertex[3];
+	obliv uint32_t next_vertex[3];
+	obliv uint32_t last_distance = 1, this_distance;
+	obliv size_t vertex_index = 0;
+	obliv size_t edge_index = 0;
+	obliv bool vloop = false;
+	obliv bool queue_empty;
 
+	this_vertex[0] = source_vertex;
+	oram_read(&this_vertex[1], adj->layout, source_vertex);
 	oram_write(visited_vertices, &one, source_vertex);
-	oring_queue_push(q, source_vertex);
 
-	for (size_t ii = 0; ii < adj->vertices; ii++) {
-		obliv bool queue_empty = oring_queue_empty(q);
-		obliv if (queue_empty == false) {
-			oring_queue_pop_obliv(&this_vertex, q);
-			oram_read_obliv(&last_distance, visited_vertices, this_vertex);
-			ograph_get_adjacent_vertices_obliv(adjacent_vertices, adj, this_vertex);
-			for (size_t jj = 0; jj < adjacent_vertices->public_size; jj++) {
-				obliv if (jj < adjacent_vertices->size) {
-					oram_read_obliv(&this_vertex, adjacent_vertices->list, jj);
-					oram_read_obliv(&this_distance, visited_vertices, this_vertex);
-					obliv if (this_distance == 0) {
-						this_distance = last_distance + 1;
-						oram_write_obliv(visited_vertices, &this_distance, this_vertex);
-						oring_queue_push_obliv(q, this_vertex);
-					}
-				}
+	for (size_t ii = 0; ii < adj->vertices + adj->edges; ii++) {
+		obliv if (vloop) {
+			queue_empty = oring_queue_empty_obliv(q);
+			obliv if (queue_empty == 0) {
+				oring_queue_pop_obliv(this_vertex, q);
+			}
+			oram_read_obliv(&last_distance, visited_vertices, this_vertex[0]);
+			vloop = false;
+			edge_index = 0;
+		} else {
+			ograph_get_nth_adjacent_vertex_from_triple_obliv(next_vertex, adj, this_vertex, edge_index);
+			this_distance = last_distance + 1;
+			oram_write_obliv(visited_vertices, &this_distance, next_vertex[0]);
+			oring_queue_push_obliv(q, next_vertex);
+			edge_index++;
+			obliv if (edge_index >= this_vertex[2]) {
+				vloop = true;
 			}
 		}
 	}
@@ -110,11 +131,10 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 		obliv uint32_t temp;
 		oram_read(&temp, visited_vertices, ii);
 		temp -= 1;
-		oram_write(result->list, &temp, ii);
+		result->list[ii] = temp;
 	}
 
 	oram_free(visited_vertices);
-	ograph_free_vertex_list(adjacent_vertices);
 	oring_queue_free(q);
 
 	return result;

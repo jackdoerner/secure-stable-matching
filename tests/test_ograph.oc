@@ -18,8 +18,6 @@ void testMain(void*varg) {
 
 	{
 
-		fprintf(stderr, "Node distance from node 1:\n");
-
 		int adjacency_count = 5;
 		int vertices = 10;
 
@@ -58,24 +56,20 @@ void testMain(void*varg) {
 		bool success = true;
 
 		for (int ii = 0; ii < result->public_size; ii++) {
-			obliv uint32_t temp;
-			uint32_t temp2;
-			oram_read(&temp, result->list, ii);
-			revealOblivInt(&temp2, temp, 0);
-			success &= (temp2 == expected_results[ii]) ;
+			uint32_t temp;
+			revealOblivInt(&temp, result->list[ii], 0);
+			success &= (temp == expected_results[ii]) ;
 		}
 
 		fprintf(stderr, "Test Item: %-70s %s\n", "ograph_breadth_first_search - 10 adjacencies", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			for (int ii = 0; ii < result->public_size; ii++) {
-				obliv uint32_t temp;
-				uint32_t temp2;
-				oram_read(&temp, result->list, ii);
-				revealOblivInt(&temp2, temp, 0);
-				if (temp2 != expected_results[ii]) {
+				uint32_t temp;
+				revealOblivInt(&temp, result->list[ii], 0);
+				if (temp != expected_results[ii]) {
 					fprintf(stderr, "\tElement:\t\t\t %d\n", ii);
 					fprintf(stderr, "\t\tExpected Output:\t %d\n", expected_results[ii]);
-					fprintf(stderr, "\t\tActual Output:\t\t %d\n", temp2);
+					fprintf(stderr, "\t\tActual Output:\t\t %d\n", temp);
 				}
 			}
 		}
