@@ -26,9 +26,9 @@ void testMain(void*varg) {
 
 	{
 
-		for (int ii = 0; ii < 10; ii++) {
+		for (int ii = 0; ii < 9; ii++) {
 			int vertices = vcts[ii];
-			for (int jj = 0; jj < 12; jj++) {
+			for (int jj = 0; jj < 9; jj++) {
 				int adjacency_count = ects[jj];
 				ograph_edge * edges = calloc(adjacency_count, sizeof(ograph_edge));
 				uint64_t tally = 0;
