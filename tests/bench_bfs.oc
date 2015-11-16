@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "util.h"
 #include "ograph.oh"
-#include "oqueue.oh"
 #include "test_generic.h"
 
 #define SAMPLES 30
@@ -17,14 +17,49 @@ char* testName() {
 	return TESTNAME;
 }
 
-uint64_t GetTimeStamp() {
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
-}
+int vcts[9] = {4,8,16,32,64,128,256,512,1024};
+int ects[9] = {4,8,16,32,64,128,256,512,1024};
 
 void testMain(void*varg) {
 
-	
+	fprintf(stdout, "==========\nBREADTH FIRST SEARCH (vertices, edges, sample 1, sample 2, ... sample n)\n----------\n");
+
+	{
+
+		for (int ii = 0; ii < 10; ii++) {
+			int vertices = vcts[ii];
+			for (int jj = 0; jj < 12; jj++) {
+				int adjacency_count = ects[jj];
+				ograph_edge * edges = calloc(adjacency_count, sizeof(ograph_edge));
+				uint64_t tally = 0;
+
+				fprintf(stdout, "%d,%d", vertices, adjacency_count);
+
+				for (int kk = 0; kk < SAMPLES; kk++) {
+					for (int ll = 0; ll < adjacency_count; ll++) {
+						edges[ll].v1 = feedOblivInt(rand_range(0,vertices), 1);
+						edges[ll].v2 = feedOblivInt(rand_range(0,vertices), 2);
+					}
+
+					uint64_t startTime = current_timestamp();
+					ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, adjacency_count);
+					ograph_vertex_list * result = ograph_breadth_first_search(adj, feedOblivInt(rand_range(0,vertices), 1));
+					uint64_t endTime = current_timestamp();
+
+
+					fprintf(stdout, ",%d", endTime - startTime);
+					tally += endTime - startTime;
+
+					ograph_free_vertex_list(result);
+					ograph_free_adjacency_matrix(adj);
+				}
+
+				free(edges);
+				fprintf(stdout, "\n");
+				fprintf(stderr, "BFS (vertices:%d, edges: %d): %d microseconds avg\n", vertices, adjacency_count, tally / (SAMPLES));
+			}
+		}
+
+	}
 
 }

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "ograph.oh"
-#include "oram.oh"
 #include "test_generic.h"
 
 static const char TESTNAME[] = "ograph";
@@ -49,6 +48,68 @@ void testMain(void*varg) {
 		ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, 2*adjacency_count);
 
 		ograph_vertex_list * result = ograph_breadth_first_search(adj, feedOblivInt(1, 1));
+
+		free(edges);
+		ograph_free_adjacency_matrix(adj);
+
+		bool success = true;
+
+		for (int ii = 0; ii < result->public_size; ii++) {
+			uint32_t temp;
+			revealOblivInt(&temp, result->list[ii], 0);
+			success &= (temp == expected_results[ii]) ;
+		}
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "ograph_breadth_first_search - 10 adjacencies", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		if (!success) {
+			for (int ii = 0; ii < result->public_size; ii++) {
+				uint32_t temp;
+				revealOblivInt(&temp, result->list[ii], 0);
+				if (temp != expected_results[ii]) {
+					fprintf(stderr, "\tElement:\t\t\t %d\n", ii);
+					fprintf(stderr, "\t\tExpected Output:\t %d\n", expected_results[ii]);
+					fprintf(stderr, "\t\tActual Output:\t\t %d\n", temp);
+				}
+			}
+		}
+
+		ograph_free_vertex_list(result);
+
+	}
+
+	{
+
+		int adjacency_count = 5;
+		int vertices = 10;
+
+		int adjacencies[10] = { 2, 1, 
+								1, 3,
+								3, 4,
+								5, 6,
+								7, 8
+							  };
+
+		if (ocCurrentParty() == 2) {
+			adjacencies[0] = 6; adjacencies[1] = 7;
+			adjacencies[2] = 7; adjacencies[3] = 1;
+			adjacencies[6] = 4; adjacencies[7] = 5;
+			adjacencies[8] = 8; adjacencies[9] = 9;
+		}
+
+		int expected_results[10] = {-1, 1, 0, 2, 3, 4, 5, 6, 7, 8};
+
+		ograph_edge * edges = calloc(adjacency_count * 2, sizeof(ograph_edge));
+
+		for (int party = 1; party < 3; party++) {
+			for (int ii = 0; ii <adjacency_count; ii ++) {
+				edges[(party-1)*adjacency_count+ii].v1 = feedOblivInt(adjacencies[2*ii], party);
+				edges[(party-1)*adjacency_count+ii].v2 = feedOblivInt(adjacencies[2*ii+1], party);
+			}
+		}
+
+		ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, 2*adjacency_count);
+
+		ograph_vertex_list * result = ograph_breadth_first_search(adj, feedOblivInt(2, 1));
 
 		free(edges);
 		ograph_free_adjacency_matrix(adj);

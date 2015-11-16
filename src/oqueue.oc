@@ -22,6 +22,14 @@ obliv bool oring_queue_empty_obliv(oring_queue * queue) obliv {
 	return (queue->head == queue->tail);
 }
 
+obliv bool oring_queue_full(oring_queue * queue) {
+	return (queue->head == queue->tail + 1);
+}
+
+obliv bool oring_queue_full_obliv(oring_queue * queue) obliv {
+	return (queue->head == queue->tail + 1);
+}
+
 void oring_queue_push(oring_queue * queue, obliv uint32_t * input) {
 	oram_write(queue->ring, input, queue->tail);
 	obliv if (queue->tail <= queue->size) {

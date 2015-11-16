@@ -28,11 +28,11 @@ int main(int argc,char* argv[])
 
 	srand(time(0));
 
-	lap = wallClock();
+	lap = (double)current_timestamp()/1000000;
 	fprintf(stderr,"Executing test: %s\n", testName());
 	fprintf(stderr,"Role: %s\n", (party==1?"1/Server":"2/Client"));
 	execYaoProtocol(&pd,testMain,0);
-	fprintf(stderr,"Total time: %lf s\n",wallClock()-lap);
+	fprintf(stderr,"Total time: %lf s\n",(double)current_timestamp()/1000000-lap);
 	cleanupProtocol(&pd);
 	return 0;
 }

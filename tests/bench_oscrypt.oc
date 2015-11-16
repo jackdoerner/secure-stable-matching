@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "util.h"
 #include "oscrypt.oh"
 #include "uint128.h"
 #include "test_generic.h"
@@ -14,12 +15,6 @@ static const char TESTNAME[] = "oscrypt_benchmark";
 
 char* testName() {
 	return TESTNAME;
-}
-
-uint64_t GetTimeStamp() {
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
 }
 
 void testMain(void*varg) {
@@ -49,11 +44,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -88,11 +83,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -127,11 +122,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -166,11 +161,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -205,11 +200,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -244,11 +239,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -283,11 +278,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -322,11 +317,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -361,11 +356,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;
@@ -444,11 +439,11 @@ void testMain(void*varg) {
 				salt[ii] = feedOblivChar(salt_raw[ii], 2);
 			}
 
-			uint64_t startTime = GetTimeStamp();
+			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 32);
 
-			uint64_t endTime = GetTimeStamp();
+			uint64_t endTime = current_timestamp();
 
 			fprintf(stdout, "%d\n", endTime - startTime);
 			tally += endTime - startTime;

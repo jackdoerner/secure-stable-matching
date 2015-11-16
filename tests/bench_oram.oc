@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "util.h"
 #include "oram.oh"
 #include "test_generic.h"
 
@@ -18,12 +19,6 @@ char* testName() {
 
 int elcts[9] = {4,8,16,32,64,128,256,512,1024};
 int elszs[9] = {1,2,4,8,16,32,64,128,256};
-
-uint64_t GetTimeStamp() {
-    struct timeval tv;
-    gettimeofday(&tv,NULL);
-    return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
-}
 
 void testMain(void*varg) {
 
@@ -45,9 +40,9 @@ void testMain(void*varg) {
 			for (int kk = 0; kk < SAMPLES; kk++) {
 				uint32_t index_raw = ocBroadcastInt(rand() % elct, 2);
 				obliv uint32_t index = feedOblivInt(index_raw, 2);
-				uint64_t startTime = GetTimeStamp();
+				uint64_t startTime = current_timestamp();
 				oram_write(o, &input[index_raw*elsz], index);
-				uint64_t endTime = GetTimeStamp();
+				uint64_t endTime = current_timestamp();
 				fprintf(stdout, ",%d", endTime - startTime);
 				tally += endTime - startTime;
 			}
@@ -81,9 +76,9 @@ void testMain(void*varg) {
 
 			for (int kk = 0; kk < SAMPLES; kk++) {
 				obliv uint32_t index = feedOblivInt(rand() % elct, 2);
-				uint64_t startTime = GetTimeStamp();
+				uint64_t startTime = current_timestamp();
 				oram_read(output, o, index);
-				uint64_t endTime = GetTimeStamp();
+				uint64_t endTime = current_timestamp();
 				fprintf(stdout, ",%d", endTime - startTime);
 				tally += endTime - startTime;
 			}
