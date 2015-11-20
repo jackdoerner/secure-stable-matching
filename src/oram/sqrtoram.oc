@@ -266,7 +266,13 @@ OcSqrtOram* ocSqrtOramNewAux(OcCopy* cpy,void* data,int n,int period)
   ram->shuffi = calloc(n,sizeof(obliv int));
   ram->stashi = calloc(period,sizeof(obliv int));
   for(i=0;i<n;++i) ram->shuffi[i]=i;
-  ram->physicalTemp = calloc(n,sizeof(obliv int));
+  { // Jack's fix for segfault during reinit with non-2^n sized orams.
+    const int pkl = 3; // TODO tweak
+    const int pk = (1<<pkl);
+    int nn = (n+pk-1)/pk;
+    ram->physicalTemp = calloc((n>nn*pk ? n : nn*pk),sizeof(obliv int));
+  }
+  //ram->physicalTemp = calloc(n,sizeof(obliv int));
   ram->indexBits = indexBits(n);
   ocSqrtOramShuffleData(ram);
   ram->pos = sqrtPosMapRecurNew(ram->physicalTemp,n,period);
