@@ -1,0 +1,8 @@
+#ifndef OBLIV_MATCH
+#define OBLIV_MATCH
+
+#include <obliv.oh>
+
+void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefs, obliv uint32_t * wPrefs, int n);
+
+#endif

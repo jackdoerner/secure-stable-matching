@@ -10,7 +10,6 @@ typedef struct oram oram;
 
 oram * oram_new(size_t, size_t);
 oram * oram_from_array(size_t, size_t, oram_base *);
-//void oram_expand(oram *, size_t);
 void oram_free(oram *);
 
 obliv bool oram_read(oram_base *, oram *, obliv size_t);

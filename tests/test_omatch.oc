@@ -1,0 +1,58 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "omatch.oh"
+#include "test_generic.h"
+
+static const char TESTNAME[] = "omatch";
+
+char* testName() {
+	return TESTNAME;
+}
+
+void testMain(void*varg) {
+
+	{
+		uint32_t mPrefsRaw[9] = {
+			0, 1, 2,
+			1, 2, 0,
+			1, 2, 0
+		};
+
+		uint32_t wPrefsRaw[9] = {
+			0, 1, 2,
+			2, 1, 0,
+			1, 0, 2
+		};
+
+		uint32_t expected_output[3] = {
+			0, 2, 1
+		};
+
+		obliv uint32_t mPrefs[9];
+		obliv uint32_t wPrefs[9];
+		obliv uint32_t output[3];
+
+		for (int ii = 0; ii < 9; ii++) {
+			mPrefs[ii] = feedOblivInt(mPrefsRaw[ii], 0);
+			wPrefs[ii] = feedOblivInt(wPrefsRaw[ii], 0);
+		}
+
+		ogale_shapley(output, mPrefs, wPrefs, 3);
+
+		bool success = true;
+
+		for (int ii = 0; ii < 3; ii++) {
+			uint32_t temp;
+			revealOblivInt(&temp, output[ii], 0);
+			success &= (temp == expected_output[ii]);
+		}
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "ogale_shapley - 3 couples", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	}
+
+
+}
