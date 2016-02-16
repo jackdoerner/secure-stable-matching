@@ -115,9 +115,12 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 			edge_index = 0;
 		} else {
 			ograph_get_nth_adjacent_vertex_from_triple_obliv(next_vertex, adj, this_vertex, edge_index);
-			this_distance = last_distance + 1;
-			oram_write_obliv(visited_vertices, &this_distance, next_vertex[0]);
-			oring_queue_push_obliv(q, next_vertex);
+			oram_read_obliv(&this_distance, visited_vertices, next_vertex[0]);
+			obliv if (this_distance == 0) {
+				this_distance = last_distance + 1;
+				oram_write_obliv(visited_vertices, &this_distance, next_vertex[0]);
+				oring_queue_push_obliv(q, next_vertex);
+			}
 			edge_index++;
 			obliv if (edge_index >= this_vertex[2]) {
 				vloop = true;
