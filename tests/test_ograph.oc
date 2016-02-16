@@ -16,6 +16,93 @@ char* testName() {
 void testMain(void*varg) {
 
 	{
+		int adjacency_count = 5;
+		int vertices = 10;
+
+		int adjacencies[10] = { 1, 2, 
+								1, 3,
+								1, 7,
+								2, 4,
+								7, 9
+							  };
+
+		if (ocCurrentParty() == 2) {
+			adjacencies[0] = 5; adjacencies[1] = 9;
+			adjacencies[2] = 0; adjacencies[3] = 8;
+			adjacencies[6] = 3; adjacencies[7] = 9;
+			adjacencies[8] = 9; adjacencies[9] = 1;
+		}
+
+		uint32_t expected_layout[20] = {
+			0, 1,
+			1, 4,
+			5, 1,
+			6, 1,
+			7, 0,
+			7, 1,
+			8, 0,
+			8, 1,
+			9, 0,
+			9, 1
+		};
+
+		uint32_t expected_matrix[30] = {
+			8, 9, 0,
+			2, 5, 1,
+			3, 6, 1,
+			7, 8, 1,
+			7, 8, 1,
+			4, 7, 0,
+			9, 9, 1,
+			9, 9, 1,
+			9, 9 ,1,
+			1, 1, 4
+		};
+
+		int expected_results[10] = {-1, 0, 1, 1, 2, -1, -1, 1, -1, 2};
+
+		ograph_edge * edges = calloc(adjacency_count * 2, sizeof(ograph_edge));
+
+		for (int party = 1; party < 3; party++) {
+			for (int ii = 0; ii <adjacency_count; ii ++) {
+				edges[(party-1)*adjacency_count+ii].v1 = feedOblivInt(adjacencies[2*ii], party);
+				edges[(party-1)*adjacency_count+ii].v2 = feedOblivInt(adjacencies[2*ii+1], party);
+			}
+		}
+
+		ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, 2*adjacency_count);	
+
+		bool success = true;
+
+		for (int ii = 0; ii < 10; ii++) {
+			int temp[2];
+			obliv int otemp[2];
+			oram_read(otemp, adj->layout, ii);
+			revealOblivInt(&temp[0], otemp[0], 0);
+			revealOblivInt(&temp[1], otemp[1], 0);
+			success &= (expected_layout[ii*2] == temp[0]);
+			success &= (expected_layout[ii*2+1] == temp[1]);
+		}
+
+		for (int ii = 0; ii < 10; ii++) {
+			int temp[3];
+			obliv int otemp[3];
+			oram_read(otemp, adj->matrix, ii);
+			revealOblivInt(&temp[0], otemp[0], 0);
+			revealOblivInt(&temp[1], otemp[1], 0);
+			revealOblivInt(&temp[2], otemp[2], 0);
+			success &= (expected_matrix[ii*3] == temp[0]);
+			success &= (expected_matrix[ii*3+1] == temp[1]);
+			success &= (expected_matrix[ii*3+2] == temp[2]);
+		}
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "ograph_build_adjacency_matrix - 10 adjacencies", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+		free(edges);
+		ograph_free_adjacency_matrix(adj);
+	}
+
+	{
 
 		int adjacency_count = 5;
 		int vertices = 10;
