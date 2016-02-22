@@ -152,7 +152,7 @@ void testMain(void*varg) {
 
 		oqueue_free(testQueue);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - push/pop 500 ordered elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - push/pop 360 ordered elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 

@@ -1,7 +1,11 @@
 #pragma once
-#include"copy.oh"
+#include "copy.oh"
 
 typedef struct OcSqrtOram OcSqrtOram;
+typedef void (*ocBlockAccessFunction)(OcCopy *, void *, void *) obliv;
+
+void ocSqrtOramAccess(OcSqrtOram* ram, obliv int index,ocBlockAccessFunction fn, void* data);
+void ocSqrtOramAccessObliv(OcSqrtOram* ram, obliv int index,ocBlockAccessFunction fn, void* data) obliv;
 
 void ocSqrtOramRead(OcSqrtOram* ram,obliv int index,void* data);
 void ocSqrtOramWrite(OcSqrtOram* ram,void* data,obliv int index);
