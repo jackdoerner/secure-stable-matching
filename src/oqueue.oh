@@ -2,14 +2,35 @@
 #define OBLIV_QUEUE
 
 #include <obliv.oh>
+#include "copy.oh"
 #include "oram.oh"
 
-typedef struct oring_queue {
-	oram * ring;
-	obliv size_t head;
-	obliv size_t tail;
-	size_t size;
-} oring_queue;
+/********************************************************************************
+ * This implements an O(log(n)) oblivious queue, as descriped in the paper:
+ * 
+ * Zahur, S. & Evans, D. (2013). Circuit Structures for Improving Efficiency of
+ * Security and Privacy Tools. IEEE Symposium on Security and Privacy 2013.
+ ********************************************************************************/
+
+typedef struct oqueue oqueue;
+
+oqueue * oqueue_new_static(OcCopy * cpy, int n);
+void oqueue_free(oqueue *);
+
+obliv bool oqueue_empty(oqueue *) obliv;
+obliv bool oqueue_full(oqueue *) obliv;
+obliv bool oqueue_push(oqueue *, void *) obliv;
+obliv bool oqueue_pop(void *, oqueue *) obliv;
+
+
+
+/********************************************************************************
+ * The following implements a ring queue atop Sqrt ORAM; it is left here for
+ * purposes of comparison only, and should not be used in practice, as the log(n)
+ * queue above is much faster.
+ ********************************************************************************/
+
+typedef struct oring_queue oring_queue;
 
 oring_queue * oring_queue_new(size_t size, size_t);
 void oring_queue_free(oring_queue *);

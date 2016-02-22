@@ -1,6 +1,7 @@
 #include "omatch.oh"
 #include "oram.oh"
 #include "oqueue.oh"
+#include "copy.oh"
 
 void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv uint32_t * wPrefsRaw, int n) {
 
@@ -17,7 +18,8 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 		}
 	}
 
-	oring_queue * mQueue = oring_queue_new(n, 2);
+	OcCopy cpy = ocCopyIntN(2);
+	oqueue * mQueue = oqueue_new_static(&cpy, n);
 	obliv uint32_t thisMQueue[2]; // [index, pref list pos]
 	obliv uint32_t nextMQueue[2]; // [index, pref list pos]
 	obliv uint32_t thisMStatus[2]; // [parter index, partner rating] 
@@ -30,14 +32,14 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 	thisWStatus[1] = -1;
 	for (size_t ii = 0; ii < n; ii++) {
 		thisMQueue[0] = ii;
-		oring_queue_push(mQueue, thisMQueue);
+		oqueue_push(mQueue, thisMQueue);
 		oram_write(wStatus, thisWStatus, ii);
 	}
 
 	for (size_t ii = 0; ii < n * n; ii++) {
-		obliv bool queue_empty = oring_queue_empty(mQueue);
+		obliv bool queue_empty = oqueue_empty(mQueue);
 		obliv if (queue_empty == 0) {
-			oring_queue_pop_obliv(thisMQueue, mQueue);
+			oqueue_pop(thisMQueue, mQueue);
 			oram_read_obliv(&proposedW, mPrefs, thisMQueue[0] * n + thisMQueue[1]);
 			oram_read_obliv(&thisWPrefs, wPrefs, proposedW * n + thisMQueue[0]);
 			oram_read_obliv(thisWStatus, wStatus, proposedW);
@@ -50,7 +52,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 				// the old m is now sad and alone
 				nextMQueue[0] = thisWStatus[0];
 				nextMQueue[1] = thisWStatus[2] + 1;
-				oring_queue_push_obliv(mQueue, nextMQueue);
+				oqueue_push(mQueue, nextMQueue);
 
 				// write new status for this w
 				thisWStatus[0] = thisMQueue[0];
@@ -60,7 +62,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 
 			} else {
 				thisMQueue[1] += 1;
-				oring_queue_push_obliv(mQueue, thisMQueue);
+				oqueue_push(mQueue, thisMQueue);
 			}
 		}
 	}
@@ -70,7 +72,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 		output[ii] = thisMStatus[0];
 	}
 
-	oring_queue_free(mQueue);
+	oqueue_free(mQueue);
 	oram_free(mPrefs);
 	oram_free(wPrefs);
 	oram_free(mStatus);

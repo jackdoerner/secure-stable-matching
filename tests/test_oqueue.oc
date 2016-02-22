@@ -15,7 +15,7 @@ char* testName() {
 
 void testMain(void*varg) {
 
-	{
+	/*{
 
 		int testEls = 500;
 
@@ -38,7 +38,7 @@ void testMain(void*varg) {
 
 		oring_queue_free(testQueue);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - push/pop 500 ordered elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oring_queue - push/pop 500 ordered elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 
@@ -77,7 +77,7 @@ void testMain(void*varg) {
 
 		oring_queue_free(testQueue);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - oring_queue_empty", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oring_queue - oring_queue_empty", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 
@@ -115,7 +115,121 @@ void testMain(void*varg) {
 
 		oring_queue_free(testQueue);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - oring_queue_full", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oring_queue - oring_queue_full", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}*/
+
+
+
+
+
+
+	{
+
+		int testEls = 360;
+
+		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
+
+		bool success = true;
+
+		for (int ii = 0; ii <testEls; ii ++) {
+			obliv int input = feedOblivInt(ii, ii % 2);
+			obliv bool pushed = oqueue_push(testQueue, &input);
+			bool tempBool;
+			revealOblivBool(&tempBool, pushed, 0);
+			success &= tempBool;
+		}
+
+		for (int ii = 0; ii <testEls; ii ++) {
+			obliv int output;
+			obliv bool popped = oqueue_pop(&output, testQueue);
+			int temp;
+			revealOblivInt(&temp, output, 0);
+			bool tempBool;
+			revealOblivBool(&tempBool, popped, 0);
+			success &= (temp == ii && tempBool);
+		}
+
+		oqueue_free(testQueue);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - push/pop 500 ordered elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+
+		int testEls = 168;
+
+		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
+
+		bool success = true;
+
+		obliv bool testQueueFullness = oqueue_empty(testQueue);
+		bool tempBool;
+		revealOblivBool(&tempBool, testQueueFullness, 0);
+		success &= (tempBool == true);
+
+		for (int ii = 0; ii <testEls; ii ++) {
+			obliv int input = feedOblivInt(ii, ii % 2);
+			oqueue_push(testQueue, &input);
+			testQueueFullness = oqueue_empty(testQueue);
+			revealOblivBool(&tempBool, testQueueFullness, 0);
+			success &= (tempBool == false);
+		}
+
+		for (int ii = 0; ii <testEls; ii ++) {
+			testQueueFullness = oqueue_empty(testQueue);
+			revealOblivBool(&tempBool, testQueueFullness, 0);
+			success &= (tempBool == false);
+			obliv int output;
+			oqueue_pop(&output, testQueue);
+		}
+
+		testQueueFullness = oqueue_empty(testQueue);
+		revealOblivBool(&tempBool, testQueueFullness, 0);
+		success &= (tempBool == true);
+
+		oqueue_free(testQueue);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - oqueue_empty", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+
+		int testEls = 168;
+
+		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
+
+		bool success = true;
+
+		obliv bool testQueueFullness;
+		bool tempBool;
+		
+
+		for (int ii = 0; ii <testEls; ii ++) {
+			testQueueFullness = oqueue_full(testQueue);
+			revealOblivBool(&tempBool, testQueueFullness, 0);
+			success &= (tempBool == false);
+			obliv int input = feedOblivInt(ii, ii % 2);
+			oqueue_push(testQueue, &input);
+		}
+
+		testQueueFullness = oqueue_full(testQueue);
+		revealOblivBool(&tempBool, testQueueFullness, 0);
+		success &= (tempBool == true);
+
+		for (int ii = 0; ii <testEls; ii ++) {
+			obliv int output;
+			oqueue_pop(&output, testQueue);
+			testQueueFullness = oqueue_full(testQueue);
+			revealOblivBool(&tempBool, testQueueFullness, 0);
+			success &= (tempBool == false);
+		}
+
+		oqueue_free(testQueue);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - oqueue_full", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 

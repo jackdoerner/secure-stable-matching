@@ -88,7 +88,8 @@ void ograph_free_vertex_list(ograph_vertex_list * vlist) {
 
 ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, obliv uint32_t source_vertex) {
 	oram * visited_vertices = oram_new(adj->vertices, 1);
-	oring_queue * q = oring_queue_new(adj->vertices, 3);
+	OcCopy qcpy = ocCopyIntN(3);
+	oqueue * q = oqueue_new_static(&qcpy, adj->vertices);
 
 	obliv uint32_t one = 1;
 	obliv uint32_t visited_vertices_count = 1;
@@ -106,9 +107,9 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 
 	for (size_t ii = 0; ii < adj->vertices + adj->edges; ii++) {
 		obliv if (vloop) {
-			queue_empty = oring_queue_empty_obliv(q);
+			queue_empty = oqueue_empty(q);
 			obliv if (queue_empty == 0) {
-				oring_queue_pop_obliv(this_vertex, q);
+				oqueue_pop(this_vertex, q);
 			}
 			oram_read_obliv(&last_distance, visited_vertices, this_vertex[0]);
 			vloop = false;
@@ -119,7 +120,7 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 			obliv if (this_distance == 0) {
 				this_distance = last_distance + 1;
 				oram_write_obliv(visited_vertices, &this_distance, next_vertex[0]);
-				oring_queue_push_obliv(q, next_vertex);
+				oqueue_push(q, next_vertex);
 			}
 			edge_index++;
 			obliv if (edge_index >= this_vertex[2]) {
@@ -138,7 +139,7 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 	}
 
 	oram_free(visited_vertices);
-	oring_queue_free(q);
+	oqueue_free(q);
 
 	return result;
 }
