@@ -3,7 +3,7 @@
 
 #include <obliv.oh>
 #include "copy.oh"
-#include "oram.oh"
+//#include "oram.oh"
 
 /********************************************************************************
  * This implements an O(log(n)) oblivious queue, as descriped in the paper:
@@ -30,7 +30,7 @@ obliv bool oqueue_pop(void *, oqueue *) obliv;
  * queue above is much faster.
  ********************************************************************************/
 
-typedef struct oring_queue oring_queue;
+/*typedef struct oring_queue oring_queue;
 
 oring_queue * oring_queue_new(size_t size, size_t);
 void oring_queue_free(oring_queue *);
@@ -42,6 +42,6 @@ obliv bool oring_queue_full_obliv(oring_queue *) obliv;
 void oring_queue_push(oring_queue *, obliv uint32_t *);
 void oring_queue_push_obliv(oring_queue *, obliv uint32_t *) obliv;
 void oring_queue_pop(obliv uint32_t *, oring_queue *);
-void oring_queue_pop_obliv(obliv uint32_t *, oring_queue *) obliv;
+void oring_queue_pop_obliv(obliv uint32_t *, oring_queue *) obliv;*/
 
 #endif

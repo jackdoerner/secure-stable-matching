@@ -158,7 +158,7 @@ void testMain(void*varg) {
 
 	{
 
-		int testEls = 168;
+		int testEls = 186;
 
 		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
 
@@ -197,7 +197,7 @@ void testMain(void*varg) {
 
 	{
 
-		int testEls = 168;
+		int testEls = 186;
 
 		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
 
@@ -218,14 +218,6 @@ void testMain(void*varg) {
 		testQueueFullness = oqueue_full(testQueue);
 		revealOblivBool(&tempBool, testQueueFullness, 0);
 		success &= (tempBool == true);
-
-		for (int ii = 0; ii <testEls; ii ++) {
-			obliv int output;
-			oqueue_pop(&output, testQueue);
-			testQueueFullness = oqueue_full(testQueue);
-			revealOblivBool(&tempBool, testQueueFullness, 0);
-			success &= (tempBool == false);
-		}
 
 		oqueue_free(testQueue);
 
