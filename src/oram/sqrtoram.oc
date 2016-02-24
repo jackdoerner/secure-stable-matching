@@ -305,7 +305,7 @@ void ocSqrtOramAccess(OcSqrtOram* ram, obliv int index,ocBlockAccessFunction fn,
   obliv bool found=false;
   // Scan through stash
   for(i=0;i<ram->time;++i) obliv if(index==ram->stashi[i])
-  { fn(ram->cpy,element(ram->cpy,ram->stash,ram->time),data);
+  { fn(ram->cpy,element(ram->cpy,ram->stash,i),data);
     found=true;
   }
 
@@ -347,7 +347,7 @@ void ocSqrtOramAccessObliv(OcSqrtOram* ram, obliv int index,ocBlockAccessFunctio
     // Scan through stash
     for(i=0;i<ram->time;++i) obliv if(index==ram->stashi[i])
     { obliv if(en)
-      fn(ram->cpy,element(ram->cpy,ram->stash,ram->time),data);
+      fn(ram->cpy,element(ram->cpy,ram->stash,i),data);
       found=true;
     }
 

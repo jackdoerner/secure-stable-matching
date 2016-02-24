@@ -3,12 +3,14 @@
 struct oram {
 	size_t size;
 	size_t elct;
+	OcCopy cpy;
 	oram_base * data;
 };
 
 void oram_init(oram* o, size_t size, size_t elct) {
 	o->size = size;
 	o->elct = elct;
+	o->cpy = ocCopyIntN(elct);
 	o->data = calloc(o->size * o->elct, sizeof(oram_base));
 }
 
@@ -91,6 +93,28 @@ obliv bool oram_write_obliv(oram * o, oram_base * input, obliv size_t index) obl
 			for (size_t jj = 0; jj < o->elct; jj++) {
 				o->data[ii*o->elct + jj] = input[jj];	
 			}
+			success = true;
+		}
+	}
+	return success;
+}
+
+obliv bool oram_apply(oram * o, oram_base * input, block_access_function fn, obliv size_t index) {
+	obliv bool success = false;
+	for (size_t ii = 0; ii < o->size; ii++) {
+		obliv if (ii == index) {
+			fn(&o->cpy, &o->data[ii*o->elct], input);
+			success = true;
+		}
+	}
+	return success;
+}
+
+obliv bool oram_apply_obliv(oram * o, oram_base * input, block_access_function fn, obliv size_t index) obliv {
+	obliv bool success = false;
+	for (size_t ii = 0; ii < o->size; ii++) {
+		obliv if (ii == index) {
+			fn(&o->cpy, &o->data[ii*o->elct], input);
 			success = true;
 		}
 	}

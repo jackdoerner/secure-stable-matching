@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SQRTORAM_OH
+#define SQRTORAM_OH
 #include "copy.oh"
 
 typedef struct OcSqrtOram OcSqrtOram;
@@ -15,3 +16,5 @@ void ocSqrtOramWriteObliv(OcSqrtOram* ram,void* data,obliv int index) obliv;
 
 OcSqrtOram* ocSqrtOramNew(OcCopy* cpy,void* data,int n);
 void ocSqrtOramRelease(OcSqrtOram* ram);
+
+#endif

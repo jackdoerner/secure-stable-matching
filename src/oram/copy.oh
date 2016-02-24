@@ -1,4 +1,6 @@
-#pragma once
+#ifndef OBLIV_COPY_OH
+#define OBLIV_COPY_OH
+
 #include<stddef.h>
 #include"obliv_copy_internal.h"
 #include<obliv_common.h>
@@ -138,3 +140,5 @@ OcCopy* ocShareCopyNew(ProtocolDesc* pd,size_t n,size_t eltsize);
 void ocShareCopyRelease(OcCopy* c);
 void ocShareInit(ProtocolDesc* pd);
 void ocShareCleanup(ProtocolDesc* pd);
+
+#endif

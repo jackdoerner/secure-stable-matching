@@ -1,5 +1,4 @@
 #include "oram.oh"
-#include "oram/copy.oh"
 #include "oram/sqrtoram.oh"
 
 struct oram {
@@ -76,6 +75,28 @@ obliv bool oram_write_obliv(oram * o, oram_base * input, obliv size_t index) obl
 	
 	obliv if ((index < o->size) & (index >= 0)) {
 		ocSqrtOramWriteObliv(o->data, input, index % o->size);
+		success = true;
+	}
+
+	return success;
+}
+
+obliv bool oram_apply(oram * o, oram_base * input, block_access_function fn, obliv size_t index) {
+	obliv bool success = false;
+	
+	obliv if ((index < o->size) & (index >= 0)) {
+		ocSqrtOramAccessObliv(o->data, index % o->size, fn, input);
+		success = true;
+	}
+
+	return success;
+}
+
+obliv bool oram_apply_obliv(oram * o, oram_base * input, block_access_function fn, obliv size_t index) obliv {
+	obliv bool success = false;
+	
+	obliv if ((index < o->size) & (index >= 0)) {
+		ocSqrtOramAccessObliv(o->data, index % o->size, fn, input);
 		success = true;
 	}
 

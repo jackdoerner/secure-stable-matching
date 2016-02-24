@@ -33,11 +33,10 @@ void testMain(void*varg) {
 		uint32_t order_raw[256];
 
 		for (int ii = 0; ii < 256; ii++) {
-			input_raw[ii] = rand();
+			input_raw[ii] = ii;
 			order_raw[ii] = ii;
 		}
 
-		shuffle(input_raw, 256);
 		shuffle(order_raw, 256);
 
 		oram * o = oram_new(256, 1);
