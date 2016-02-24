@@ -98,8 +98,7 @@ static void* element(OcCopy* cpy,void* arr,int x) obliv
   { return x*cpy->eltsize+(char*)arr; }
 
 obliv bool oqueue_empty(oqueue * layer) obliv {
-	obliv uint32_t ce = (layer != NULL) ? layer->current_elements : 0;
-	return (ce == 0);
+	return (layer->current_elements == 0);
 }
 
 obliv bool oqueue_full (oqueue * layer) obliv {
@@ -144,33 +143,34 @@ obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 	obliv bool success = false;
 
 	~obliv(en) {
-		if (layer->pop_time == 1) {
-			obliv if (en & layer->head >= 2) {
-				obliv if (~oqueue_empty(layer->child)) {
-					~obliv(en2) {
-						if (layer->child != NULL) {
-							obliv if (en2) {
-								ocCopy(layer->cpy,element(layer->cpy,layer->data,0), element(layer->cpy,layer->data,2));
-								oqueue_pop(element(layer->cpy,layer->data,1), layer->child);
-								layer->head -= 2;
-							}
-						}
-					}
-				} else {
+		if (layer->pop_time == 0) {
+			if (layer->child == NULL) {
+				obliv if (en & layer->head >= 2) {
 					for (uint8_t ii = 0; ii < 4; ii ++) {
 						ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), element(layer->cpy,layer->data,ii + 2));
 					}
 					layer->head -= 2;
 					layer->tail -= 2;
 				}
+			} else {
+				obliv if (en & layer->head >= 2) {
+					ocCopy(layer->cpy,element(layer->cpy,layer->data,0), element(layer->cpy,layer->data,2));
+					layer->head -= 2;
+					obliv if(~oqueue_pop(element(layer->cpy,layer->data,1), layer->child)) {
+						for (uint8_t ii = 1; ii < 4; ii ++) {
+							ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), element(layer->cpy,layer->data,ii + 2));
+						}
+						layer->tail -= 2;
+					}
+				}
 			}
-			layer->pop_time = 0;
+			layer->pop_time = 1;
 		} else {
-			layer->pop_time ++;
+			layer->pop_time --;
 		}
 	}
 
-	obliv if (~oqueue_empty(layer)) {
+	obliv if (layer->head < 3 & layer->head != layer->tail) {
 		for (uint8_t ii = 0; ii < 3; ii++) {
 			obliv if (ii == layer->head) {
 				ocCopy(layer->cpy,output,element(layer->cpy,layer->data,ii));

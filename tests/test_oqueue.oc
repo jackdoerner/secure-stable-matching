@@ -196,6 +196,198 @@ void testMain(void*varg) {
 
 	{
 
+		int testEls = 200;
+		int testOps = 4000;
+
+		uint32_t testBuffer[201];
+		uint32_t testBufferHead = 0;
+		uint32_t testBufferTail = 0;
+
+		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
+
+		obliv uint32_t otemp;
+		obliv bool opSuccess;
+		bool success = true;
+		bool tempBool;
+		uint32_t thisVal;
+		uint32_t temp;
+		obliv uint32_t rnd;
+		uint32_t srnd;
+
+		for (int ii = 0; ii < testOps; ii ++) {
+			// for some reason, ocBroadcast doesn't work.
+			rnd = feedOblivInt(rand(), ii % 2);
+			revealOblivBool(&srnd, rnd, 0);
+
+			if (testBufferHead == testBufferTail) {
+				// queue is empty; push				
+				testBuffer[testBufferTail] = srnd;
+				if (testBufferTail < 200) {
+					testBufferTail ++;
+				} else {
+					testBufferTail = 0;
+				}
+				otemp = feedOblivInt(srnd, ii % 2);
+				opSuccess = oqueue_push(testQueue, &otemp);
+				revealOblivBool(&tempBool, opSuccess, 0);
+				if (!tempBool) fprintf(stderr,"FAILURE at %d:1\n", ii);
+				success &= tempBool;
+			} else {
+				bool queue_full = (testBufferTail + 1) == testBufferHead || (testBufferTail == 200 && testBufferHead == 0);
+				if (queue_full) {
+					// queue is full; pop
+					thisVal = testBuffer[testBufferHead];
+					if (testBufferHead < 200) {
+						testBufferHead ++;
+					} else {
+						testBufferHead = 0;
+					}
+					opSuccess = oqueue_pop(&otemp, testQueue);
+					revealOblivInt(&temp, otemp, 0);
+					revealOblivBool(&tempBool, opSuccess, 0);
+					if (!(tempBool && (temp == thisVal))) fprintf(stderr,"FAILURE at %d:2\n", ii);
+					success &= tempBool && (temp == thisVal);
+				} else {
+					if (srnd %2 > 0) {
+						testBuffer[testBufferTail] = srnd;
+						if (testBufferTail < 200) {
+							testBufferTail ++;
+						} else {
+							testBufferTail = 0;
+						}
+						otemp = feedOblivInt(srnd, ii % 2);
+						opSuccess = oqueue_push(testQueue, &otemp);
+						revealOblivBool(&tempBool, opSuccess, 0);
+						if (!tempBool) fprintf(stderr,"FAILURE at %d:3\n", ii);
+						success &= tempBool;
+					} else {
+						thisVal = testBuffer[testBufferHead];
+						if (testBufferHead < 200) {
+							testBufferHead ++;
+						} else {
+							testBufferHead = 0;
+						}
+						opSuccess = oqueue_pop(&otemp, testQueue);
+						revealOblivInt(&temp, otemp, 0);
+						revealOblivBool(&tempBool, opSuccess, 0);
+						success &= tempBool && (temp == thisVal);
+						if (!tempBool) fprintf(stderr,"FAILURE at %d:4.1\n", ii);
+						if (temp != thisVal) fprintf(stderr,"FAILURE at %d:4.2\n", ii);
+					}
+				}	
+			}
+		}
+
+		oqueue_free(testQueue);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - 4000 random operations on empty 200 element queue", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+
+		int testEls = 200;
+		int testOps = 4000;
+
+		uint32_t testBuffer[201];
+		uint32_t testBufferHead = 0;
+		uint32_t testBufferTail = 0;
+
+		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
+
+		obliv uint32_t otemp;
+		obliv bool opSuccess;
+		bool success = true;
+		bool tempBool;
+		uint32_t thisVal;
+		uint32_t temp;
+		obliv uint32_t rnd;
+		uint32_t srnd;
+
+		for (int ii = 0; ii < testEls; ii ++) {
+			// for some reason, ocBroadcast doesn't work.
+			rnd =feedOblivInt(rand(), ii % 2);
+			revealOblivBool(&srnd, rnd, 0);
+
+			testBuffer[testBufferTail] = srnd;
+			if (testBufferTail < 200) {
+				testBufferTail ++;
+			} else {
+				testBufferTail = 0;
+			}
+			otemp = feedOblivInt(srnd, ii % 2);
+			opSuccess = oqueue_push(testQueue, &otemp);
+			revealOblivBool(&tempBool, opSuccess, 0);
+			success &= tempBool;
+		}
+
+		for (int ii = 0; ii < testOps; ii ++) {
+			// for some reason, ocBroadcast doesn't work.
+			rnd =feedOblivInt(rand(), ii % 2);
+			revealOblivBool(&srnd, rnd, 0);
+
+			if (testBufferHead == testBufferTail) {
+				// queue is empty; push				
+				testBuffer[testBufferTail] = srnd;
+				if (testBufferTail < 200) {
+					testBufferTail ++;
+				} else {
+					testBufferTail = 0;
+				}
+				otemp = feedOblivInt(srnd, ii % 2);
+				opSuccess = oqueue_push(testQueue, &otemp);
+				revealOblivBool(&tempBool, opSuccess, 0);
+				success &= tempBool;
+			} else {
+				bool queue_full = (testBufferTail + 1) == testBufferHead || (testBufferTail == 200 && testBufferHead == 0);
+				if (queue_full) {
+					// queue is full; pop
+					thisVal = testBuffer[testBufferHead];
+					if (testBufferHead < 200) {
+						testBufferHead ++;
+					} else {
+						testBufferHead = 0;
+					}
+					opSuccess = oqueue_pop(&otemp, testQueue);
+					revealOblivInt(&temp, otemp, 0);
+					revealOblivBool(&tempBool, opSuccess, 0);
+					success &= tempBool && (temp == thisVal);
+				} else {
+					if (srnd %2 > 0) {
+						testBuffer[testBufferTail] = srnd;
+						if (testBufferTail < 200) {
+							testBufferTail ++;
+						} else {
+							testBufferTail = 0;
+						}
+						otemp = feedOblivInt(srnd, ii % 2);
+						opSuccess = oqueue_push(testQueue, &otemp);
+						revealOblivBool(&tempBool, opSuccess, 0);
+						success &= tempBool;
+					} else {
+						thisVal = testBuffer[testBufferHead];
+						if (testBufferHead < 200) {
+							testBufferHead ++;
+						} else {
+							testBufferHead = 0;
+						}
+						opSuccess = oqueue_pop(&otemp, testQueue);
+						revealOblivInt(&temp, otemp, 0);
+						revealOblivBool(&tempBool, opSuccess, 0);
+						success &= tempBool && (temp == thisVal);
+					}
+				}	
+			}
+		}
+
+		oqueue_free(testQueue);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - 4000 random operations on full 200 element queue", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+
 		int testEls = 189;
 
 		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
