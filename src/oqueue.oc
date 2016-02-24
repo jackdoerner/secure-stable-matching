@@ -88,6 +88,9 @@ struct oqueue {
 	bool dynamic_sizing;
 	obliv uint8_t head;
 	obliv uint8_t tail;
+	obliv uint32_t current_elements;
+	uint8_t push_time;
+	uint8_t pop_time;
 	void * data;
 };
 
@@ -95,14 +98,8 @@ static void* element(OcCopy* cpy,void* arr,int x) obliv
   { return x*cpy->eltsize+(char*)arr; }
 
 obliv bool oqueue_empty(oqueue * layer) obliv {
-	obliv uint8_t h = (layer != NULL) ? layer->head : 0;
-	obliv uint8_t t = (layer != NULL) ? layer->tail : 0;
-	return (h == t);
-}
-
-obliv bool oqueue_accepting_pushes(oqueue * layer) obliv {
-	if (layer == NULL) return false;
-	else return (layer->tail != 6);
+	obliv uint32_t ce = (layer != NULL) ? layer->current_elements : 0;
+	return (ce == 0);
 }
 
 obliv bool oqueue_full (oqueue * layer) obliv {
@@ -115,56 +112,73 @@ obliv bool oqueue_full (oqueue * layer) obliv {
 
 obliv bool oqueue_push(oqueue * layer, void * input) obliv {
 	obliv bool success = false;
+	~obliv(en) {
+		if (layer->child != NULL) {
+			if (layer->push_time == 1) {
+				obliv if (en & (layer->tail >= 5)) {
+					obliv if (oqueue_push(layer->child, element(layer->cpy,layer->data,3))) {
+						ocCopy(layer->cpy,element(layer->cpy,layer->data,3), element(layer->cpy,layer->data,5));
+						layer->tail -= 2;	
+					}
+				}
+				layer->push_time = 0;
+			} else {
+				layer->push_time ++;
+			}
+		}
+	}
 	obliv if (layer->tail < 6) {
 		for (uint8_t ii = 0; ii < 6; ii++) {
 			obliv if (ii == layer->tail) {
 				ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), input);
 				success = true;
+				layer->current_elements ++;
 			}	
 		}
 		layer->tail++;
-		~obliv(en) {
-			if (layer->child != NULL) {
-				obliv if (en & (layer->tail == 6) & (oqueue_accepting_pushes(layer->child))) {
-					success &= oqueue_push(layer->child, element(layer->cpy,layer->data,3));
-					ocCopy(layer->cpy,element(layer->cpy,layer->data,3), element(layer->cpy,layer->data,5));
-					layer->tail = 4;
-				}
-			}
-		}
 	}
 	return success;
 }
 
 obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 	obliv bool success = false;
+
+	~obliv(en) {
+		if (layer->pop_time == 1) {
+			obliv if (en & layer->head >= 2) {
+				obliv if (~oqueue_empty(layer->child)) {
+					~obliv(en2) {
+						if (layer->child != NULL) {
+							obliv if (en2) {
+								ocCopy(layer->cpy,element(layer->cpy,layer->data,0), element(layer->cpy,layer->data,2));
+								oqueue_pop(element(layer->cpy,layer->data,1), layer->child);
+								layer->head -= 2;
+							}
+						}
+					}
+				} else {
+					for (uint8_t ii = 0; ii < 4; ii ++) {
+						ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), element(layer->cpy,layer->data,ii + 2));
+					}
+					layer->head -= 2;
+					layer->tail -= 2;
+				}
+			}
+			layer->pop_time = 0;
+		} else {
+			layer->pop_time ++;
+		}
+	}
+
 	obliv if (~oqueue_empty(layer)) {
 		for (uint8_t ii = 0; ii < 3; ii++) {
 			obliv if (ii == layer->head) {
 				ocCopy(layer->cpy,output,element(layer->cpy,layer->data,ii));
 				success = true;
+				layer->current_elements --;
 			}
 		}
 		layer->head++;
-		obliv if (layer->head == 2) {
-			obliv if (~oqueue_empty(layer->child)) {
-				~obliv(en) {
-					if (layer->child != NULL) {
-						obliv if (en) {
-							ocCopy(layer->cpy,element(layer->cpy,layer->data,0), element(layer->cpy,layer->data,2));
-							success &= oqueue_pop(element(layer->cpy,layer->data,1), layer->child);
-							layer->head = 0;
-						}
-					}
-				}
-			} else {
-				for (uint8_t ii = 0; ii < 4; ii ++) {
-					ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), element(layer->cpy,layer->data,ii + 2));
-				}
-				layer->head -= 2;
-				layer->tail -= 2;
-			}
-		}
 	}
 	return success;
 }
@@ -183,6 +197,9 @@ oqueue * oqueue_new_static(OcCopy * cpy, int n) {
 		this_layer->layer_index = layer_index;
 		this_layer->head = 0;
 		this_layer->tail = 0;
+		this_layer->current_elements = 0;
+		this_layer->push_time = 0;
+		this_layer->pop_time = 0;
 		this_layer->dynamic_sizing = false;
 		this_layer->child = NULL;
 
@@ -198,7 +215,7 @@ oqueue * oqueue_new_static(OcCopy * cpy, int n) {
 		}
 		last_layer = this_layer;
 
-		queue_size += 6 * pow(2, layer_index);
+		queue_size += 3 * pow(2, layer_index);
 		layer_index++;
 	}
 

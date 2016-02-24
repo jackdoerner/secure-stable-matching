@@ -126,7 +126,7 @@ void testMain(void*varg) {
 
 	{
 
-		int testEls = 360;
+		int testEls = 378;
 
 		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
 
@@ -152,13 +152,51 @@ void testMain(void*varg) {
 
 		oqueue_free(testQueue);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - push/pop 360 ordered elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - push/pop 378 ordered elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 
 	{
 
-		int testEls = 186;
+		int testEls = 189;
+
+		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
+
+		bool success = true;
+
+		for (int ii = 0; ii <testEls*2; ii ++) {
+			obliv int input = feedOblivInt(ii, ii % 2);
+			obliv bool pushed = oqueue_push(testQueue, &input);
+			bool tempBool;
+			revealOblivBool(&tempBool, pushed, 0);
+			success &= tempBool;
+		}
+
+		obliv int input = feedOblivInt(12345, 0);
+		obliv bool pushed = oqueue_push(testQueue, &input);
+		bool tempBool;
+		revealOblivBool(&tempBool, pushed, 0);
+		success &= !tempBool;
+
+		for (int ii = 0; ii <testEls*2; ii ++) {
+			obliv int output;
+			obliv bool popped = oqueue_pop(&output, testQueue);
+			int temp;
+			revealOblivInt(&temp, output, 0);
+			bool tempBool;
+			revealOblivBool(&tempBool, popped, 0);
+			success &= (temp == ii && tempBool);
+		}
+
+		oqueue_free(testQueue);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oqueue - push/pop 378 ordered elements with undersized queue", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
+
+		int testEls = 189;
 
 		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
 
@@ -197,7 +235,7 @@ void testMain(void*varg) {
 
 	{
 
-		int testEls = 186;
+		int testEls = 189;
 
 		oqueue * testQueue = oqueue_new_static(&ocCopyInt, testEls);
 
@@ -207,7 +245,7 @@ void testMain(void*varg) {
 		bool tempBool;
 		
 
-		for (int ii = 0; ii <testEls; ii ++) {
+		for (int ii = 0; ii <testEls*2; ii ++) {
 			testQueueFullness = oqueue_full(testQueue);
 			revealOblivBool(&tempBool, testQueueFullness, 0);
 			success &= (tempBool == false);
