@@ -17,383 +17,89 @@ char* testName() {
 	return TESTNAME;
 }
 
+int nvals[9] = {4,8,16,32,64,128,256,512,1024};
+
 void testMain(void*varg) {
 
 	{
-		fprintf(stdout, "==========\nN=4\n----------\n");
 
-		uint64_t tally = 0;
+		fprintf(stdout, "==========\nSCRYPT (N, edges, sample 1, sample 2, ... sample n)\n----------\n");
+		fflush(stdout);
 
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 4;
-			int r = 8;
-			int p = 1;
+		char passwd_raw[13] = "pleaseletmein";
+		obliv uint8_t passwd[13];
+		int passwd_len = 13;
+		char salt_raw[14] = "SodiumChloride";
+		obliv uint8_t salt[14];
+		int salt_len = 14;
+		obliv uint8_t result[64];
+		int r = 8;
+		int p = 1;
 
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
+		for (int ii = 0; ii < passwd_len; ii++) {
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
 		}
 
-		fprintf(stderr, "N=4: %d microseconds avg\n", tally / SAMPLES);
+		for (int ii = 0; ii < salt_len; ii++) {
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
+		}
+
+		for (int ii = 0; ii < 9; ii++) {
+			
+			int N = nvals[ii];
+
+			fprintf(stdout, "%d", N);
+			fflush(stdout);
+
+			uint64_t tally = 0;
+
+			for (int ii = 0; ii < SAMPLES; ii++) {
+
+				uint64_t startTime = current_timestamp();
+
+				oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
+
+				uint64_t endTime = current_timestamp();
+
+				fprintf(stdout, ",%d", endTime - startTime);
+				fflush(stdout);
+				tally += endTime - startTime;
+
+			}
+
+			fprintf(stdout, "\n");
+			fflush(stdout);
+			fprintf(stderr, "SCRYPT (N:%d): %d microseconds avg\n", N, tally / SAMPLES);
+		}
 	}
 
 	{
-		fprintf(stdout, "==========\nN=8\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 8;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=8: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-		fprintf(stdout, "==========\nN=16\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 16;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=16: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-		fprintf(stdout, "==========\nN=32\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 32;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=32: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-		fprintf(stdout, "==========\nN=64\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 64;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=64: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-		fprintf(stdout, "==========\nN=128\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 128;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=128: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-		fprintf(stdout, "==========\nN=256\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 256;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=256: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-		fprintf(stdout, "==========\nN=512\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 512;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=512: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-		fprintf(stdout, "==========\nN=1024\n----------\n");
-
-		uint64_t tally = 0;
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 1024;
-			int r = 8;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-			uint64_t endTime = current_timestamp();
-
-			fprintf(stdout, "%d\n", endTime - startTime);
-			tally += endTime - startTime;
-
-		}
-
-		fprintf(stderr, "N=1024: %d microseconds avg\n", tally / SAMPLES);
-	}
-
-	/*{
-		fprintf(stdout, "==========\nN=16384\n----------\n");
 
 		uint128_t * tally = uint128_new();
 
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[64];
-			int N = 16384;
-			int r = 8;
-			int p = 1;
+		char passwd_raw[13] = "pleaseletmein";
+		obliv uint8_t passwd[13];
+		int passwd_len = 13;
+		char salt_raw[14] = "SodiumChloride";
+		obliv uint8_t salt[14];
+		int salt_len = 14;
+		obliv uint8_t result[64];
+		int N = 16384;
+		int r = 8;
+		int p = 1;
 
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
+		fprintf(stdout, "16384");
+		fflush(stdout);
 
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
+		for (int ii = 0; ii < passwd_len; ii++) {
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
+		}
+
+		for (int ii = 0; ii < salt_len; ii++) {
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
+		}
+
+		for (int ii = 0; ii < 3; ii++) {
 
 			uint128_t * startTime = uint128_current_timestamp();
 
@@ -403,41 +109,54 @@ void testMain(void*varg) {
 
 			uint128_t * runtime = uint128_subtract(endTime, startTime);
 			free(endTime); free(startTime);
+			fprintf(stdout, ",");
 			print_uint128(stdout, runtime);
-			fprintf(stdout, "\n");
+			fflush(stdout);
 			uint128_t * newtally = uint128_add(tally, runtime);
 			free(runtime);
 			free(tally);
 			tally = newtally;
 		}
-
-		fprintf(stderr, "N=16384\n");
-	}*/
+		fprintf(stdout, "\n");
+		fflush(stdout);
+		fprintf(stderr, "SCRYPT (N:16384): ");
+		uint128_t * samples = uint128_from(SAMPLES);
+		uint128_t * avgtime = uint128_divide(tally, samples);
+		print_uint128(stderr, avgtime);
+		free(avgtime);
+		free(samples);
+		free(tally);
+		fprintf(stderr, " microseconds avg\n");
+	}
 
 	{
-		fprintf(stdout, "==========\nlitecoin\n----------\n");
 
 		uint64_t tally = 0;
 
+		char passwd_raw[13] = "pleaseletmein";
+		obliv uint8_t passwd[13];
+		int passwd_len = 13;
+		char salt_raw[14] = "SodiumChloride";
+		obliv uint8_t salt[14];
+		int salt_len = 14;
+		obliv uint8_t result[32];
+		int N = 1024;
+		int r = 1;
+		int p = 1;
+
+		fprintf(stdout, "litecoin");
+		fflush(stdout);
+
+		for (int ii = 0; ii < passwd_len; ii++) {
+			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
+		}
+
+		for (int ii = 0; ii < salt_len; ii++) {
+			salt[ii] = feedOblivChar(salt_raw[ii], 2);
+		}
+
 		for (int ii = 0; ii < SAMPLES; ii++) {
-			char passwd_raw[13] = "pleaseletmein";
-			obliv uint8_t passwd[13];
-			int passwd_len = 13;
-			char salt_raw[14] = "SodiumChloride";
-			obliv uint8_t salt[14];
-			int salt_len = 14;
-			obliv uint8_t result[32];
-			int N = 1024;
-			int r = 1;
-			int p = 1;
-
-			for (int ii = 0; ii < passwd_len; ii++) {
-				passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-			}
-
-			for (int ii = 0; ii < salt_len; ii++) {
-				salt[ii] = feedOblivChar(salt_raw[ii], 2);
-			}
+			
 
 			uint64_t startTime = current_timestamp();
 
@@ -445,12 +164,15 @@ void testMain(void*varg) {
 
 			uint64_t endTime = current_timestamp();
 
-			fprintf(stdout, "%d\n", endTime - startTime);
+			fprintf(stdout, ",%d", endTime - startTime);
+			fflush(stdout);
 			tally += endTime - startTime;
 
 		}
 
-		fprintf(stderr, "litecoin: %d microseconds avg\n", tally / SAMPLES);
+		fprintf(stdout, "\n");
+		fflush(stdout);
+		fprintf(stderr, "SCRYPT (litecoin): %d microseconds avg\n", tally / SAMPLES);
 	}
 
 }

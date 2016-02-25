@@ -38,6 +38,12 @@ uint128_t * uint128_new() {
     return result;
 }
 
+uint128_t * uint128_from(uint64_t input) {
+    uint128_t * result = malloc(sizeof(uint128_t));
+    result->val = input;
+    return result;
+}
+
 uint128_t * uint128_add(uint128_t * in1, uint128_t * in2) {
     uint128_t * result = malloc(sizeof(uint128_t));
     result->val = in1->val + in2->val;
@@ -47,6 +53,18 @@ uint128_t * uint128_add(uint128_t * in1, uint128_t * in2) {
 uint128_t * uint128_subtract(uint128_t * in1, uint128_t * in2) {
     uint128_t * result = malloc(sizeof(uint128_t));
     result->val = in1->val - in2->val;
+    return result;
+}
+
+uint128_t * uint128_multiply(uint128_t * in1, uint128_t * in2) {
+    uint128_t * result = malloc(sizeof(uint128_t));
+    result->val = in1->val * in2->val;
+    return result;
+}
+
+uint128_t * uint128_divide(uint128_t * in1, uint128_t * in2) {
+    uint128_t * result = malloc(sizeof(uint128_t));
+    result->val = in1->val / in2->val;
     return result;
 }
 

@@ -48,7 +48,7 @@ test_omatch: $(DEPS) test_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo 
 
 bench_bfs: $(DEPS) bench_bfs.oo $(SRC_PATH)/oram.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(SQRT_ORAM_DEPS)
 
-bench_omatch: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/oram.oo $(SQRT_ORAM_DEPS)
+bench_omatch: $(DEPS) bench_omatch.oo $(SRC_PATH)/uint128.o $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/oram.oo $(SQRT_ORAM_DEPS)
 
 bench_oram: $(DEPS) bench_oram.oo $(SRC_PATH)/oram.oo $(SQRT_ORAM_DEPS)
 
