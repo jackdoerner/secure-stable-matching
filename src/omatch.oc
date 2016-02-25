@@ -3,6 +3,26 @@
 #include "oqueue.oh"
 #include "copy.oh"
 
+#include <stdio.h>
+
+void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obliv {
+	obliv if (((obliv uint32_t *) extBlock)[1] < ((obliv uint32_t *) oramBlock)[1] | ((obliv uint32_t *) oramBlock)[1] == -1) {
+		obliv uint32_t temp = ((obliv uint32_t *) extBlock)[0];
+		((obliv uint32_t *) extBlock)[0] = ((obliv uint32_t *) oramBlock)[0];
+		((obliv uint32_t *) oramBlock)[0] = temp;
+
+		temp = ((obliv uint32_t *) extBlock)[1];
+		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
+		((obliv uint32_t *) oramBlock)[1] = temp;
+
+		temp = ((obliv uint32_t *) extBlock)[2];
+		((obliv uint32_t *) extBlock)[2] = ((obliv uint32_t *) oramBlock)[2];
+		((obliv uint32_t *) oramBlock)[2] = temp;
+	} else {
+		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
+	}
+}
+
 void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv uint32_t * wPrefsRaw, int n) {
 
 	oram * mPrefs = oram_from_array(n * n, 1, mPrefsRaw); // ordered by rank; elements represent partner index
@@ -42,7 +62,12 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 			oqueue_pop(thisMQueue, mQueue);
 			oram_read_obliv(&proposedW, mPrefs, thisMQueue[0] * n + thisMQueue[1]);
 			oram_read_obliv(&thisWPrefs, wPrefs, proposedW * n + thisMQueue[0]);
-			oram_read_obliv(thisWStatus, wStatus, proposedW);
+
+			// write new status for this w
+			thisWStatus[0] = thisMQueue[0];
+			thisWStatus[1] = thisWPrefs;
+			thisWStatus[2] = thisMQueue[1];
+			oram_apply_obliv(wStatus, thisWStatus, wStatusFunction, proposedW);
 			obliv if ((thisWPrefs < thisWStatus[1]) | (thisWStatus[1] == -1)) {
 				// write new status for this m
 				thisMStatus[0] = proposedW;
@@ -53,12 +78,6 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 				nextMQueue[0] = thisWStatus[0];
 				nextMQueue[1] = thisWStatus[2] + 1;
 				oqueue_push(mQueue, nextMQueue);
-
-				// write new status for this w
-				thisWStatus[0] = thisMQueue[0];
-				thisWStatus[1] = thisWPrefs;
-				thisWStatus[2] = thisMQueue[1];
-				oram_write_obliv(wStatus, thisWStatus, proposedW);
 
 			} else {
 				thisMQueue[1] += 1;

@@ -8,7 +8,7 @@ SQRT_ORAM_DEPS=$(SRC_PATH)/oram/decoder.oo $(SRC_PATH)/oram/shuffle.oo $(SRC_PAT
 REMOTE_HOST=localhost
 CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
 BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oram test_oscrypt test_oscrypt_linear test_oram_linear test_oqueue test_ograph test_omatch\
-		bench_oscrypt bench_oscrypt_linear bench_oram bench_oram_linear bench_oram_init bench_oram_init_linear bench_bfs
+		bench_oscrypt bench_oscrypt_linear bench_oram bench_oram_linear bench_oram_init bench_oram_init_linear bench_bfs bench_omatch
 
 default: $(OBLIVCC) $(BINS)
 
@@ -47,6 +47,8 @@ bench_oscrypt_linear: $(DEPS) bench_oscrypt.oo $(SRC_PATH)/uint128.o $(SRC_PATH)
 test_omatch: $(DEPS) test_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/oram.oo $(SQRT_ORAM_DEPS)
 
 bench_bfs: $(DEPS) bench_bfs.oo $(SRC_PATH)/oram.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(SQRT_ORAM_DEPS)
+
+bench_omatch: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/oram.oo $(SQRT_ORAM_DEPS)
 
 bench_oram: $(DEPS) bench_oram.oo $(SRC_PATH)/oram.oo $(SQRT_ORAM_DEPS)
 
