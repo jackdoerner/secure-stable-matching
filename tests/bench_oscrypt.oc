@@ -23,7 +23,7 @@ void testMain(void*varg) {
 
 	{
 
-		fprintf(stdout, "==========\nSCRYPT (N, edges, sample 1, sample 2, ... sample n)\n----------\n");
+		fprintf(stdout, "==========\nSCRYPT (N, sample 1, sample 2, ... sample n)\n----------\n");
 		fflush(stdout);
 
 		char passwd_raw[13] = "pleaseletmein";

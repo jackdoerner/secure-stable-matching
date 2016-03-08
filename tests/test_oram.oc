@@ -65,6 +65,40 @@ void testMain(void*varg) {
 	}
 
 	{
+		uint32_t input_raw[256];
+		uint32_t order_raw[256];
+		obliv uint32_t input[256];
+
+		for (int ii = 0; ii < 256; ii++) {
+			input_raw[ii] = ii;
+			order_raw[ii] = ii;
+		}
+
+		shuffle(order_raw, 256);
+
+		for (int ii = 0; ii < 256; ii++) {
+			input[ocBroadcastInt(order_raw[ii], 1)] = feedOblivInt(input_raw[ii], 2);
+		}
+		oram * o = oram_from_array(256, 1, input);
+
+		bool success = true;
+
+		for (int ii = 0; ii < 256; ii++) {
+			uint32_t temp;
+			obliv uint32_t value;
+			obliv size_t index = feedOblivLong(order_raw[ii], 1);
+			oram_read(&value, o, index);
+			revealOblivInt(&temp, value, 0);
+			success &= (temp == input_raw[ii]);
+		}
+
+		oram_free(o);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oram_from_array", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	}
+
+	{
 
 		oram * o = oram_new(256, 1);
 
@@ -123,55 +157,6 @@ void testMain(void*varg) {
 		fprintf(stderr, "Test Item: %-70s %s\n", "oram_read - bounds checking", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
-
-	/*{
-
-		oram * o = oram_new(256);
-
-		bool success = true;
-
-		for (int ii = -2; ii < 130; ii++) {
-			bool temp;
-			obliv bool write_success;
-			obliv size_t index = feedOblivLong(ii, 1);
-			obliv uint32_t value = feedOblivInt(ii, 2);
-			write_success = oram_write(o, value, index);
-			revealOblivBool(&temp, write_success, 0);
-			success &= (temp == true && (ii >= 0 || ii < 128)) != (temp == false && (ii < 0 || ii >= 128));
-		}
-
-		oram_expand(o, 256);
-
-		for (int ii = -2; ii < 128; ii++) {
-			bool temp;
-			uint32_t tempval;
-			obliv bool read_success;
-			obliv size_t index = feedOblivLong(ii, 1);
-			obliv uint32_t value;
-			read_success = oram_read(&value, o, index);
-			revealOblivBool(&temp, read_success, 0);
-			revealOblivInt(&tempval, value, 0);
-			success &= (temp == true && (ii >= 0 || ii < 256) && tempval == ii) != (temp == false && (ii < 0 || ii >= 256));
-		}
-
-
-		for (int ii = 128; ii < 258; ii++) {
-			bool temp;
-			obliv bool write_success;
-			obliv size_t index = feedOblivLong(ii, 1);
-			obliv uint32_t value = feedOblivInt(ii, 2);
-			write_success = oram_write(o, value, index);
-			revealOblivBool(&temp, write_success, 0);
-			success &= (temp == true && (ii >= 0 || ii < 256)) != (temp == false && (ii < 0 || ii >= 256));
-		}
-
-		oram_free(o);
-
-		fprintf(stderr, "Test Item: %-70s %s\n", "oram_resize", (success)?STATUS_SUCCESS:STATUS_FAILURE);
-
-	}*/
-
-
 
 	fprintf(stderr, "\n");
 
