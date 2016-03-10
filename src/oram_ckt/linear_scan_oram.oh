@@ -1,0 +1,21 @@
+#include "utils.oh"
+#include <obliv.oh>
+#include <stdio.h>
+
+#ifndef LSO_H__
+#define LSO_H__
+
+typedef struct LinearScanOram {
+	obliv bool** data;
+   int data_size;
+   int N;
+   int index_size;
+} LinearScanOram;
+
+LinearScanOram* lso_initialize(int N, int data_size);
+void lso_release(LinearScanOram* oram);
+
+void lso_write(LinearScanOram * oram, obliv int index, obliv bool* data) obliv;
+void lso_read(LinearScanOram * oram, obliv int index, obliv bool* data) obliv;
+
+#endif

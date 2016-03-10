@@ -1,0 +1,132 @@
+#include "utils.oh"
+#include <stdio.h>
+
+obliv int bit_mask(obliv int input, int high) obliv {
+   int mask = (1<<high)-1;
+   return input & mask;
+}
+
+void *calloc_obliv(size_t nitems, size_t size) obliv {
+   ~ obliv() {
+      return calloc(nitems, size);
+   }
+}
+
+void free_obliv (void* ptr) obliv {
+   ~ obliv() {
+      free(ptr);
+   }
+}
+
+void print_obliv(char * c, int i) obliv {
+   ~obliv(){
+      printf("%s, %d\n", c, i);
+   }
+}
+void get_rand_obliv_ints(BCipherRandomGen* gen, obliv int * data, int len, int logN) obliv{
+   ~obliv(){
+      int * rand_int = malloc(len*sizeof(int));
+      OblivInputs * specs = malloc(sizeof(OblivInputs)* len);
+      OblivInputs * specs2 = malloc(sizeof(OblivInputs)* len);
+      obliv int * data1 = malloc (sizeof(obliv int)*len);
+      randomizeBuffer(gen, rand_int, len*sizeof(int));
+      for(int i = 0; i < len; ++i) {
+         setupOblivInt(&specs[i], &data[i], rand_int[i]);
+         setupOblivInt(&specs2[i], &data1[i], rand_int[i]);
+      }
+      feedOblivInputs(specs, len, 1);
+      feedOblivInputs(specs2, len, 2);
+      for(int i = 0; i < len; ++i)
+         data[i] = (data[i] ^ data1[i]) & ((1<<logN) -1 );
+      free(rand_int);
+      free(specs);
+      free(specs2);
+      free(data1);
+   }
+}
+
+void get_rand_obliv (BCipherRandomGen* gen, obliv bool * data, int len) obliv{
+   ~obliv(){
+      bool * rand_bool = malloc(len*sizeof(bool));
+      OblivInputs * specs = malloc(sizeof(OblivInputs)* len);
+      OblivInputs * specs2 = malloc(sizeof(OblivInputs)* len);
+      obliv bool * data1 = malloc (sizeof(obliv bool)*len);
+      randomizeBuffer(gen, rand_bool, len);
+      for(int i = 0; i < len; ++i) {
+         rand_bool[i] =( (rand_bool[i]) % 2 == 0);
+         setupOblivBool(&specs[i], &data[i], rand_bool[i]);
+         setupOblivBool(&specs2[i], &data1[i], rand_bool[i]);
+      }
+      feedOblivInputs(specs, len, 1);
+      feedOblivInputs(specs2, len, 2);
+      for(int i = 0; i < len; ++i)
+         data[i] = data[i] ^ data1[i];
+      free(rand_bool);
+      free(specs);
+      free(specs2);
+      free(data1);
+   }
+}
+
+
+void bool_to_int_obliv(obliv bool * bools, obliv int * res, int length) obliv {
+   *res = 0;
+   int i = 32;
+   if(length < i) i = length;
+   --i;
+   for(; i >= 0; --i) {
+      *res = (*res << 1);
+      *res = (*res ^ (bools[i]));
+   }
+}
+
+void int_to_bool_obliv(obliv int * input, obliv bool * res, int length) obliv {
+   ~obliv(en) {
+      obliv int tmp = *input;
+      for(int i = 0; i < length && i < 32; ++i) {
+         obliv if (en)
+            res[i] = (tmp&1);
+         tmp = tmp >> 1;
+      }
+   }
+}
+
+obliv int compute_depth(obliv int pos1, obliv int pos2, int logN) obliv
+{
+//return pos1^pos2;
+   obliv int x = pos1 ^ pos2;
+   obliv int n = logN;
+   obliv int  y;
+   obliv int res = 0;
+   y = x >>16; obliv if (y != 0) { n = n -16; x = y; }
+   y = x >> 8; obliv if (y != 0) { n = n - 8; x = y; }
+   y = x >> 4; obliv if (y != 0) { n = n - 4; x = y; }
+   y = x >> 2; obliv if (y != 0) { n = n - 2; x = y; }
+   y = x >> 1; 
+   obliv if (y != 0) 
+      res =  n - 2;
+   else
+      res = n - x;
+   return res;
+}
+
+void bool_to_char_obliv(obliv bool * bools, obliv char * chars, int length) {
+   for(int i = 0; i < (length+7)/8; ++i) {
+      obliv char tmp = 0;
+      for(int j = 0; j < 8 && 8*i+j < length; ++j) {
+         obliv char c = bools[8*i+j];
+         tmp ^= (c << j);
+      }
+      chars[i] = tmp;
+   }
+}
+
+void char_to_bool_obliv(obliv char * chars, obliv bool * bools, int length) {
+   for(int i = 0; i < (length+7)/8; ++i) {
+      obliv char tmp = chars[i];
+      for(int j = 0; j < 8 && 8*i+j < length; ++j) {
+         bools[8*i+j] = ((tmp & 1) == 1);
+         tmp>>=1;
+      }
+   }
+}

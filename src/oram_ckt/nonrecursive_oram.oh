@@ -1,0 +1,53 @@
+#include "block.oh"
+#include "utils.oh"
+#include <obliv.oh>
+#ifndef NONORAM_H__
+#define NONORAM_H__
+
+typedef struct NonRecursiveOram{
+	Block *** tree;
+	Block *** path;
+	Block ** stash;
+   int stash_size;
+	int bucket_size;
+   int index_size;
+	int position_label_size;
+	int N;
+	int data_size;
+   int eviction_cnt;
+   obliv int * deepest_index;
+   obliv int * deepest_depth;
+   obliv int *deepest;
+   obliv int * target;
+	Block * hold;
+	Block * to_write;
+} NonRecursiveOram;
+
+NonRecursiveOram* nro_initialize(int _N, int _data_size);
+void nro_release(NonRecursiveOram * oram);
+
+Block*** path_initialize(NonRecursiveOram* oram) obliv;
+void path_release(NonRecursiveOram * oram, Block *** path) obliv;
+
+void bucket_read_and_remove(Block** blocks, int bucket_size, obliv int index, Block* res, int data_size) obliv;
+void bucket_add(Block** blocks, int bucket_size, Block* new_block, int data_size) obliv;
+void nro_put_back(NonRecursiveOram * oram, obliv int index, obliv int position_label, obliv bool* data) obliv;
+
+void path_read_and_remove(NonRecursiveOram* oram, obliv int index, Block* res) obliv;
+
+
+void nro_flush(NonRecursiveOram * oram) obliv;
+void circuit_oram_flush(NonRecursiveOram * oram, int path_val) obliv ;
+void path_oram_flush(NonRecursiveOram * oram, int path_val) obliv ;
+void get_path( NonRecursiveOram* oram, int position_label)obliv;
+
+void nro_read(NonRecursiveOram * oram, obliv int index, obliv int position_label, obliv int new_position_label, obliv bool* data) obliv;
+void nro_write(NonRecursiveOram * oram, obliv int index, obliv int position_label, obliv int new_position_label, obliv bool* data) obliv;
+
+
+void nro_read_and_remove(NonRecursiveOram* oram, obliv int index, obliv int position_label, obliv bool * data)  obliv;
+void nro_put_back(NonRecursiveOram * oram, obliv int index, obliv int position_label, obliv bool* data)  obliv;
+
+void print_block(Block * b) obliv;
+void print_oram(NonRecursiveOram * oram) obliv;
+#endif

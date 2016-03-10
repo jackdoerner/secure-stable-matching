@@ -1,0 +1,167 @@
+#include "circuit_oram.oh"
+
+void get_random (CircuitOram * oram, obliv bool * res, int length) obliv {
+	if (length + oram->rand_pool_size >= oram->rand_pool_cap) {
+		get_rand_obliv(oram->gen, oram->rand_pool, oram->rand_pool_cap);
+		oram->rand_pool_size = 0;
+	}
+	for(int i = 0; i < length; ++i)
+		res[i] = oram->rand_pool[oram->rand_pool_size+i];
+	oram->rand_pool_size+=length;
+}
+
+CircuitOram* ckt_initialize_more_param(int N, int data_size, int recursion_factor, int cutoff){
+	CircuitOram* res = calloc(sizeof(CircuitOram), 1);
+	res->cutoff = cutoff;
+	res->recursion_factor = recursion_factor;
+	res->orams = calloc(sizeof(NonRecursiveOram*), 10);//this is an upperbound
+	res->data_size = data_size;
+
+	res->orams[0] = nro_initialize(N, data_size);
+
+	int new_data_size = res->orams[0]->position_label_size * recursion_factor;
+	int newN = (1 << res->orams[0]->index_size) / recursion_factor;
+	int cur = 0;
+	while(newN*recursion_factor > cutoff) {
+		cur++;
+		res->orams[cur] = nro_initialize(newN, new_data_size);
+		new_data_size = res->orams[cur]->position_label_size * recursion_factor;
+		newN = (1 << res->orams[cur]->index_size) / recursion_factor;
+	}
+	res->num_recursion = cur+1;
+
+	res->base = lso_initialize(1<<res->orams[cur]->index_size, res->orams[cur]->position_label_size);
+
+	res -> gen = newBCipherRandomGen();
+
+	res->rand_pool_cap = 200000;
+	res->rand_pool_size = 0;
+	res->rand_pool = calloc(sizeof(obliv bool), res->rand_pool_cap);
+	get_rand_obliv(res->gen, res->rand_pool, res->rand_pool_cap);
+	return res;
+}
+
+CircuitOram* ckt_initialize(int N, int data_size) {
+	return ckt_initialize_more_param(N, data_size, 8, 1<<8);
+}
+void ckt_release(CircuitOram * oram) {
+	for(int i = 0; i < oram->num_recursion; ++i)
+		nro_release(oram->orams[i]);
+	lso_release(oram->base);
+	free(oram->orams);
+	releaseBCipherRandomGen(oram->gen);
+	free(oram->rand_pool);
+	free(oram);
+}
+
+void ckt_read(CircuitOram* oram, obliv int index, obliv bool* data) obliv {
+	obliv int  pos = 0;
+	obliv int  new_pos = 0;
+
+	update_trees(oram, index, 1, &pos, &new_pos);
+
+	/*	~obliv(){int p1; revealOblivInt(&p1,index, 0);
+		int p2; revealOblivInt(&p2,pos, 0);
+		int p3; revealOblivInt(&p3,new_pos, 0);
+		printf("idx,pos,n_pos, %d,%d,%d\n", p1,p2,p3);}
+	 */
+	nro_read(oram->orams[0], index, pos, new_pos, data);   
+}
+
+void ckt_apply(CircuitOram* oram, obliv int index, block_access_function func,  void * ext_data) obliv {
+	obliv int  pos = 0;
+	obliv int  new_pos = 0;
+
+	update_trees(oram, index, 1, &pos, &new_pos);
+
+	obliv bool * data = calloc_obliv(sizeof(obliv bool), oram->data_size);
+	obliv int * int_data = calloc_obliv(sizeof(obliv int), oram->data_size/32);
+	nro_read_and_remove(oram->orams[0], index, pos, data);
+	for(int i = 0; i < oram->data_size/32; ++i)
+		bool_to_int_obliv(data+(i*32), int_data+i, 32);
+	func(NULL, int_data, ext_data);
+	for(int i = 0; i < oram->data_size/32; ++i)
+		int_to_bool_obliv(int_data+i, data+(i*32), 32);
+
+	nro_put_back(oram->orams[0], index, new_pos, data);
+	free_obliv(data);
+	free_obliv(int_data);
+}
+
+void ckt_write(CircuitOram* oram, obliv int index, obliv bool* data) obliv {
+	obliv int  pos = 0;
+	obliv int  new_pos = 0;
+
+	update_trees(oram, index, 1, &pos, &new_pos);
+
+	/*	~obliv(){int p1; revealOblivInt(&p1,index, 0);
+		int p2; revealOblivInt(&p2,pos, 0);
+		int p3; revealOblivInt(&p3,new_pos, 0);
+		printf("idx,pos,n_pos, %d,%d,%d\n", p1,p2,p3);}
+	 */
+	nro_write(oram->orams[0], index, pos, new_pos, data);
+}
+
+void update_trees(CircuitOram* oram, obliv int index, int level, obliv int * pos, obliv int * new_pos) obliv {
+	int entry_size = oram->orams[level-1]->position_label_size;
+	int block_size = oram->recursion_factor*entry_size;
+	if(level == oram->num_recursion) {
+		obliv bool* bools = calloc_obliv(sizeof(obliv bool), entry_size);
+		lso_read(oram->base, index, bools);
+		obliv bool * new_pos_bools = calloc_obliv(sizeof(obliv bool), entry_size);
+		get_random(oram, new_pos_bools, entry_size);
+		lso_write(oram->base, index, new_pos_bools);
+
+		bool_to_int_obliv(bools, pos, entry_size);
+		bool_to_int_obliv(new_pos_bools, new_pos, entry_size);
+		free_obliv(bools);
+		free_obliv(new_pos_bools);
+	} else {
+		NonRecursiveOram * current_oram = oram->orams[level];
+		obliv bool * pos_map = calloc_obliv(sizeof(obliv bool), block_size);
+		obliv bool * bools = calloc_obliv(sizeof(obliv bool), entry_size);
+		obliv bool * new_pos_bools = calloc_obliv(sizeof(obliv bool), entry_size);
+
+		obliv int new_index = index >> (oram->orams[level-1]->index_size - current_oram->index_size),
+				f_pos = 0, f_new_pos = 0;
+
+		update_trees(oram, new_index, level+1, &f_pos, &f_new_pos);
+
+		nro_read_and_remove(current_oram, new_index, f_pos, pos_map);
+
+		obliv int ith_pos = ((1<< (oram->orams[level-1]->index_size-current_oram->index_size))-1)&index;// (index >> current_oram->index_size);
+
+		extract_bits(pos_map, ith_pos, entry_size, bools, oram);
+		get_random(oram, new_pos_bools, entry_size);
+		put_bits(pos_map, ith_pos, entry_size, new_pos_bools, oram);
+
+		nro_put_back(current_oram, new_index, f_new_pos, pos_map);
+		bool_to_int_obliv(bools, pos, entry_size);
+		bool_to_int_obliv(new_pos_bools, new_pos, entry_size);
+		free_obliv(bools);
+		free_obliv(new_pos_bools);
+		free_obliv(pos_map);
+	}
+}
+
+void extract_bits(obliv bool * data_chunk, obliv int ith_pos, int entry_size, obliv bool * res, CircuitOram * oram) obliv {
+	for(int i = 0; i < oram->recursion_factor; ++i) {
+		obliv if(ith_pos == i) {
+			for(int j = 0; j < entry_size; ++j) {
+				res[j] = data_chunk[i*entry_size + j];
+			}
+		}
+	}
+}
+
+void put_bits(obliv bool * data_chunk, obliv int ith_pos, int entry_size, obliv bool * res,
+		CircuitOram * oram) obliv {
+	for(int i = 0; i < oram->recursion_factor; ++i) {
+		obliv if(ith_pos == i) {
+			for(int j = 0; j < entry_size; ++j) {
+				data_chunk[i*entry_size + j] = res[j];
+			}
+		}
+	}
+}
+

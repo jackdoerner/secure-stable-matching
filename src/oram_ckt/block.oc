@@ -1,0 +1,25 @@
+#include "block.oh"
+
+void sort_block_using_label(Block* data){
+	
+}
+Block* block_initialize(int d_length) obliv {
+	Block * res = calloc_obliv(sizeof(Block), 1);
+	res->data = calloc_obliv(sizeof(obliv bool), d_length);
+	res->is_dummy = true;
+	return res;	
+}
+
+void block_release(Block* b) obliv {
+	free_obliv(b->data);
+	free_obliv(b);
+}
+
+void block_copy(Block* block, Block * des, int data_size) obliv {
+	des->index = block->index;
+	des->is_dummy = block->is_dummy;
+	des->position_label = block->position_label;
+	for(int i = 0; i < data_size; ++i) {
+		des->data[i] = block->data[i];
+	}
+}

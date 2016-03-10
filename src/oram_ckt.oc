@@ -1,0 +1,79 @@
+#include "oram.oh"
+#include "oram_ckt/circuit_oram.oh"
+
+struct oram {
+	size_t size;
+	size_t elct;
+	CircuitOram * data;
+	obliv bool * temp;
+};
+
+oram* oram_new(size_t size, size_t elct) {
+	oram *o = calloc(sizeof(oram), 1);
+	o->temp = calloc(sizeof(obliv bool), elct*32);
+	o->size = size;
+	o->elct = elct;
+	o->data = ckt_initialize(size, elct*32);
+	return o; 
+}
+
+void oram_free(oram* o) {
+	ckt_release(o->data);
+	free(o->temp);
+	free(o);
+}
+
+oram * oram_from_array(size_t size, size_t elct, oram_base * src) {
+	oram * res = oram_new(size, elct);
+	for(int i = 0; i < size; i++) {
+		oram_write(res, &(src[i*elct]), i);
+	}
+	return res;
+}
+
+obliv bool oram_read(oram_base * output, oram * o, obliv size_t index) {
+	return oram_read_obliv(output, o, index);
+}
+
+obliv bool oram_read_obliv(oram_base * output, oram * o, obliv size_t index) obliv {
+	obliv bool success = false;
+
+	obliv if ((index < o->size) & (index >= 0)) {
+		ckt_read(o->data, index, o->temp);
+		for(int i = 0; i < o->elct; ++i)
+			bool_to_int_obliv(o->temp+(i*32), output+i, 32);
+		success = true;
+	}
+	return success;
+}
+
+obliv bool oram_write(oram * o, oram_base * input, obliv size_t index) {
+	return oram_write_obliv(o, input, index);
+}
+
+obliv bool oram_write_obliv(oram * o, oram_base * input, obliv size_t index) obliv {
+	obliv bool success = false;
+
+	obliv if ((index < o->size) & (index >= 0)) {
+		for(int i = 0; i < o->elct; ++i)
+			int_to_bool_obliv(input+i, o->temp+(i*32), 32);
+		ckt_write(o->data, index, o->temp);
+		success = true;
+	}
+	return success;
+}
+
+obliv bool oram_apply(oram * o, oram_base * input, block_access_function fn, obliv size_t index) {
+	return oram_apply_obliv(o, input, fn, index);
+}
+
+obliv bool oram_apply_obliv(oram * o, oram_base * input, block_access_function fn, obliv size_t index) obliv {
+	obliv bool success = false;
+	
+	obliv if ((index < o->size) & (index >= 0)) {
+		ckt_apply(o->data, index, fn, input);
+		success = true;
+	}
+
+	return success;
+}

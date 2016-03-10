@@ -1,0 +1,24 @@
+#include <obliv.oh>
+#include <stdio.h>
+#include <bcrandom.h>
+#ifndef UTILS_H__
+#define UTILS_H__
+obliv int bit_mask(obliv int input, int high) obliv ;
+void *calloc_obliv(size_t nitems, size_t size) obliv;
+void free_obliv (void* ptr) obliv;
+void print_obliv (char* c,int i) obliv;
+void get_rand_obliv (BCipherRandomGen* gen, obliv bool * data, int len) obliv;
+
+void get_rand_obliv_ints(BCipherRandomGen* gen, obliv int * data, int len, int logN) obliv;
+
+void bool_to_int_obliv(obliv bool * bools, obliv int * res, int length) obliv;
+void int_to_bool_obliv(obliv int * bools, obliv bool * res, int length) obliv;
+
+obliv int compute_depth(obliv int pos1, obliv int pos2, obliv int logN) obliv;
+
+void bool_to_char_obliv(obliv bool * bools, obliv char * chars, int length);
+void char_to_bool_obliv(obliv char * chars, obliv bool * bools, int length);
+
+void batcherSort(void* data,size_t n,size_t w, void (*cmpswap)(void*,void*,void*),void* arg);
+void sort_int(obliv int * data, int n);
+ #endif

@@ -1,5 +1,5 @@
 #include "oram.oh"
-#include "oram/sqrtoram.oh"
+#include "oram_sqrt/sqrtoram.oh"
 
 struct oram {
 	size_t size;

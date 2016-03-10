@@ -1,0 +1,16 @@
+#include "utils.oh"
+#ifndef BLOCK_H__
+#define BLOCK_H__
+
+typedef struct Block {
+   obliv int index;
+   obliv bool is_dummy;
+   obliv int position_label;
+   obliv bool* data;
+} Block;
+
+Block* block_initialize(int d_length) obliv;
+void block_release(Block* b) obliv;
+void block_copy(Block* a, Block* des, int data_size) obliv;
+
+#endif

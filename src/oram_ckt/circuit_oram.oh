@@ -1,0 +1,38 @@
+#include "block.oh"
+#include "nonrecursive_oram.oh"
+#include "linear_scan_oram.oh"
+#include <obliv.oh>
+#include <bcrandom.h>
+#include "copy.oh"
+#ifndef ORAM_H__
+#define ORAM_H__
+
+typedef void (* block_access_function)(OcCopy *, void * oram_block, void * external_block) obliv;
+
+typedef struct CircuitOram{
+   NonRecursiveOram ** orams;
+   LinearScanOram* base;
+   int recursion_factor;
+   int cutoff;
+   int num_recursion;
+   BCipherRandomGen* gen;
+   obliv bool * rand_pool;
+   int rand_pool_cap;
+   int rand_pool_size;
+	int data_size;
+} CircuitOram;
+
+void get_random (CircuitOram * oram, obliv bool * res, int length) obliv ;
+CircuitOram* ckt_initialize(int N, int data_size);
+CircuitOram* ckt_initialize_more_param(int N, int data_size, int recursion_factor, int cutoff);
+void ckt_release(CircuitOram * oram);
+
+void ckt_read(CircuitOram* oram, obliv int index, obliv bool* data) obliv;
+void ckt_write(CircuitOram* oram, obliv int index, obliv bool* data) obliv;
+void ckt_apply(CircuitOram* oram, obliv int index, block_access_function func, void* data) obliv;
+
+void update_trees(CircuitOram* oram, obliv int index, int level, obliv int * pos, obliv int * new_pos) obliv;
+
+void extract_bits(obliv bool * data_chunk, obliv int ith_pos, int entry_size, obliv bool * res, CircuitOram * oram) obliv;
+void put_bits(obliv bool * data_chunk, obliv int ith_pos, int entry_size, obliv bool * res, CircuitOram * oram) obliv;
+#endif
