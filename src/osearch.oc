@@ -1,0 +1,42 @@
+#include "osearch.oh"
+#include <math.h>
+
+#include <stdio.h>
+
+obliv int obinary_search(OcCopy * cpy, void* result, void* haystack, size_t haystack_length, void* needle, block_cmp_function fn) {
+	oram * o = oram_from_array(haystack_length, cpy->eltsize / sizeof(obliv int), haystack);
+
+	obliv int index = obinary_search_oram(cpy, result, o, needle, fn);
+
+	oram_free(o);
+
+	return index;
+}
+
+obliv int obinary_search_oram(OcCopy * cpy, void* result, oram * haystack, void* needle, block_cmp_function fn) {
+	int upper_bound = log2(oram_size(haystack)) + 1;
+
+	obliv int index = -1;
+	obliv int iimin = 0;
+	obliv int iimax = oram_size(haystack) - 1;
+	obliv int iimid;
+	obliv int cmpresult;
+	void * temp_element = calloc(1, cpy->eltsize);
+	for (int ii = 0; ii < upper_bound; ii++) {
+		iimid = (iimin + iimax) / 2;
+		oram_read(temp_element, haystack, iimid);
+		cmpresult = fn(cpy, temp_element, needle);
+		obliv if (cmpresult == 0) {
+			ocCopy(cpy, result, temp_element);
+			index = iimid;
+		} else {
+			obliv if (cmpresult < 0) {
+				iimin = iimid + 1;
+			} else {
+				iimax = iimid;
+			}
+		}
+	}
+	free(temp_element);
+	return index;
+}

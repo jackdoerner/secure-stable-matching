@@ -24,6 +24,7 @@ int ects[9] = {4,8,16,32,64,128,256,512,1024};
 void testMain(void*varg) {
 
 	fprintf(stdout, "==========\nBREADTH FIRST SEARCH (vertices, edges, sample 1, sample 2, ... sample n)\n----------\n");
+	fflush(stdout);
 
 	{
 
@@ -35,6 +36,7 @@ void testMain(void*varg) {
 				uint128_t * tally = uint128_new();
 
 				fprintf(stdout, "%d,%d", vertices, adjacency_count);
+				fflush(stdout);
 
 				for (int kk = 0; kk < SAMPLES; kk++) {
 					for (int ll = 0; ll < adjacency_count; ll++) {

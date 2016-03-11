@@ -31,6 +31,10 @@ oram * oram_from_array(size_t size, size_t elct, oram_base * src) {
 	return res;
 }
 
+size_t oram_size(oram * o) {
+	return o->size;
+}
+
 obliv bool oram_read(oram_base * output, oram * o, obliv size_t index) {
 	return oram_read_obliv(output, o, index);
 }

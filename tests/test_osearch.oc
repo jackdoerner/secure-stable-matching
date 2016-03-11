@@ -1,0 +1,87 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#include "osearch.oh"
+#include "test_generic.h"
+
+static const char TESTNAME[] = "osearch";
+
+char* testName() {
+	return TESTNAME;
+}
+
+obliv int cmpInt(OcCopy * cpy, void * a, void * b) obliv {
+	obliv uint32_t * aa = (obliv uint32_t *) a;
+	obliv uint32_t * bb = (obliv uint32_t *) b;
+	return (*aa > *bb) - (*aa < *bb);
+}
+
+void testMain(void*varg) {
+
+	{
+		uint32_t inputRaw[16] = {
+			0,1,2,3,
+			4,5,6,7,
+			8,9,10,11,
+			12,13,14,15
+		};
+
+		obliv uint32_t input[16];
+		obliv uint32_t output;
+		obliv uint32_t needle = 10;
+
+		for (int ii = 0; ii < 16; ii++) {
+			input[ii] = feedOblivInt(inputRaw[ii], 0);
+		}
+
+		obliv int index = obinary_search(&ocCopyInt, &output, input, 16, &needle, &cmpInt);
+
+		bool success = true;
+
+		uint32_t temp;
+		revealOblivInt(&temp, output, 0);
+		success &= (temp == 10);
+
+		revealOblivInt(&temp, index, 0);
+		success &= (temp == 10);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "obinary_search - 16 elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	}
+
+	{
+			
+		obliv uint32_t input[2048];
+		obliv uint32_t output;
+		obliv uint32_t needle;
+		obliv uint32_t otemp = 0;
+
+		int chosen = ocBroadcastInt(rand()%2048, 1);
+
+		for (int ii = 0; ii < 2048; ii++) {
+			otemp += feedOblivInt(rand()%32, ii%2);
+			input[ii] = otemp;
+			if (ii == chosen) {
+				needle = otemp;
+			}
+		}
+
+		obliv int index = obinary_search(&ocCopyInt, &output, input, 2048, &needle, &cmpInt);
+
+		bool success = true;
+
+		uint32_t temp, temp2;
+		revealOblivInt(&temp, output, 0);
+		revealOblivInt(&temp2, needle, 0);
+		success &= (temp == temp2);
+
+		revealOblivInt(&temp, index, 0);
+		success &= (temp == chosen);
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "obinary_search - 2048 random elements", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	}
+
+
+}

@@ -47,6 +47,10 @@ void oram_free(oram* o) {
 	free(o);
 }
 
+size_t oram_size(oram * o) {
+	return o->size;
+}
+
 obliv bool oram_read(oram_base * output, oram * o, obliv size_t index) {
 	obliv bool success = false;
 	for (size_t ii = 0; ii < o->size; ii++) {
