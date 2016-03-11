@@ -1,0 +1,95 @@
+#include <time.h>
+#include <stdio.h>
+#include <obliv.oh>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "util.h"
+#include "osearch.oh"
+#include "uint128.h"
+#include "test_generic.h"
+
+#define SAMPLES 30
+
+static const char TESTNAME[] = "obst_benchmark";
+
+char* testName() {
+	return TESTNAME;
+}
+
+obliv int cmpInt(OcCopy * cpy, void * a, void * b) obliv {
+	obliv uint32_t * aa = (obliv uint32_t *) a;
+	obliv uint32_t * bb = (obliv uint32_t *) b;
+	return (*aa > *bb) - (*aa < *bb);
+}
+
+int elcts[14] = {4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768};
+
+void testMain(void*varg) {
+
+	fprintf(stdout, "==========\nBINARY SEARCH (elements, sample 1, sample 2, ... sample n)\n----------\n");
+	fflush(stdout);
+
+	{
+
+		for (int ii = 0; ii < 14; ii++) {
+			int elct = elcts[ii];
+			uint128_t * tally = uint128_new();
+
+			fprintf(stdout, "%d", elct);
+			fflush(stdout);
+
+			obliv uint32_t * input = calloc(elct, sizeof(obliv uint32_t));
+			obliv uint32_t output;
+			obliv uint32_t needle;
+			obliv uint32_t otemp;
+
+			int samples = elct < 2048 ? SAMPLES : 3;
+
+			for (int kk = 0; kk < samples; kk++) {
+				int chosen = ocBroadcastInt(rand()%elct, 1);
+				otemp = 0;
+				for (int ll = 0; ll < elct; ll++) {
+					otemp += feedOblivInt(rand()%8, ii%2);
+					input[ii] = otemp;
+					if (ii == chosen) {
+						needle = otemp;
+					}
+				}
+
+				uint128_t * startTime = uint128_current_timestamp();
+				obinary_search(&ocCopyInt, &output, input, elct, &needle, &cmpInt);
+				uint128_t * endTime = uint128_current_timestamp();
+
+
+				uint128_t * runtime = uint128_subtract(endTime, startTime);
+				free(endTime); free(startTime);
+				fprintf(stdout, ",");
+				print_uint128(stdout, runtime);
+				fflush(stdout);
+				uint128_t * newtally = uint128_add(tally, runtime);
+				free(runtime);
+				free(tally);
+				tally = newtally;
+
+				
+			}
+
+			free(input);
+
+			fprintf(stdout, "\n");
+			fflush(stdout);
+			fprintf(stderr, "BINARY SEARCH (elements:%d): ", elct);
+			uint128_t * longsamples = uint128_from(samples);
+			uint128_t * avgtime = uint128_divide(tally, longsamples);
+			print_uint128(stderr, avgtime);
+			free(avgtime);
+			free(longsamples);
+			free(tally);
+			fprintf(stderr, " microseconds avg\n");
+		}
+
+	}
+
+}

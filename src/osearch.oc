@@ -1,8 +1,6 @@
 #include "osearch.oh"
 #include <math.h>
 
-#include <stdio.h>
-
 obliv int obinary_search(OcCopy * cpy, void* result, void* haystack, size_t haystack_length, void* needle, block_cmp_function fn) {
 	oram * o = oram_from_array(haystack_length, cpy->eltsize / sizeof(obliv int), haystack);
 

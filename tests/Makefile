@@ -11,7 +11,7 @@ CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
 BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oram_linear test_oram_ckt test_oscrypt test_oscrypt_linear test_oscrypt_ckt\
 		test_ograph test_ograph_linear test_ograph_ckt test_omatch test_omatch_linear test_omatch_ckt test_osearch test_osearch_linear test_osearch_ckt\
 		bench_oram bench_oram_linear bench_oram_ckt bench_oram_init bench_oram_init_linear bench_oram_init_ckt bench_oscrypt bench_oscrypt_linear bench_oscrypt_ckt\
-		bench_bfs bench_bfs_linear bench_bfs_ckt bench_omatch bench_omatch_linear bench_omatch_ckt
+		bench_bfs bench_bfs_linear bench_bfs_ckt bench_omatch bench_omatch_linear bench_omatch_ckt bench_bst bench_bst_linear bench_bst_ckt
 
 default: $(OBLIVCC) $(BINS)
 
@@ -80,6 +80,12 @@ bench_omatch: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.o
 bench_omatch_linear: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/oram_linear.oo
 
 bench_omatch_ckt: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(CKT_ORAM_DEPS)
+
+bench_bst: $(DEPS) bench_bst.oo $(SRC_PATH)/osearch.oo $(SQRT_ORAM_DEPS)
+
+bench_bst_linear: $(DEPS) bench_bst.oo $(SRC_PATH)/osearch.oo $(SRC_PATH)/oram_linear.oo
+
+bench_bst_ckt: $(DEPS) bench_bst.oo $(SRC_PATH)/osearch.oo $(CKT_ORAM_DEPS)
 
 bench_oram: $(DEPS) bench_oram.oo $(SQRT_ORAM_DEPS)
 
