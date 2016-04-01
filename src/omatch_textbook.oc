@@ -1,0 +1,99 @@
+#include "omatch.oh"
+#include "oram.oh"
+#include "oqueue.oh"
+#include "copy.oh"
+
+void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obliv {
+	obliv if (((obliv uint32_t *) extBlock)[1] < ((obliv uint32_t *) oramBlock)[1] | ((obliv uint32_t *) oramBlock)[1] == -1) {
+		obliv uint32_t temp = ((obliv uint32_t *) extBlock)[0];
+		((obliv uint32_t *) extBlock)[0] = ((obliv uint32_t *) oramBlock)[0];
+		((obliv uint32_t *) oramBlock)[0] = temp;
+
+		temp = ((obliv uint32_t *) extBlock)[1];
+		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
+		((obliv uint32_t *) oramBlock)[1] = temp;
+
+		temp = ((obliv uint32_t *) extBlock)[2];
+		((obliv uint32_t *) extBlock)[2] = ((obliv uint32_t *) oramBlock)[2];
+		((obliv uint32_t *) oramBlock)[2] = temp;
+	} else {
+		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
+	}
+}
+
+void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv uint32_t * wPrefsRaw, int n) {
+
+	oram * mPrefs = oram_from_array(&ocCopyInt, n * n, mPrefsRaw); // ordered by rank; elements represent partner index
+	oram * wPrefs = oram_new(&ocCopyInt, n * n); // ordered by partner index; elements represent rank
+	OcCopy cpy2 = ocCopyIntN(2);
+	OcCopy cpy3 = ocCopyIntN(3);
+	oram * mStatus = oram_new(&cpy2, n);
+	oram * wStatus = oram_new(&cpy3, n);
+
+	//insert wprefs into oram
+	for (size_t ii = 0; ii < n; ii++) {
+		for (size_t jj = 0; jj < n; jj++) {
+			obliv uint32_t ojj = jj;
+			oram_write(wPrefs, &ojj, ii + wPrefsRaw[ii * n + jj]); 
+		}
+	}
+
+	
+	oqueue * mQueue = oqueue_new_static(&cpy2, n);
+	obliv uint32_t thisMQueue[2]; // [index, pref list pos]
+	obliv uint32_t nextMQueue[2]; // [index, pref list pos]
+	obliv uint32_t thisMStatus[2]; // [parter index, partner rating] 
+	obliv uint32_t thisWStatus[3]; // [parter index, partner rating, partner's rating of self] 
+	obliv uint32_t proposedW, thisWPrefs;
+	
+	// initialize mQueue and wStatus
+	thisMQueue[1] = 0;
+	thisWStatus[0] = -1;
+	thisWStatus[1] = -1;
+	for (size_t ii = 0; ii < n; ii++) {
+		thisMQueue[0] = ii;
+		oqueue_push(mQueue, thisMQueue);
+		oram_write(wStatus, thisWStatus, ii);
+	}
+
+	for (size_t ii = 0; ii < n * n; ii++) {
+		obliv bool queue_empty = oqueue_empty(mQueue);
+		obliv if (queue_empty == 0) {
+			oqueue_pop(thisMQueue, mQueue);
+			oram_read(&proposedW, mPrefs, thisMQueue[0] * n + thisMQueue[1]);
+			oram_read(&thisWPrefs, wPrefs, proposedW * n + thisMQueue[0]);
+
+			// write new status for this w
+			thisWStatus[0] = thisMQueue[0];
+			thisWStatus[1] = thisWPrefs;
+			thisWStatus[2] = thisMQueue[1];
+			oram_apply(wStatus, thisWStatus, wStatusFunction, proposedW);
+			obliv if ((thisWPrefs < thisWStatus[1]) | (thisWStatus[1] == -1)) {
+				// write new status for this m
+				thisMStatus[0] = proposedW;
+				thisMStatus[1] = thisMQueue[1];
+				oram_write(mStatus, thisMStatus, thisMQueue[0]);
+
+				// the old m is now sad and alone
+				nextMQueue[0] = thisWStatus[0];
+				nextMQueue[1] = thisWStatus[2] + 1;
+				oqueue_push(mQueue, nextMQueue);
+
+			} else {
+				thisMQueue[1] += 1;
+				oqueue_push(mQueue, thisMQueue);
+			}
+		}
+	}
+
+	for (size_t ii = 0; ii < n; ii++) {
+		oram_read(thisMStatus, mStatus, ii);
+		output[ii] = thisMStatus[0];
+	}
+
+	oqueue_free(mQueue);
+	oram_free(mPrefs);
+	oram_free(wPrefs);
+	oram_free(mStatus);
+	oram_free(wStatus);
+}
