@@ -9,7 +9,7 @@ CKT_ORAM_DEPS=$(SRC_PATH)/oram_ckt/block.oo $(SRC_PATH)/oram_ckt/circuit_oram.oo
 ORAM_DEPS = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.oo
 REMOTE_HOST=localhost
 CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
-BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oscrypt test_ograph test_omatch test_osearch
+BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oscrypt test_ograph test_omatch test_osearch test_omatch_textbook
 
 default: $(OBLIVCC) $(BINS)
 
@@ -38,6 +38,8 @@ test_oqueue: $(DEPS) test_oqueue.oo $(SRC_PATH)/oqueue.oo
 test_ograph: $(DEPS) test_ograph.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS)
 
 test_omatch: $(DEPS) test_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/osort.oo $(ORAM_DEPS)
+
+test_omatch_textbook: $(DEPS) test_omatch_textbook.oo $(SRC_PATH)/omatch_textbook.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/osort.oo $(ORAM_DEPS)
 
 test_osearch: $(DEPS) test_osearch.oo $(SRC_PATH)/osearch.oo $(ORAM_DEPS)
 
