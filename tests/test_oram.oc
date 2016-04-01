@@ -26,7 +26,20 @@ void shuffle(uint32_t *array, size_t n) {
     }
 }
 
-void testMain(void*varg) {
+const char* getOramName(oram_type mode) {
+	switch (mode) {
+		case ORAM_TYPE_SQRT:
+			return "Square-Root ORAM:";
+		case ORAM_TYPE_CIRCUIT:
+			return "Circuit ORAM:";
+		case ORAM_TYPE_LINEAR:
+			return "Linear Scan:";
+		default:
+			return "Unknown";
+	}
+}
+
+void testOramType(oram_type mode) {
 
 	{
 		uint32_t input_raw[256];
@@ -39,7 +52,7 @@ void testMain(void*varg) {
 
 		shuffle(order_raw, 256);
 
-		oram * o = oram_new(256, 1);
+		oram * o = oram_new(mode, &ocCopyInt, 256);
 
 		for (int ii = 0; ii < 256; ii++) {
 			obliv size_t index = feedOblivLong(order_raw[ii], 1);
@@ -60,7 +73,7 @@ void testMain(void*varg) {
 
 		oram_free(o);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oram_write/oram_read", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-19s %-50s %s\n", getOramName(mode), "oram_write/oram_read", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 
@@ -79,7 +92,7 @@ void testMain(void*varg) {
 		for (int ii = 0; ii < 256; ii++) {
 			input[ocBroadcastInt(order_raw[ii], 1)] = feedOblivInt(input_raw[ii], 2);
 		}
-		oram * o = oram_from_array(256, 1, input);
+		oram * o = oram_from_array(mode, &ocCopyInt, 256, input);
 
 		bool success = true;
 
@@ -94,13 +107,13 @@ void testMain(void*varg) {
 
 		oram_free(o);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oram_from_array", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-19s %-50s %s\n", getOramName(mode), "oram_from_array", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 
 	{
 
-		oram * o = oram_new(256, 1);
+		oram * o = oram_new(mode, &ocCopyInt, 256);
 
 		bool success = true;
 
@@ -116,7 +129,7 @@ void testMain(void*varg) {
 
 		oram_free(o);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oram_write - bounds checking", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-19s %-50s %s\n", getOramName(mode), "oram_write - bounds checking", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 
@@ -132,7 +145,7 @@ void testMain(void*varg) {
 		shuffle(input_raw, 256);
 		shuffle(order_raw, 256);
 
-		oram * o = oram_new(256, 1);
+		oram * o = oram_new(mode, &ocCopyInt, 256);
 
 		for (int ii = 0; ii < 256; ii++) {
 			obliv size_t index = feedOblivLong(order_raw[ii], 1);
@@ -154,10 +167,16 @@ void testMain(void*varg) {
 
 		oram_free(o);
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oram_read - bounds checking", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-19s %-50s %s\n", getOramName(mode), "oram_read - bounds checking", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	}
 
 	fprintf(stderr, "\n");
 
+}
+
+void testMain(void*varg) {
+	testOramType(ORAM_TYPE_SQRT);
+	testOramType(ORAM_TYPE_CIRCUIT);
+	testOramType(ORAM_TYPE_LINEAR);
 }

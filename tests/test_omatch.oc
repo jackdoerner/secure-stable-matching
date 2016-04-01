@@ -18,8 +18,8 @@ void testMain(void*varg) {
 	{
 		uint32_t mPrefsRaw[9] = {
 			0, 1, 2,
-			1, 2, 0,
-			1, 2, 0
+			2, 0, 1,
+			2, 0, 1,
 		};
 
 		uint32_t wPrefsRaw[9] = {
@@ -29,7 +29,7 @@ void testMain(void*varg) {
 		};
 
 		uint32_t expected_output[3] = {
-			0, 2, 1
+			0, 1, 2
 		};
 
 		obliv uint32_t mPrefs[9];

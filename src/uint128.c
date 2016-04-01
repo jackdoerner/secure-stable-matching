@@ -38,7 +38,7 @@ uint128_t * uint128_new() {
     return result;
 }
 
-uint128_t * uint128_from(uint64_t input) {
+uint128_t * uint128_from(unsigned __int128 input) {
     uint128_t * result = malloc(sizeof(uint128_t));
     result->val = input;
     return result;

@@ -2,98 +2,156 @@
 #include "oram.oh"
 #include "oqueue.oh"
 #include "copy.oh"
+#include "sort.oh"
+#include "shuffle.oh"
+#include "waksman.h"
 
 #include <stdio.h>
 
-void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obliv {
-	obliv if (((obliv uint32_t *) extBlock)[1] < ((obliv uint32_t *) oramBlock)[1] | ((obliv uint32_t *) oramBlock)[1] == -1) {
-		obliv uint32_t temp = ((obliv uint32_t *) extBlock)[0];
-		((obliv uint32_t *) extBlock)[0] = ((obliv uint32_t *) oramBlock)[0];
-		((obliv uint32_t *) oramBlock)[0] = temp;
+static void * element(OcCopy* cpy,void * arr, int x) obliv {
+	return x*cpy->eltsize+(char*)arr;
+}
 
-		temp = ((obliv uint32_t *) extBlock)[1];
-		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
-		((obliv uint32_t *) oramBlock)[1] = temp;
+//void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obliv {
+//	obliv if (((obliv uint32_t *) extBlock)[1] < ((obliv uint32_t *) oramBlock)[1] | ((obliv uint32_t *) oramBlock)[1] == -1) {
+//		obliv uint32_t temp = ((obliv uint32_t *) extBlock)[0];
+//		((obliv uint32_t *) extBlock)[0] = ((obliv uint32_t *) oramBlock)[0];
+//		((obliv uint32_t *) oramBlock)[0] = temp;
+//
+//		temp = ((obliv uint32_t *) extBlock)[1];
+//		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
+//		((obliv uint32_t *) oramBlock)[1] = temp;
+//
+//		temp = ((obliv uint32_t *) extBlock)[2];
+//		((obliv uint32_t *) extBlock)[2] = ((obliv uint32_t *) oramBlock)[2];
+//		((obliv uint32_t *) oramBlock)[2] = temp;
+//	} else {
+//		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
+//	}
+//}
 
-		temp = ((obliv uint32_t *) extBlock)[2];
-		((obliv uint32_t *) extBlock)[2] = ((obliv uint32_t *) oramBlock)[2];
-		((obliv uint32_t *) oramBlock)[2] = temp;
+obliv char pref_cmp(OcCopy * cpy, void * el1, void * el2) {
+	obliv char result;
+	obliv if ( ((obliv uint32_t *) el1)[2] <= ((obliv uint32_t *) el2)[2] ) {
+		result = -1;
 	} else {
-		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
+		result = 1;
 	}
+	return result;
 }
 
 void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv uint32_t * wPrefsRaw, int n) {
 
-	oram * mPrefs = oram_from_array(n * n, 1, mPrefsRaw); // ordered by rank; elements represent partner index
-	oram * wPrefs = oram_new(n * n, 1); // ordered by partner index; elements represent rank
-	oram * mStatus = oram_new(n, 2);
-	oram * wStatus = oram_new(n, 3);
+	obliv uint32_t * prefs = calloc(2*n*n, 5 * sizeof(obliv uint32_t));
+	obliv uint32_t * permutation = calloc(2*n*n, sizeof(obliv uint32_t));
+	obliv uint32_t * permutationInverse = calloc(2*n*n, sizeof(obliv uint32_t));
+	for (size_t ii = 0; ii < 2*n*n; ii++) {
+		permutation[ii] = ii;
+	}
 
-	//insert wprefs into oram
+	OcCopy cpy2 = ocCopyIntN(2);
+	OcCopy cpy3 = ocCopyIntN(3);
+	OcCopy cpy5 = ocCopyIntN(5);
+	oqueue * mQueue = oqueue_new_static(&cpy2, n);
+
+	obliv uint32_t thisPref[5]; // [man index, woman index, man rank, woman rank, pointer to next]
+	obliv uint32_t thisMQueue[2]; // [index, pointer to next]
+	obliv uint32_t thisWStatus[3]; // [parter index, partner pointer to next, partner rating] 
+
+	OcPermNetwork w = ocPermNetworkRandom(2* n * n);
+	ocPermNetworkApply(&w,&ocCopyInt,permutation);
+	ocPermInverseAssumingPerm(&w, permutationInverse, permutation);
+
 	for (size_t ii = 0; ii < n; ii++) {
+		thisPref[0] = ii;
 		for (size_t jj = 0; jj < n; jj++) {
-			obliv uint32_t ojj = jj;
-			oram_write(wPrefs, &ojj, ii + wPrefsRaw[ii * n + jj]); 
+			thisPref[1] = jj;
+			thisPref[2] = mPrefsRaw[ii * n + jj];
+			thisPref[3] = wPrefsRaw[ii * n + jj];
+
+			ocCopy(&cpy5, element(&cpy5, prefs, ii*n+jj), thisPref); 
+		}
+		osort_batcher(&cpy5, element(&cpy5,prefs,ii * n), n, pref_cmp);
+	}
+
+	for (size_t ii = 0; ii < n; ii++) {
+		thisMQueue[0] = ii;
+		thisMQueue[1] = permutationInverse[ii * n];
+		oqueue_push(mQueue, thisMQueue);
+		for (size_t jj = 0; jj < n; jj++) {
+			if (jj + 1 < n) {
+				prefs[(ii * n + jj) * 5 + 4] = permutationInverse[ii * n + jj + 1];
+			} else {
+				prefs[(ii * n + jj) * 5 + 4] = -1;
+			}
 		}
 	}
 
-	OcCopy cpy = ocCopyIntN(2);
-	oqueue * mQueue = oqueue_new_static(&cpy, n);
-	obliv uint32_t thisMQueue[2]; // [index, pref list pos]
-	obliv uint32_t nextMQueue[2]; // [index, pref list pos]
-	obliv uint32_t thisMStatus[2]; // [parter index, partner rating] 
-	obliv uint32_t thisWStatus[3]; // [parter index, partner rating, partner's rating of self] 
-	obliv uint32_t proposedW, thisWPrefs;
-	
-	// initialize mQueue and wStatus
-	thisMQueue[1] = 0;
-	thisWStatus[0] = -1;
-	thisWStatus[1] = -1;
-	for (size_t ii = 0; ii < n; ii++) {
-		thisMQueue[0] = ii;
-		oqueue_push(mQueue, thisMQueue);
-		oram_write(wStatus, thisWStatus, ii);
+	obliv uint32_t nextDummy = permutationInverse[n*n];
+
+	for (size_t ii = n*n; ii < 2*n*n-1; ii++) {
+		prefs[ii * 5 + 4] = permutationInverse[ii + 1];
 	}
 
+	prefs[(2*n*n-1) * 5 + 4] = -1;
+
+	free(permutation);
+	free(permutationInverse);
+	ocPermNetworkApply(&w,&cpy5,prefs);
+	ocPermNetworkCleanup(&w);
+	
+	uint32_t * wStatusSeed = calloc(n*3,sizeof(obliv uint32_t));
+
+	for (size_t ii = 0; ii < n*3; ii++) {;
+		wStatusSeed[ii] = -1;
+	}
+
+	oram * wStatus = oram_from_array(ORAM_TYPE_AUTO, &cpy3, n, wStatusSeed);
+
+	free(wStatusSeed);
+
+	obliv uint32_t oPrefPointer;
+	uint32_t prefPointer;
+	obliv bool dummyAccess = false;
+
 	for (size_t ii = 0; ii < n * n; ii++) {
-		obliv bool queue_empty = oqueue_empty(mQueue);
-		obliv if (queue_empty == 0) {
+		obliv if (oqueue_empty(mQueue) == 0) {
 			oqueue_pop(thisMQueue, mQueue);
-			oram_read_obliv(&proposedW, mPrefs, thisMQueue[0] * n + thisMQueue[1]);
-			oram_read_obliv(&thisWPrefs, wPrefs, proposedW * n + thisMQueue[0]);
+			oPrefPointer = thisMQueue[1];
+		} else {
+			oPrefPointer = nextDummy;
+			dummyAccess = true;
+		}
+			
+		revealOblivInt(&prefPointer, oPrefPointer, 0);
+		ocCopy(&cpy5, thisPref, element(&cpy5, prefs, prefPointer)); 
 
-			// write new status for this w
-			thisWStatus[0] = thisMQueue[0];
-			thisWStatus[1] = thisWPrefs;
-			thisWStatus[2] = thisMQueue[1];
-			oram_apply_obliv(wStatus, thisWStatus, wStatusFunction, proposedW);
-			obliv if ((thisWPrefs < thisWStatus[1]) | (thisWStatus[1] == -1)) {
-				// write new status for this m
-				thisMStatus[0] = proposedW;
-				thisMStatus[1] = thisMQueue[1];
-				oram_write_obliv(mStatus, thisMStatus, thisMQueue[0]);
+		obliv if (dummyAccess) {
+			nextDummy = thisPref[4];
+		} else {
+			//TODO: optimize the following to use one ORAM access and one queue push
 
-				// the old m is now sad and alone
-				nextMQueue[0] = thisWStatus[0];
-				nextMQueue[1] = thisWStatus[2] + 1;
-				oqueue_push(mQueue, nextMQueue);
-
-			} else {
-				thisMQueue[1] += 1;
+			oram_read(thisWStatus, wStatus, thisPref[1]);
+			obliv if (thisWStatus[2] >= thisPref[3]) {
+				thisMQueue[1] = thisPref[4];
 				oqueue_push(mQueue, thisMQueue);
+			} else {
+				obliv if (thisWStatus[0] != -1) {
+					oqueue_push(mQueue, thisWStatus);
+				}
+				thisWStatus[0] = thisMQueue[0];
+				thisWStatus[1] = thisMQueue[1];
+				thisWStatus[2] = thisPref[3];
+				oram_write(wStatus, thisWStatus, thisPref[1]);
 			}
 		}
 	}
 
 	for (size_t ii = 0; ii < n; ii++) {
-		oram_read(thisMStatus, mStatus, ii);
-		output[ii] = thisMStatus[0];
+		oram_read(thisWStatus, wStatus, ii);
+		output[ii] = thisWStatus[0];
 	}
 
 	oqueue_free(mQueue);
-	oram_free(mPrefs);
-	oram_free(wPrefs);
-	oram_free(mStatus);
 	oram_free(wStatus);
 }

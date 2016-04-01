@@ -1,0 +1,34 @@
+#include "osort.oh"
+
+static void * element(OcCopy* cpy,void * arr, int x) obliv {
+	return x*cpy->eltsize+(char*)arr;
+}
+
+void osort_batcher_swap(OcCopy * cpy, void* data, size_t step, size_t start,size_t end, osort_cmp_function cmpFn) {
+	size_t ii;
+	void * temp = malloc(cpy->eltsize);
+	for(ii=start; ii+step<end; ii+=step*2) {
+		memcpy(temp, element(cpy, data, ii), cpy->eltsize);
+		obliv if (cmpFn(cpy, element(cpy, data, ii), element(cpy, data, ii+step)) > 0) {
+			ocCopy(cpy, element(cpy, data, ii), element(cpy, data, ii+step));
+			ocCopy(cpy, element(cpy, data, ii+step), temp);
+		}
+	}
+}
+
+void osort_batcher_merge (OcCopy * cpy, void* data, size_t step, size_t start, size_t mid, size_t end, osort_cmp_function cmpFn) {
+	if (end<=step) return;
+	osort_batcher_merge(cpy, data, 2*step, start, mid, end, cmpFn);
+	osort_batcher_merge(cpy, data, 2*step, start+step, mid, end, cmpFn);
+	size_t half = (mid-start+step-1)/step;
+	osort_batcher_swap(cpy, data, step, start+step*(half%2==0), end, cmpFn);
+}
+
+void osort_batcher(OcCopy * cpy, void * data, size_t end, osort_cmp_function cmpFn) {
+	if (end <= 1) return;
+	size_t mid = end/2;
+	osort_batcher(cpy,data,mid,cmpFn);
+	osort_batcher(cpy,data + mid * cpy->eltsize,end - end/2,cmpFn);
+	osort_batcher_merge(cpy,data,1,0,mid,end,cmpFn);
+}
+

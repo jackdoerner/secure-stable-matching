@@ -1,0 +1,187 @@
+#include "oram.oh"
+#include "oram_sqrt/sqrtoram.oh"
+#include "oram_ckt/circuit_oram.oh"
+
+#include <stdio.h>
+
+struct oram {
+	oram_type mode;
+	size_t size;
+	OcCopy * cpy;
+	void * data;
+};
+
+static void * element(OcCopy* cpy,void * arr, int x) obliv {
+	return x*cpy->eltsize+(char*)arr;
+}
+
+void oram_init(oram* o, oram_type mode, OcCopy * cpy, size_t size, void * src) {
+	o->size = size;
+	o->cpy = cpy;
+	if (mode == ORAM_TYPE_AUTO) {
+		o->mode = ORAM_DEFAULT_MODE;
+	} else {
+		o->mode = mode;	
+	}
+	switch (o->mode) {
+		case ORAM_TYPE_LINEAR:
+			o->data = calloc(o->size, o->cpy->eltsize);
+			if (src != NULL) {
+				ocCopyN(o->cpy, o->data, src, size);
+			}
+			break;
+
+		case ORAM_TYPE_CIRCUIT:
+			printf("DEBUG %d\n", o->cpy->eltsize/sizeof(obliv bool));
+			fflush(stdout);
+			o->data = ckt_initialize(size, o->cpy->eltsize/sizeof(obliv bool));
+			if (src != NULL) {
+				for(size_t ii = 0; ii < o->size; ii++) {
+					oram_write(o, element(o->cpy, src, ii), ii);
+				}
+			}
+			break;
+
+		case ORAM_TYPE_SQRT:
+		default:
+			if (src == NULL) {
+				void * blank = calloc(size * o->cpy->eltsize, sizeof(uint8_t));
+				o->data = ocSqrtOramNew(o->cpy, blank, size);
+				free(blank);
+			} else {
+				o->data = ocSqrtOramNew(o->cpy, src, size);
+			}
+			break;
+	}
+}
+
+oram * oram_new(oram_type mode, OcCopy * cpy, size_t size) {
+	oram * ram = malloc(sizeof(oram));
+	oram_init(ram, mode, cpy, size, NULL);
+	return ram;
+}
+
+oram * oram_from_array(oram_type mode, OcCopy * cpy, size_t size, void * src) {
+	oram * ram = malloc(sizeof(oram));
+	oram_init(ram, mode, cpy, size, src);
+	return ram;
+}
+
+void oram_free(oram* o) {
+	switch (o->mode) {
+		case ORAM_TYPE_LINEAR:
+			free(o->data);
+			break;
+		case ORAM_TYPE_CIRCUIT:
+			ckt_release(o->data);
+			break;
+		case ORAM_TYPE_SQRT:
+		default:
+			ocSqrtOramRelease(o->data);
+			break;
+	}
+
+	o->size = 0;
+	o->data = NULL;
+	free(o);
+}
+
+size_t oram_size(oram * o) {
+	return o->size;
+}
+
+obliv bool oram_read(void * output, oram * o, obliv size_t index) obliv {
+	obliv bool success = false;
+
+	switch (o->mode) {
+		case ORAM_TYPE_LINEAR:
+			for (size_t ii = 0; ii < o->size; ii++) {
+				obliv if (ii == index) {
+					ocCopy(o->cpy, output, element(o->cpy, o->data, ii));
+					success = true;
+				}
+			}
+			break;
+
+		case ORAM_TYPE_CIRCUIT:
+			obliv if ((index < o->size) & (index >= 0)) {
+				ckt_read(o->data, index % o->size, output);
+				success = true;
+			}
+			break;
+
+		case ORAM_TYPE_SQRT:
+		default:
+			obliv if ((index < o->size) & (index >= 0)) {
+				ocSqrtOramReadObliv(o->data, index % o->size, output);
+				success = true;
+			}
+			break;
+	}
+
+	return success;
+}
+
+obliv bool oram_write(oram * o, void * input, obliv size_t index) obliv {
+	obliv bool success = false;
+
+	switch (o->mode) {
+		case ORAM_TYPE_LINEAR:
+			for (size_t ii = 0; ii < o->size; ii++) {
+				obliv if (ii == index) {
+					ocCopy(o->cpy, element(o->cpy, o->data, ii), input);
+					success = true;
+				}
+			}
+			break;
+
+		case ORAM_TYPE_CIRCUIT:
+			obliv if ((index < o->size) & (index >= 0)) {
+				ckt_write(o->data, index % o->size, input);
+				success = true;
+			}
+			break;
+
+		case ORAM_TYPE_SQRT:
+		default:
+			obliv if ((index < o->size) & (index >= 0)) {
+				ocSqrtOramWriteObliv(o->data, input, index % o->size);
+				success = true;
+			}
+			break;
+	}
+
+	return success;
+}
+
+obliv bool oram_apply(oram * o, void * input, block_access_function fn, obliv size_t index) obliv {
+	obliv bool success = false;
+
+	switch (o->mode) {
+		case ORAM_TYPE_LINEAR:
+			for (size_t ii = 0; ii < o->size; ii++) {
+				obliv if (ii == index) {
+					fn(o->cpy, element(o->cpy, o->data, ii), input);
+					success = true;
+				}
+			}
+			break;
+
+		case ORAM_TYPE_CIRCUIT:
+			obliv if ((index < o->size) & (index >= 0)) {
+				ckt_apply(o->data, index % o->size, fn, input);
+				success = true;
+			}
+			break;
+
+		case ORAM_TYPE_SQRT:
+		default:
+			obliv if ((index < o->size) & (index >= 0)) {
+				ocSqrtOramAccessObliv(o->data, index % o->size, fn, input);
+				success = true;
+			}
+			break;
+	}
+
+	return success;
+}

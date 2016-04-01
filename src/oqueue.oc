@@ -1,90 +1,11 @@
 #include <math.h>
 #include "oqueue.oh"
 
-/*struct oring_queue {
-	oram * ring;
-	obliv size_t head;
-	obliv size_t tail;
-	size_t size;
-};
-
-oring_queue * oring_queue_new(size_t size, size_t elsz) {
-	oring_queue * result = malloc(sizeof(oring_queue));
-	result->ring = oram_new(size+1, elsz);
-	result->size = size;
-	result->head = 0;
-	result->tail = 0;
-	return result;
-}
-
-void oring_queue_free(oring_queue * queue) {
-	oram_free(queue->ring);
-	free(queue);
-}
-
-obliv bool oring_queue_empty(oring_queue * queue) {
-	return (queue->head == queue->tail);
-}
-
-obliv bool oring_queue_empty_obliv(oring_queue * queue) obliv {
-	return (queue->head == queue->tail);
-}
-
-obliv bool oring_queue_full(oring_queue * queue) {
-	return ((queue->head == queue->tail + 1) | ((queue->tail == queue->size) & (queue->head == 0)));
-}
-
-obliv bool oring_queue_full_obliv(oring_queue * queue) obliv {
-	return ((queue->head == queue->tail + 1) | ((queue->tail == queue->size) & (queue->head == 0)));
-}
-
-void oring_queue_push(oring_queue * queue, obliv uint32_t * input) {
-	oram_write(queue->ring, input, queue->tail);
-	obliv if (queue->tail < queue->size) {
-		queue->tail++;	
-	} else {
-		queue->tail=0;
-	}
-}
-
-void oring_queue_push_obliv(oring_queue * queue, obliv uint32_t * input) obliv {
-	oram_write_obliv(queue->ring, input, queue->tail);
-	obliv if (queue->tail < queue->size) {
-		queue->tail++;	
-	} else {
-		queue->tail=0;
-	}
-}
-
-void oring_queue_pop(obliv uint32_t * output, oring_queue * queue) {
-	obliv if (queue->head != queue->tail) {
-		oram_read_obliv(output, queue->ring, queue->head);
-		obliv if (queue->head < queue->size) {
-			queue->head++;	
-		} else {
-			queue->head=0;
-		}
-	}
-}
-
-void oring_queue_pop_obliv(obliv uint32_t * output, oring_queue * queue) obliv {
-	obliv if (queue->head != queue->tail) {
-		oram_read_obliv(output, queue->ring, queue->head);
-		obliv if (queue->head < queue->size) {
-			queue->head++;	
-		} else {
-			queue->head=0;
-		}
-	}
-}*/
-
-
-
-
 struct oqueue {
 	oqueue * child;
 	OcCopy * cpy;
 	size_t layer_index;
+	size_t copymult;
 	bool dynamic_sizing;
 	obliv uint8_t head;
 	obliv uint8_t tail;
@@ -115,8 +36,8 @@ obliv bool oqueue_push(oqueue * layer, void * input) obliv {
 		if (layer->child != NULL) {
 			if (layer->push_time == 1) {
 				obliv if (en & (layer->tail >= 5)) {
-					obliv if (oqueue_push(layer->child, element(layer->cpy,layer->data,3))) {
-						ocCopy(layer->cpy,element(layer->cpy,layer->data,3), element(layer->cpy,layer->data,5));
+					obliv if (oqueue_push(layer->child, element(layer->cpy,layer->data,3*layer->copymult))) {
+						ocCopyN(layer->cpy,element(layer->cpy,layer->data,3*layer->copymult), element(layer->cpy,layer->data,5*layer->copymult),layer->copymult);
 						layer->tail -= 2;	
 					}
 				}
@@ -129,7 +50,7 @@ obliv bool oqueue_push(oqueue * layer, void * input) obliv {
 	obliv if (layer->tail < 6) {
 		for (uint8_t ii = 0; ii < 6; ii++) {
 			obliv if (ii == layer->tail) {
-				ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), input);
+				ocCopyN(layer->cpy,element(layer->cpy,layer->data,ii * layer->copymult), input, layer->copymult);
 				success = true;
 				layer->current_elements ++;
 			}	
@@ -147,18 +68,18 @@ obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 			if (layer->child == NULL) {
 				obliv if (en & layer->head >= 2) {
 					for (uint8_t ii = 0; ii < 4; ii ++) {
-						ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), element(layer->cpy,layer->data,ii + 2));
+						ocCopyN(layer->cpy,element(layer->cpy,layer->data,ii*layer->copymult), element(layer->cpy,layer->data,(ii + 2)*layer->copymult),layer->copymult);
 					}
 					layer->head -= 2;
 					layer->tail -= 2;
 				}
 			} else {
 				obliv if (en & layer->head >= 2) {
-					ocCopy(layer->cpy,element(layer->cpy,layer->data,0), element(layer->cpy,layer->data,2));
+					ocCopyN(layer->cpy,element(layer->cpy,layer->data,0), element(layer->cpy,layer->data,2*layer->copymult), layer->copymult);
 					layer->head -= 2;
-					obliv if(~oqueue_pop(element(layer->cpy,layer->data,1), layer->child)) {
+					obliv if(~oqueue_pop(element(layer->cpy,layer->data,1*layer->copymult), layer->child)) {
 						for (uint8_t ii = 1; ii < 4; ii ++) {
-							ocCopy(layer->cpy,element(layer->cpy,layer->data,ii), element(layer->cpy,layer->data,ii + 2));
+							ocCopyN(layer->cpy,element(layer->cpy,layer->data,ii*layer->copymult), element(layer->cpy,layer->data,(ii + 2)*layer->copymult),layer->copymult);
 						}
 						layer->tail -= 2;
 					}
@@ -173,7 +94,7 @@ obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 	obliv if (layer->head < 3 & layer->head != layer->tail) {
 		for (uint8_t ii = 0; ii < 3; ii++) {
 			obliv if (ii == layer->head) {
-				ocCopy(layer->cpy,output,element(layer->cpy,layer->data,ii));
+				ocCopyN(layer->cpy,output,element(layer->cpy,layer->data,ii*layer->copymult),layer->copymult);
 				success = true;
 				layer->current_elements --;
 			}
@@ -184,10 +105,8 @@ obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 }
 
 oqueue * oqueue_new_static(OcCopy * cpy, int n) {
-	size_t base_size = cpy->eltsize / ocCopyChar.eltsize;
 	size_t queue_size = 0;
 	size_t layer_index = 0;
-	size_t this_elsz;
 	oqueue * result;
 	oqueue * this_layer = NULL;
 	oqueue * last_layer = NULL;
@@ -203,10 +122,9 @@ oqueue * oqueue_new_static(OcCopy * cpy, int n) {
 		this_layer->dynamic_sizing = false;
 		this_layer->child = NULL;
 
-		this_elsz = base_size * pow(2, layer_index);
-		this_layer->cpy = malloc(sizeof(*this_layer->cpy));
-		*this_layer->cpy = ocCopyCharN(this_elsz);
-		this_layer->data = calloc(this_elsz * 6, sizeof(obliv uint8_t));
+		this_layer->copymult = pow(2, layer_index);
+		this_layer->cpy = cpy;
+		this_layer->data = calloc(this_layer->cpy->eltsize * this_layer->copymult * 6, sizeof(obliv uint8_t));
 
 		if (last_layer == NULL) {
 			result = this_layer;
@@ -226,7 +144,6 @@ void oqueue_free(oqueue * layer) {
 	if (layer->child != NULL) {
 		oqueue_free(layer->child);
 	}
-	free(layer->cpy);
 	free(layer->data);
 	free(layer);
 }

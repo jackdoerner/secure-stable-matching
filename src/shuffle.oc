@@ -1,0 +1,251 @@
+#include<assert.h>
+#include<obliv.oh>
+#include"shuffle.oh"
+#include<stdlib.h>
+#include<bcrandom.h>
+#include<obliv_yao.h>
+#include"copy.oh"
+#include"waksman.h"
+#include<stdio.h>
+
+static unsigned* randomPermutation(size_t n)
+{
+  BCipherRandomGen* gen = newBCipherRandomGen();
+  unsigned* rv = malloc(n*sizeof*rv);
+  bcRandomPermutation(gen,rv,n);
+  releaseBCipherRandomGen(gen);
+  return rv;
+}
+
+static void applyNetwork_2way(OcCopy* cpy,void* data,
+                  const unsigned a[], const unsigned b[],
+                  const obliv bool c[],size_t n,size_t sc,
+                  const size_t lsize[],size_t lc,bool forw)
+{
+  int l,l_,i,off=forw?0:sc;
+  size_t elt = cpy->eltsize;
+  char *opt0 = calloc((n/2)*elt,1);
+  char *opt1 = calloc((n/2)*elt,1);
+  char *scratch = calloc((n/2)*elt,1);
+  for(l_=0;l_<lc;++l_)
+  { 
+    l = (forw?l_:lc-l_-1);
+    if(!forw) off-=lsize[l];
+    // Copy elements into temporary
+    for(i=0;i<lsize[l];++i)
+    { int i2 = off+i;
+      ocCopy(cpy,opt0+i*elt,(char*)data+a[i2]*elt);
+      ocCopy(cpy,opt1+i*elt,(char*)data+b[i2]*elt);
+    }
+    // Swap them
+    ocSwapCondN(cpy,opt0,opt1,scratch,c+off,lsize[l]);
+    // Put them back
+    for(i=0;i<lsize[l];++i)
+    { int i2 = off+i;
+      ocCopy(cpy,(char*)data+a[i2]*elt,opt0+i*elt);
+      ocCopy(cpy,(char*)data+b[i2]*elt,opt1+i*elt);
+    }
+    if(forw) off+=lsize[l];
+  }
+  free(opt0); free(opt1); free(scratch);
+}
+static inline void applyNetwork(OcCopy* cpy,void* data,
+                  const unsigned a[], const unsigned b[],
+                  const obliv bool c[],size_t n,size_t sc,
+                  const size_t lsize[],size_t lc)
+  { applyNetwork_2way(cpy,data,a,b,c,n,sc,lsize,lc,true); }
+static inline void unapplyNetwork(OcCopy* cpy,void* data,
+                  const unsigned a[], const unsigned b[],
+                  const obliv bool c[],size_t n,size_t sc,
+                  const size_t lsize[],size_t lc)
+  { applyNetwork_2way(cpy,data,a,b,c,n,sc,lsize,lc,false); }
+
+static void applyNetworkHalf(OcCopy* cpy,void* data,
+                  const unsigned a[], const unsigned b[],
+                  const bool c[],size_t n,size_t sc,
+                  int controlparty)
+{
+  int l,i;
+  size_t elt = cpy->eltsize;
+  char *opt0 = calloc((n/2)*elt,1);
+  char *opt1 = calloc((n/2)*elt,1);
+  int me = ocCurrentParty();
+  ProtocolDesc* pd = ocCurrentProto();
+  YaoEHalfSwapper sw;
+  if(controlparty==2) sw = yaoEHalfSwapSetup(pd,c,sc);
+  for(i=0;i<sc;++i)
+  {
+    void *aa = (char*)data+a[i]*elt, *bb = (char*)data+b[i]*elt;
+    if(controlparty==1)
+      yaoGHalfSwapGate(pd,aa,bb,elt/sizeof(obliv bool),(me==1?c[i]:0));
+    else
+      yaoEHalfSwapGate(pd,aa,bb,elt/sizeof(obliv bool),&sw);
+  }
+  free(opt0); free(opt1);
+}
+
+void ocPermNetworkCleanup(OcPermNetwork* w)
+{
+  free(w->perm_share);
+  free(w->a); free(w->b);
+  free(w->oc1); free(w->oc2);
+  free(w->level_size);
+  free(w->c);
+  if(w->cpy) ocCopyRelease(w->cpy);
+}
+
+void ocPermNetworkFeedControls(OcPermNetwork* w)
+{
+  if(w->oc1) return; // already initialized
+  obliv bool *oc1 = calloc(w->sc,sizeof*oc1), *oc2 = calloc(w->sc,sizeof*oc2);
+  feedOblivBoolArray(oc1,w->c,w->sc,1);
+  feedOblivBoolArray(oc2,w->c,w->sc,2);
+  w->oc1=oc1; w->oc2=oc2;
+}
+
+OcPermNetwork ocPermNetworkRandom(size_t n)
+{
+  size_t sc = waksmanSwapCount(n), lc = waksmanStrataCount(n);
+  unsigned *a = malloc(sc*sizeof*a), *b = malloc(sc*sizeof*b);
+  bool* c = malloc(sc*sizeof*c);
+  unsigned *perm_share = randomPermutation(n);
+  size_t *level_size = malloc(lc*sizeof*level_size);
+  waksmanNetwork(a,b,n);
+  waksmanSwitches(perm_share,n,c);
+  waksmanStratify(a,b,c,n,level_size);
+  
+  OcPermNetwork rv = {
+    .perm_share = perm_share, .a = a, .b = b, .oc1 = NULL, .oc2 = NULL, .n = n, 
+    .sc = sc, .level_size = level_size, .lc = lc, .cpy = NULL, .c=c
+  };
+  return rv;
+}
+
+void ocPermNetwork_xorinit(OcPermNetwork* w)
+{
+  if(!w->cpy)
+    w->cpy = ocShareCopyNew(ocCurrentProto(),w->n,sizeof(OcSharedInt));
+}
+// Writes out the combined permutation in an array
+void ocPermNetworkPerm(OcPermNetwork* w,obliv int perm[])
+{
+  feedOblivIntArray(perm,w->perm_share,w->n,1);
+  applyNetwork(&ocCopyInt,perm,w->a,w->b,w->oc2,w->n,w->sc,
+               w->level_size,w->lc);
+}
+void ocPermNetworkPerm_xorShare(OcPermNetwork* w,OcSharedInt perm[])
+{
+  ocPermNetwork_xorinit(w);
+  ocFeedSharedIntN(perm,w->perm_share,w->n,1);
+  applyNetwork(w->cpy,perm,w->a,w->b,w->oc2,w->n,w->sc,
+               w->level_size,w->lc);
+}
+void ocPermNetworkPermInv_impl(const OcPermNetwork* w,void* perm,bool isyao)
+{
+  unsigned *inv,i;
+  size_t n=w->n;
+  // Compute permutation inverse
+  if(ocCurrentParty()==2)
+  { inv = malloc(n*sizeof*inv);
+    for(i=0;i<n;++i) inv[w->perm_share[i]]=i;
+  }
+  OcCopy* cpy = &ocCopyInt;
+  if(isyao) feedOblivIntArray(perm,inv,n,2);
+  else
+  { ocFeedSharedIntN(perm,inv,n,2);
+    ocPermNetwork_xorinit(w);
+    cpy = w->cpy;
+  }
+  ocPermNetworkFeedControls(w);
+  unapplyNetwork(cpy,perm,w->a,w->b,w->oc1,n,w->sc,
+                 w->level_size,w->lc);
+  if(ocCurrentParty()==2) free(inv);
+}
+void ocPermNetworkPermInv(const OcPermNetwork* w,obliv int perm[])
+  { ocPermNetworkPermInv_impl(w,perm,true); }
+
+void ocPermNetworkApply(const OcPermNetwork* w, OcCopy* cpy, void* data)
+{
+  ocPermNetworkFeedControls(w);
+  applyNetwork(cpy,data,w->a,w->b,w->oc1,w->n,w->sc,w->level_size,w->lc);
+  applyNetwork(cpy,data,w->a,w->b,w->oc2,w->n,w->sc,w->level_size,w->lc);
+}
+void ocPermNetworkHalfApply(const OcPermNetwork* w, OcCopy* cpy, void* data)
+{
+  assert(*((char*)ocCurrentProto()->extra)==OC_PD_TYPE_YAO);
+  applyNetworkHalf(cpy,data,w->a,w->b,w->c,w->n,w->sc,1);
+  applyNetworkHalf(cpy,data,w->a,w->b,w->c,w->n,w->sc,2);
+}
+// Two parties jointly shuffle the data, with the resultant
+// permutation being written into perm_out. perm_out[] should be of length
+// at least n. Does O(log n) invocations of ocCopyCondN(), each of size ~ n/2
+// Also calls oCopy O(n log n) times, but only unconditionally
+// perm_out should be of size n*elt, where elt is the size of an obliv int or
+// OcSharedInt, depending on the value of isyao
+void ocShuffleData(const OcCopy* cpy,void* data,size_t n,
+                   void* perm_out,bool isyao)
+{
+  OcPermNetwork w = ocPermNetworkRandom(n);
+  ocPermNetworkApply(&w,cpy,data);
+  if(!perm_out); // do nothing
+  ocPermNetworkPermInv_impl(&w,perm_out,isyao);
+  ocPermNetworkCleanup(&w);
+}
+
+//int bitcount(int x) { return x<=1?1:1+bitcount(x/2); }
+int bitcount(int n) { return n>1?1+bitcount((n+1)/2):0; }
+
+void
+ocPermInverseAssumingPerm(OcPermNetwork* w,
+  obliv int inv[],const obliv int perm[])
+{
+  size_t n=w->n;
+  int mask = (1<<bitcount(n))-1;
+  int i;
+  bool* c=NULL;
+  obliv bool* oc = calloc(w->sc,sizeof(obliv bool));
+  unsigned *perm_share,*share_inverse=NULL;
+  // TODO avoid reinitializing here, reuse from w. We need a and b to stratify c
+  // Ugly function. Major refactoring necessary.
+  unsigned *a = malloc(w->sc*sizeof*a), *b = malloc(w->sc*sizeof*b);
+  c=malloc(w->sc*sizeof(bool));
+
+  if(ocCurrentParty()==1)
+  { perm_share = randomPermutation(n);
+    share_inverse = malloc(n*sizeof(unsigned));
+    for(i=0;i<n;++i) share_inverse[perm_share[i]]=i;
+    waksmanNetwork(a,b,n);
+    waksmanSwitches(perm_share,n,c);
+    waksmanStratify(a,b,c,n,w->level_size);
+    memcpy(inv,perm,sizeof(obliv int)*n);
+    for(i=0;i<n;++i) inv[i]&=mask;
+    applyNetworkHalf(&ocCopyInt,inv,a,b,c,n,w->sc,1);
+    for(i=0;i<n;++i) revealOblivInt(NULL,inv[i],2);
+    // Party 2 gets c_inv, fed here
+    feedOblivIntArray(inv,perm_share,n,1);
+    for(i=0;i<n;++i) inv[i]&=mask;
+    applyNetworkHalf(&ocCopyInt,inv,a,b,c,n,w->sc,2);
+    free(perm_share);
+    free(share_inverse);
+  }else
+  { perm_share = calloc(n,sizeof(unsigned));
+    share_inverse = malloc(n*sizeof(unsigned)); // XXX
+    waksmanNetwork(a,b,n);
+    waksmanStratify(a,b,NULL,n,w->level_size);
+    memcpy(inv,perm,sizeof(obliv int)*n);
+    for(i=0;i<n;++i) inv[i]&=mask;
+    applyNetworkHalf(&ocCopyInt,inv,a,b,NULL,n,w->sc,1);
+    for(i=0;i<n;++i) revealOblivInt(perm_share+i,inv[i],2);
+    for(i=0;i<n;++i) share_inverse[perm_share[i]]=i;
+    waksmanNetwork(a,b,n);
+    waksmanSwitches(share_inverse,n,c);
+    waksmanStratify(a,b,c,n,w->level_size);
+    feedOblivIntArray(inv,NULL,n,1);
+    for(i=0;i<n;++i) inv[i]&=mask;
+    // FIXME unapply has bugs! I shouldn't need share_inverse
+    applyNetworkHalf(&ocCopyInt,inv,a,b,c,n,w->sc,2);
+    free(perm_share);
+    free(share_inverse);
+  }
+  free(a); free(b); free(c); free(oc);
+}
