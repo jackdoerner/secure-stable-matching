@@ -11,7 +11,7 @@ ORAM_DEPS_SQRT = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.sqrt.oo
 ORAM_DEPS_CIRCUIT = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.circuit.oo
 ORAM_DEPS_LINEAR = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.linear.oo
 REMOTE_HOST=localhost
-CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
+CFLAGS+=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
 BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oscrypt test_ograph test_omatch test_osearch test_omatch_textbook\
 		bench_oram_sqrt bench_oram_circuit bench_oram_linear bench_oram_init_sqrt bench_oram_init_circuit bench_oram_init_linear\
 		bench_oscrypt_sqrt bench_oscrypt_circuit bench_oscrypt_linear bench_bfs_sqrt bench_bfs_circuit bench_bfs_linear\

@@ -75,17 +75,17 @@ void ckt_apply(CircuitOram* oram, obliv int index, block_access_function func,  
 	update_trees(oram, index, 1, &pos, &new_pos);
 
 	obliv bool * data = calloc_obliv(sizeof(obliv bool), oram->data_size);
-	obliv int * int_data = calloc_obliv(sizeof(obliv int), oram->data_size/32);
+	//obliv int * int_data = calloc_obliv(sizeof(obliv int), oram->data_size/32);
 	nro_read_and_remove(oram->orams[0], index, pos, data);
-	for(int i = 0; i < oram->data_size/32; ++i)
-		bool_to_int_obliv(data+(i*32), int_data+i, 32);
-	func(NULL, int_data, ext_data);
-	for(int i = 0; i < oram->data_size/32; ++i)
-		int_to_bool_obliv(int_data+i, data+(i*32), 32);
+	//for(int i = 0; i < oram->data_size/32; ++i)
+	//	bool_to_int_obliv(data+(i*32), int_data+i, 32);
+	func(NULL, data, ext_data);
+	//for(int i = 0; i < oram->data_size/32; ++i)
+	//	int_to_bool_obliv(int_data+i, data+(i*32), 32);
 
 	nro_put_back(oram->orams[0], index, new_pos, data);
 	free_obliv(data);
-	free_obliv(int_data);
+	//free_obliv(int_data);
 }
 
 void ckt_write(CircuitOram* oram, obliv int index, obliv bool* data) obliv {
