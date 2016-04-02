@@ -2,7 +2,7 @@
 #include "oram.oh"
 #include "oqueue.oh"
 #include "copy.oh"
-#include "sort.oh"
+#include "osort.oh"
 #include "shuffle.oh"
 #include "waksman.h"
 

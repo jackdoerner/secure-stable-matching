@@ -18,8 +18,10 @@ char* testName() {
 	return TESTNAME;
 }
 
-int vcts[9] = {4,8,16,32,64,128,256,512,1024};
-int ects[2] = {4,8};
+int vcts[] = {4,8,16,32,64,128,256,512,1024};
+int ects[] = {4,8};
+int vn = sizeof(vcts)/sizeof(vcts[0]);
+int en = sizeof(ects)/sizeof(ects[0]);
 
 void testMain(void*varg) {
 
@@ -27,9 +29,9 @@ void testMain(void*varg) {
 	fflush(stdout);
 
 	{
-		for (int jj = 0; jj < 2; jj++) {
+		for (int jj = 0; jj < en; jj++) {
 			int adjacency_count = ects[jj];
-			for (int ii = 0; ii < 9; ii++) {
+			for (int ii = 0; ii < vn; ii++) {
 				int vertices = vcts[ii];
 			
 				ograph_edge * edges = calloc(adjacency_count * vertices, sizeof(ograph_edge));

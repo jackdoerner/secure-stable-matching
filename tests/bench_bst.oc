@@ -24,8 +24,10 @@ obliv int cmpInt(OcCopy * cpy, void * a, void * b) obliv {
 	return (*aa > *bb) - (*aa < *bb);
 }
 
-int elcts[3] = {32,1024,32768};
-int searchcts[11] = {1,2,4,8,16,32,64,128,256,512,1024};
+int elcts[] = {32,1024,32768};
+int searchcts[] = {1,2,4,8,16,32,64,128,256,512,1024};
+int en = sizeof(elcts)/sizeof(elcts[0]);
+int sn = sizeof(searchcts)/sizeof(searchcts[0]);
 
 void testMain(void*varg) {
 
@@ -35,9 +37,9 @@ void testMain(void*varg) {
 	{
 		OcCopy cpy = ocCopyIntN(4);
 
-		for (int ii = 0; ii < 3; ii++) {
+		for (int ii = 0; ii < en; ii++) {
 			int elct = elcts[ii];
-			for (int jj = 0; jj < 11; jj++) {
+			for (int jj = 0; jj < sn; jj++) {
 				int searchct = searchcts[jj];
 
 				uint128_t * tally = uint128_new();

@@ -20,14 +20,16 @@ char* testName() {
 
 int elcts[9] = {4,8,16,32,64,128,256,512,1024};
 int elszs[9] = {1,2,4,8,16,32,64,128,256};
+int en = sizeof(elcts)/sizeof(elcts[0]);
+int sn = sizeof(elszs)/sizeof(elszs[0]);
 
 void testMain(void*varg) {
 
 	fprintf(stdout, "==========\nORAM ACCESS (WRITE) (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
 
-	for (int ii = 0; ii < 9; ii++) {
+	for (int ii = 0; ii < en; ii++) {
 		int elct = elcts[ii];
-		for (int jj = 0; jj < 9; jj++) {
+		for (int jj = 0; jj < sn; jj++) {
 			int elsz = elszs[jj];
 
 			OcCopy cpy = ocCopyIntN(elsz);

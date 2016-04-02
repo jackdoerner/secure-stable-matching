@@ -31,7 +31,8 @@ void shuffle(uint32_t *array, size_t n) {
     }
 }
 
-int pcts[9] = {4,8,16,32,64,128,256,512,1024};
+int pcts[] = {4,8,16,32,64,128,256,512,1024};
+int pn = sizeof(pcts)/sizeof(pcts[0]);
 
 void testMain(void*varg) {
 
@@ -40,7 +41,7 @@ void testMain(void*varg) {
 
 	{
 
-		for (int ii = 0; ii < 9; ii++) {
+		for (int ii = 0; ii < pn; ii++) {
 			int pairs = pcts[ii];
 			uint128_t * tally = uint128_new();
 

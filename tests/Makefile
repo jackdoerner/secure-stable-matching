@@ -116,4 +116,4 @@ bench_omatch_textbook_linear: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch_textboo
 	cpp -MM $(CFLAGS) $*.oc -MT $*.oo > $*.od
 
 clean:
-	rm -f $(BINS) *.oo *.o *.d *.dd $(SRC_PATH)/*.oo $(SRC_PATH)/*.o $(SRC_PATH)/*.dd $(SRC_PATH)/*.d $(SRC_PATH)/oram_sqrt/*.oo $(SRC_PATH)/oram_sqrt/*.o $(SRC_PATH)/oram_sqrt/*.dd $(SRC_PATH)/oram_sqrt/*.d $(SRC_PATH)/oram_ckt/*.oo $(SRC_PATH)/oram_ckt/*.o $(SRC_PATH)/oram_ckt/*.dd $(SRC_PATH)/oram_ckt/*.d
+	rm -f $(BINS) *.oo *.o *.d *.od $(SRC_PATH)/*.oo $(SRC_PATH)/*.o $(SRC_PATH)/*.od $(SRC_PATH)/*.d $(SRC_PATH)/oram_sqrt/*.oo $(SRC_PATH)/oram_sqrt/*.o $(SRC_PATH)/oram_sqrt/*.od $(SRC_PATH)/oram_sqrt/*.d $(SRC_PATH)/oram_ckt/*.oo $(SRC_PATH)/oram_ckt/*.o $(SRC_PATH)/oram_ckt/*.od $(SRC_PATH)/oram_ckt/*.d
