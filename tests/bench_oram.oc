@@ -18,8 +18,8 @@ char* testName() {
 	return TESTNAME;
 }
 
-int elcts[9] = {4,8,16,32,64,128,256,512,1024};
-int elszs[9] = {1,2,4,8,16,32,64,128,256};
+int elcts[] = {4,8,16,32,64,128,256,512,1024};
+int elszs[] = {1,2,4,8,16,32,64,128,256};
 int en = sizeof(elcts)/sizeof(elcts[0]);
 int sn = sizeof(elszs)/sizeof(elszs[0]);
 
