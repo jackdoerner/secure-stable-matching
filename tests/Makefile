@@ -7,9 +7,17 @@ DEPS=test_main.o $(SRC_PATH)/util.o $(SRC_PATH)/copy.o $(SRC_PATH)/copy.oo $(SRC
 SQRT_ORAM_DEPS=$(SRC_PATH)/oram_sqrt/decoder.oo $(SRC_PATH)/oram_sqrt/shuffle.oo $(SRC_PATH)/oram_sqrt/sqrtoram.oo $(SRC_PATH)/oram_sqrt/waksman.o
 CKT_ORAM_DEPS=$(SRC_PATH)/oram_ckt/block.oo $(SRC_PATH)/oram_ckt/circuit_oram.oo $(SRC_PATH)/oram_ckt/linear_scan_oram.oo $(SRC_PATH)/oram_ckt/nonrecursive_oram.oo $(SRC_PATH)/oram_ckt/utils.oo
 ORAM_DEPS = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.oo
+ORAM_DEPS_SQRT = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.sqrt.oo
+ORAM_DEPS_CIRCUIT = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.circuit.oo
+ORAM_DEPS_LINEAR = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.linear.oo
 REMOTE_HOST=localhost
 CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
-BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oscrypt test_ograph test_omatch test_osearch test_omatch_textbook
+BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oscrypt test_ograph test_omatch test_osearch test_omatch_textbook\
+		bench_oram_sqrt bench_oram_circuit bench_oram_linear bench_oram_init_sqrt bench_oram_init_circuit bench_oram_init_linear\
+		bench_oscrypt_sqrt bench_oscrypt_circuit bench_oscrypt_linear bench_bfs_sqrt bench_bfs_circuit bench_bfs_linear\
+		bench_bst_sqrt bench_bst_circuit bench_bst_linear bench_omatch_sqrt bench_omatch_circuit bench_omatch_linear\
+		bench_omatch_textbook_sqrt bench_omatch_textbook_circuit bench_omatch_textbook_linear
+
 
 default: $(OBLIVCC) $(BINS)
 
@@ -31,35 +39,77 @@ test_ochacha: $(DEPS) test_ochacha.oo $(SRC_PATH)/ochacha.oo
 
 test_oram: $(DEPS) test_oram.oo $(ORAM_DEPS)
 
-test_oscrypt: $(DEPS) test_oscrypt.oo $(SRC_PATH)/oscrypt.oo $(SRC_PATH)/osha256.oo $(SRC_PATH)/osalsa.oo $(SRC_PATH)/endian.oo $(ORAM_DEPS)
-
 test_oqueue: $(DEPS) test_oqueue.oo $(SRC_PATH)/oqueue.oo
 
+test_oscrypt: $(DEPS) test_oscrypt.oo $(SRC_PATH)/oscrypt.oo $(SRC_PATH)/osha256.oo $(SRC_PATH)/osalsa.oo $(SRC_PATH)/endian.oo $(ORAM_DEPS)
+
 test_ograph: $(DEPS) test_ograph.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS)
+
+test_osearch: $(DEPS) test_osearch.oo $(SRC_PATH)/osearch.oo $(ORAM_DEPS)
 
 test_omatch: $(DEPS) test_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/osort.oo $(ORAM_DEPS)
 
 test_omatch_textbook: $(DEPS) test_omatch_textbook.oo $(SRC_PATH)/omatch_textbook.oo $(SRC_PATH)/oqueue.oo $(SRC_PATH)/osort.oo $(ORAM_DEPS)
 
-test_osearch: $(DEPS) test_osearch.oo $(SRC_PATH)/osearch.oo $(ORAM_DEPS)
+bench_oram_sqrt: $(DEPS) bench_oram.oo $(ORAM_DEPS_SQRT)
 
-bench_oscrypt: $(DEPS) bench_oscrypt.oo $(SRC_PATH)/oscrypt.oo $(SRC_PATH)/osha256.oo $(SRC_PATH)/osalsa.oo $(SRC_PATH)/endian.oo $(ORAM_DEPS)
+bench_oram_circuit: $(DEPS) bench_oram.oo $(ORAM_DEPS_CIRCUIT)
 
-bench_bfs: $(DEPS) bench_bfs.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS)
+bench_oram_linear: $(DEPS) bench_oram.oo $(ORAM_DEPS_LINEAR)
 
-bench_omatch: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS)
+bench_oram_init_sqrt: $(DEPS) bench_oram_init.oo $(ORAM_DEPS_SQRT)
 
-bench_bst: $(DEPS) bench_bst.oo $(SRC_PATH)/osearch.oo $(ORAM_DEPS)
+bench_oram_init_circuit: $(DEPS) bench_oram_init.oo $(ORAM_DEPS_CIRCUIT)
 
-bench_oram: $(DEPS) bench_oram.oo $(ORAM_DEPS)
+bench_oram_init_linear: $(DEPS) bench_oram_init.oo $(ORAM_DEPS_LINEAR)
 
-bench_oram_init: $(DEPS) bench_oram_init.oo $(ORAM_DEPS)
+bench_oscrypt_sqrt: $(DEPS) bench_oscrypt.oo $(SRC_PATH)/oscrypt.oo $(SRC_PATH)/osha256.oo $(SRC_PATH)/osalsa.oo $(SRC_PATH)/endian.oo $(ORAM_DEPS_SQRT)
+
+bench_oscrypt_circuit: $(DEPS) bench_oscrypt.oo $(SRC_PATH)/oscrypt.oo $(SRC_PATH)/osha256.oo $(SRC_PATH)/osalsa.oo $(SRC_PATH)/endian.oo $(ORAM_DEPS_CIRCUIT)
+
+bench_oscrypt_linear: $(DEPS) bench_oscrypt.oo $(SRC_PATH)/oscrypt.oo $(SRC_PATH)/osha256.oo $(SRC_PATH)/osalsa.oo $(SRC_PATH)/endian.oo $(ORAM_DEPS_LINEAR)
+
+bench_bfs_sqrt: $(DEPS) bench_bfs.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_SQRT)
+
+bench_bfs_circuit: $(DEPS) bench_bfs.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_CIRCUIT)
+
+bench_bfs_linear: $(DEPS) bench_bfs.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_LINEAR)
+
+bench_bst_sqrt: $(DEPS) bench_bst.oo $(SRC_PATH)/osearch.oo $(ORAM_DEPS_SQRT)
+
+bench_bst_circuit: $(DEPS) bench_bst.oo $(SRC_PATH)/osearch.oo $(ORAM_DEPS_CIRCUIT)
+
+bench_bst_linear: $(DEPS) bench_bst.oo $(SRC_PATH)/osearch.oo $(ORAM_DEPS_LINEAR)
+
+bench_omatch_sqrt: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/osort.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_SQRT)
+
+bench_omatch_circuit: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/osort.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_CIRCUIT)
+
+bench_omatch_linear: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/osort.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_LINEAR)
+
+bench_omatch_textbook_sqrt: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch_textbook.oo $(SRC_PATH)/osort.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_SQRT)
+
+bench_omatch_textbook_circuit: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch_textbook.oo $(SRC_PATH)/osort.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_CIRCUIT)
+
+bench_omatch_textbook_linear: $(DEPS) bench_omatch.oo $(SRC_PATH)/omatch_textbook.oo $(SRC_PATH)/osort.oo $(SRC_PATH)/oqueue.oo $(ORAM_DEPS_LINEAR)
 
 -include $(patsubst %.oo,%.od,$(OBJS:.o=.d))
 
 %.o: %.c
 	gcc -c $(CFLAGS) $*.c -o $*.o -I $(OBLIVCH)
 	cpp -MM $(CFLAGS) $*.c -I $(OBLIVCH) > $*.d
+
+%.sqrt.oo: %.oc
+	$(OBLIVCC) -c $(CFLAGS) -D ORAM_DEFAULT_MODE=ORAM_TYPE_SQRT $*.oc -o $*.sqrt.oo
+	cpp -MM $(CFLAGS) -D ORAM_DEFAULT_MODE=ORAM_TYPE_SQRT $*.oc -MT $*.sqrt.oo > $*.sqrt.od
+
+%.circuit.oo: %.oc
+	$(OBLIVCC) -c $(CFLAGS) -D ORAM_DEFAULT_MODE=ORAM_TYPE_CIRCUIT $*.oc -o $*.circuit.oo
+	cpp -MM $(CFLAGS) -D ORAM_DEFAULT_MODE=ORAM_TYPE_CIRCUIT $*.oc -MT $*.circuit.oo > $*.circuit.od
+
+%.linear.oo: %.oc
+	$(OBLIVCC) -c $(CFLAGS) -D ORAM_DEFAULT_MODE=ORAM_TYPE_LINEAR $*.oc -o $*.linear.oo
+	cpp -MM $(CFLAGS) -D ORAM_DEFAULT_MODE=ORAM_TYPE_LINEAR $*.oc -MT $*.linear.oo > $*.linear.od
 
 %.oo: %.oc
 	$(OBLIVCC) -c $(CFLAGS) $*.oc -o $*.oo

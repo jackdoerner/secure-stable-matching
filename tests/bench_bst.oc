@@ -62,7 +62,7 @@ void testMain(void*varg) {
 
 					uint128_t * startTime = uint128_current_timestamp();
 
-					oram * o = oram_from_array(elct, cpy.eltsize / sizeof(obliv int), input);
+					oram * o = oram_from_array(ORAM_TYPE_AUTO, &cpy, elct, input);
 
 					for (int ll = 0; ll < searchct; ll++) {
 						needle = input[4 * ocBroadcastInt(rand()%elct, 1)];

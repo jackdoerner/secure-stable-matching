@@ -5,7 +5,9 @@
 #include <obliv.oh>
 #include "copy.oh"
 
+#ifndef ORAM_DEFAULT_MODE
 #define ORAM_DEFAULT_MODE ORAM_TYPE_SQRT
+#endif
 
 typedef struct oram oram;
 typedef enum {ORAM_TYPE_AUTO, ORAM_TYPE_SQRT, ORAM_TYPE_CIRCUIT, ORAM_TYPE_LINEAR} oram_type;

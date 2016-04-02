@@ -7,6 +7,7 @@
 
 #include "util.h"
 #include "oram.oh"
+#include "copy.oh"
 #include "test_generic.h"
 
 #define SAMPLES 1000
@@ -29,11 +30,13 @@ void testMain(void*varg) {
 		for (int jj = 0; jj < 9; jj++) {
 			int elsz = elszs[jj];
 
+			OcCopy cpy = ocCopyIntN(elsz);
+
 			uint64_t tally = 0;
 			obliv uint32_t * input = calloc(elsz * elct, sizeof(obliv uint32_t));
 			for (int kk = 0; kk < (elsz * elct); kk++) input[kk] = feedOblivInt(rand(), 1);
 
-			oram * o = oram_new(elct, elsz);
+			oram * o = oram_new(ORAM_TYPE_AUTO, &cpy, elct);
 
 			fprintf(stdout, "%d,%d", elct, elsz);
 
