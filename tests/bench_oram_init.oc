@@ -7,6 +7,7 @@
 
 #include "util.h"
 #include "oram.oh"
+#include "copy.oh"
 #include "test_generic.h"
 
 #define SAMPLES 30
@@ -17,17 +18,21 @@ char* testName() {
 	return TESTNAME;
 }
 
-int elcts[9] = {4,8,16,32,64,128,256,512,1024};
-int elszs[9] = {1,2,4,8,16,32,64,128,256};
+int elcts[] = {4,8,16,32,64,128,256,512,1024};
+int elszs[] = {1,2,4,8,16,32,64,128,256};
+int en = sizeof(elcts)/sizeof(elcts[0]);
+int sn = sizeof(elszs)/sizeof(elszs[0]);
 
 void testMain(void*varg) {
 
 	fprintf(stdout, "==========\nORAM INIT (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
 
-	for (int ii = 0; ii < 9; ii++) {
+	for (int ii = 0; ii < en; ii++) {
 		int elct = elcts[ii];
-		for (int jj = 0; jj < 9; jj++) {
+		for (int jj = 0; jj < sn; jj++) {
 			int elsz = elszs[jj];
+
+			OcCopy cpy = ocCopyIntN(elsz);
 
 			uint64_t tally = 0;
 			obliv uint32_t * input = calloc(elsz * elct, sizeof(obliv uint32_t));
@@ -38,7 +43,7 @@ void testMain(void*varg) {
 			for (int kk = 0; kk < SAMPLES; kk++) {
 				for (int kkkkk = 0; kkkkk < (elsz * elct); kkkkk++) input[kkkkk] = feedOblivInt(rand(), 1);
 				uint64_t startTime = current_timestamp();
-				oram * o = oram_from_array(elct, elsz, input);
+				oram * o = oram_from_array(ORAM_TYPE_AUTO, &cpy, elct, input);
 				uint64_t endTime = current_timestamp();
 				oram_free(o);
 				fprintf(stdout, ",%d", endTime - startTime);

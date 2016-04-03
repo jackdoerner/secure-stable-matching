@@ -17,6 +17,8 @@ typedef struct ograph_vertex_list {
 } ograph_vertex_list;
 
 typedef struct ograph_adjacency_matrix {
+	OcCopy cpy3;
+	OcCopy cpy2;
 	oram * matrix;
 	oram * layout;
 	size_t vertices;

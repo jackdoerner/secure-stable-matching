@@ -7,6 +7,7 @@
 
 #include "util.h"
 #include "oram.oh"
+#include "copy.oh"
 #include "test_generic.h"
 
 #define SAMPLES 1000
@@ -17,23 +18,27 @@ char* testName() {
 	return TESTNAME;
 }
 
-int elcts[9] = {4,8,16,32,64,128,256,512,1024};
-int elszs[9] = {1,2,4,8,16,32,64,128,256};
+int elcts[] = {4,8,16,32,64,128,256,512,1024};
+int elszs[] = {1,2,4,8,16,32,64,128,256};
+int en = sizeof(elcts)/sizeof(elcts[0]);
+int sn = sizeof(elszs)/sizeof(elszs[0]);
 
 void testMain(void*varg) {
 
 	fprintf(stdout, "==========\nORAM ACCESS (WRITE) (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
 
-	for (int ii = 0; ii < 9; ii++) {
+	for (int ii = 0; ii < en; ii++) {
 		int elct = elcts[ii];
-		for (int jj = 0; jj < 9; jj++) {
+		for (int jj = 0; jj < sn; jj++) {
 			int elsz = elszs[jj];
+
+			OcCopy cpy = ocCopyIntN(elsz);
 
 			uint64_t tally = 0;
 			obliv uint32_t * input = calloc(elsz * elct, sizeof(obliv uint32_t));
 			for (int kk = 0; kk < (elsz * elct); kk++) input[kk] = feedOblivInt(rand(), 1);
 
-			oram * o = oram_new(elct, elsz);
+			oram * o = oram_new(ORAM_TYPE_AUTO, &cpy, elct);
 
 			fprintf(stdout, "%d,%d", elct, elsz);
 
@@ -54,41 +59,5 @@ void testMain(void*varg) {
 
 		}
 	}
-
-	/*fprintf(stdout, "==========\nORAM READ (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
-
-	for (int ii = 0; ii < 9; ii++) {
-		int elct = elcts[ii];
-		for (int jj = 0; jj < 9; jj++) {
-			int elsz = elszs[jj];
-
-			uint64_t tally = 0;
-			obliv uint32_t * output = calloc(elsz, sizeof(obliv uint32_t));
-
-			oram * o = oram_new(elct, elsz);
-
-			for (int index=0; index < elct; index++) {
-				for (int kk = 0; kk < elsz; kk++) output[kk] = feedOblivInt(rand(), 1);
-				oram_write(o, output, index);
-			}
-
-			fprintf(stdout, "%d,%d", elct, elsz);
-
-			for (int kk = 0; kk < SAMPLES; kk++) {
-				obliv uint32_t index = feedOblivInt(rand() % elct, 2);
-				uint64_t startTime = current_timestamp();
-				oram_read(output, o, index);
-				uint64_t endTime = current_timestamp();
-				fprintf(stdout, ",%d", endTime - startTime);
-				tally += endTime - startTime;
-			}
-
-			free(output);
-			oram_free(o);
-			fprintf(stdout, "\n");
-			fprintf(stderr, "Read (count:%d, size: %d): %d microseconds avg\n", elct, elsz, tally / (SAMPLES));
-
-		}
-	}*/
 
 }

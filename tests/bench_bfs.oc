@@ -18,34 +18,38 @@ char* testName() {
 	return TESTNAME;
 }
 
-int vcts[9] = {4,8,16,32,64,128,256,512,1024};
-int ects[9] = {4,8,16,32,64,128,256,512,1024};
+int vcts[] = {4,8,16,32,64,128,256,512,1024};
+int ects[] = {4,8};
+int vn = sizeof(vcts)/sizeof(vcts[0]);
+int en = sizeof(ects)/sizeof(ects[0]);
 
 void testMain(void*varg) {
 
-	fprintf(stdout, "==========\nBREADTH FIRST SEARCH (vertices, edges, sample 1, sample 2, ... sample n)\n----------\n");
+	fprintf(stdout, "==========\nBREADTH FIRST SEARCH (vertices, edge ratio, sample 1, sample 2, ... sample n)\n----------\n");
 	fflush(stdout);
 
 	{
-
-		for (int ii = 0; ii < 9; ii++) {
-			int vertices = vcts[ii];
-			for (int jj = 0; jj < 9; jj++) {
-				int adjacency_count = ects[jj];
-				ograph_edge * edges = calloc(adjacency_count, sizeof(ograph_edge));
+		for (int jj = 0; jj < en; jj++) {
+			int adjacency_count = ects[jj];
+			for (int ii = 0; ii < vn; ii++) {
+				int vertices = vcts[ii];
+			
+				ograph_edge * edges = calloc(adjacency_count * vertices, sizeof(ograph_edge));
 				uint128_t * tally = uint128_new();
 
 				fprintf(stdout, "%d,%d", vertices, adjacency_count);
 				fflush(stdout);
 
-				for (int kk = 0; kk < SAMPLES; kk++) {
-					for (int ll = 0; ll < adjacency_count; ll++) {
+				int samples = (vertices < 256) ? SAMPLES : 3;
+
+				for (int kk = 0; kk < samples; kk++) {
+					for (int ll = 0; ll < adjacency_count * vertices; ll++) {
 						edges[ll].v1 = feedOblivInt(rand_range(0,vertices), 1);
 						edges[ll].v2 = feedOblivInt(rand_range(0,vertices), 2);
 					}
 
 					uint128_t * startTime = uint128_current_timestamp();
-					ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, adjacency_count);
+					ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, adjacency_count * vertices);
 					ograph_vertex_list * result = ograph_breadth_first_search(adj, feedOblivInt(rand_range(0,vertices), 1));
 					uint128_t * endTime = uint128_current_timestamp();
 
@@ -66,9 +70,9 @@ void testMain(void*varg) {
 
 				free(edges);
 				fprintf(stdout, "\n");
-				fprintf(stderr, "BFS (vertices:%d, edges: %d): ", vertices, adjacency_count);
+				fprintf(stderr, "BFS (vertices:%d, edge ratio: %d): ", vertices, adjacency_count);
 
-				uint128_t * longsamples = uint128_from(SAMPLES);
+				uint128_t * longsamples = uint128_from(samples);
 				uint128_t * avgtime = uint128_divide(tally, longsamples);
 				print_uint128(stderr, avgtime);
 				free(avgtime);

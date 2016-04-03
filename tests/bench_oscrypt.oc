@@ -17,7 +17,8 @@ char* testName() {
 	return TESTNAME;
 }
 
-int nvals[9] = {4,8,16,32,64,128,256,512,1024};
+int nvals[] = {4,8,16,32,64,128,256,512,1024};
+int nn = sizeof(nvals)/sizeof(nvals[0]);
 
 void testMain(void*varg) {
 
@@ -44,7 +45,7 @@ void testMain(void*varg) {
 			salt[ii] = feedOblivChar(salt_raw[ii], 2);
 		}
 
-		for (int ii = 0; ii < 9; ii++) {
+		for (int ii = 0; ii < nn; ii++) {
 			
 			int N = nvals[ii];
 

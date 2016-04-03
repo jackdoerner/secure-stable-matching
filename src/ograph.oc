@@ -20,11 +20,13 @@ void read_and_increment_last(OcCopy * cpy, void * oram_block, void * external_bl
 
 ograph_adjacency_matrix * ograph_build_adjacency_matrix(size_t vertices, ograph_edge * edges_input, size_t edges) {
 	ograph_adjacency_matrix * result = malloc(sizeof(ograph_adjacency_matrix));
-	result->matrix = oram_new(edges, 3);
-	result->layout = oram_new(vertices, 2);
+	result->cpy3 = ocCopyIntN(3);
+	result->cpy2 = ocCopyIntN(2);
+	result->matrix = oram_new(ORAM_TYPE_AUTO, &result->cpy3, edges);
+	result->layout = oram_new(ORAM_TYPE_AUTO, &result->cpy2, vertices);
 	result->vertices = vertices;
 	result->edges = edges;
-	oram * edge_counts = oram_new(vertices, 3);
+	oram * edge_counts = oram_new(ORAM_TYPE_AUTO, &result->cpy3, vertices);
 	obliv uint32_t three32_1[3];
 	obliv uint32_t three32_2[3];
 	obliv uint32_t three32_3[3];
@@ -85,12 +87,12 @@ void ograph_get_nth_adjacent_vertex_from_triple(ograph_vertex_list * out, ograph
 
 void ograph_get_nth_adjacent_vertex_obliv(uint32_t * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex, obliv uint32_t n) obliv {
 	obliv uint32_t two32[2];
-	oram_read_obliv(two32, adj->layout, vertex);
-	oram_read_obliv(out, adj->matrix, two32[0]+n);
+	oram_read(two32, adj->layout, vertex);
+	oram_read(out, adj->matrix, two32[0]+n);
 }
 
 void ograph_get_nth_adjacent_vertex_from_triple_obliv(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t * vertex, obliv uint32_t n) obliv {
-	oram_read_obliv(out, adj->matrix, vertex[1]+n);
+	oram_read(out, adj->matrix, vertex[1]+n);
 }
 
 void ograph_free_vertex_list(ograph_vertex_list * vlist) {
@@ -107,9 +109,9 @@ void distance_writer(OcCopy * cpy, void * oram_block, void * external_block) obl
 }
 
 ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, obliv uint32_t source_vertex) {
-	oram * visited_vertices = oram_new(adj->vertices, 1);
-	OcCopy qcpy = ocCopyIntN(3);
-	oqueue * q = oqueue_new_static(&qcpy, adj->vertices);
+	OcCopy cpy3 = ocCopyIntN(3);
+	oqueue * q = oqueue_new_static(&cpy3, adj->vertices);
+	oram * visited_vertices = oram_new(ORAM_TYPE_AUTO, &ocCopyInt, adj->vertices);
 
 	obliv uint32_t one = 1;
 	obliv uint32_t visited_vertices_count = 1;
@@ -131,13 +133,13 @@ ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix * adj, 
 			obliv if (queue_empty == 0) {
 				oqueue_pop(this_vertex, q);
 			}
-			oram_read_obliv(&last_distance, visited_vertices, this_vertex[0]);
+			oram_read(&last_distance, visited_vertices, this_vertex[0]);
 			vloop = false;
 			edge_index = 0;
 		} else {
 			ograph_get_nth_adjacent_vertex_from_triple_obliv(next_vertex, adj, this_vertex, edge_index);
 			this_distance = last_distance + 1;
-			oram_apply_obliv(visited_vertices, &this_distance, distance_writer, next_vertex[0]);
+			oram_apply(visited_vertices, &this_distance, distance_writer, next_vertex[0]);
 			obliv if (this_distance == 0) {
 				oqueue_push(q, next_vertex);
 			}

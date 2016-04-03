@@ -5,23 +5,23 @@
 #include <obliv.oh>
 #include "copy.oh"
 
-typedef obliv uint32_t oram_base;
+#ifndef ORAM_DEFAULT_MODE
+#define ORAM_DEFAULT_MODE ORAM_TYPE_SQRT
+#endif
 
 typedef struct oram oram;
+typedef enum {ORAM_TYPE_AUTO, ORAM_TYPE_SQRT, ORAM_TYPE_CIRCUIT, ORAM_TYPE_LINEAR} oram_type;
 
 typedef void (* block_access_function)(OcCopy *, void * oram_block, void * external_block) obliv;
 
-oram * oram_new(size_t, size_t);
-oram * oram_from_array(size_t, size_t, oram_base *);
+oram * oram_new(oram_type, OcCopy * cpy, size_t);
+oram * oram_from_array(oram_type, OcCopy * cpy, size_t, void *);
 void oram_free(oram *);
 
 size_t oram_size(oram *);
 
-obliv bool oram_read(oram_base *, oram *, obliv size_t);
-obliv bool oram_read_obliv(oram_base *, oram *, obliv size_t) obliv;
-obliv bool oram_write(oram *, oram_base *, obliv size_t);
-obliv bool oram_write_obliv(oram *, oram_base *, obliv size_t) obliv;
-obliv bool oram_apply(oram *, oram_base *, block_access_function, obliv size_t);
-obliv bool oram_apply_obliv(oram *, oram_base *, block_access_function, obliv size_t) obliv;
+obliv bool oram_read(void *, oram *, obliv size_t) obliv;
+obliv bool oram_write(oram *, void *, obliv size_t) obliv;
+obliv bool oram_apply(oram *, void *, block_access_function, obliv size_t) obliv;
 
 #endif

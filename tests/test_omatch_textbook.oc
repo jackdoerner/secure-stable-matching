@@ -18,8 +18,8 @@ void testMain(void*varg) {
 	{
 		uint32_t mPrefsRaw[9] = {
 			0, 1, 2,
-			2, 0, 1,
-			2, 0, 1,
+			1, 2, 0,
+			1, 2, 0
 		};
 
 		uint32_t wPrefsRaw[9] = {
