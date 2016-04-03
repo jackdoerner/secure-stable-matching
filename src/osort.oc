@@ -14,6 +14,7 @@ void osort_batcher_swap(OcCopy * cpy, void* data, size_t step, size_t start,size
 			ocCopy(cpy, element(cpy, data, ii+step), temp);
 		}
 	}
+	free(temp);
 }
 
 void osort_batcher_merge (OcCopy * cpy, void* data, size_t step, size_t start, size_t mid, size_t end, osort_cmp_function cmpFn) {
