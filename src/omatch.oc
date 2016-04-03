@@ -97,25 +97,18 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 
 	free(permutation);
 	free(permutationInverse);
+
 	ocPermNetworkApply(&w,&cpy5,prefs);
 	ocPermNetworkCleanup(&w);
-	
-	uint32_t * wStatusSeed = calloc(n*3,sizeof(obliv uint32_t));
 
-	for (size_t ii = 0; ii < n*3; ii++) {;
-		wStatusSeed[ii] = -1;
-	}
-
-	oram * wStatus = oram_from_array(ORAM_TYPE_AUTO, &cpy3, n, wStatusSeed);
-
-	free(wStatusSeed);
+	oram * wStatus = oram_new(ORAM_TYPE_AUTO, &cpy3, n);
 
 	obliv uint32_t oPrefPointer;
 	uint32_t prefPointer;
 	obliv bool dummyAccess = false;
 
 	for (size_t ii = 0; ii < n * n; ii++) {
-		obliv if (oqueue_empty(mQueue) == 0) {
+		obliv if (oqueue_empty(mQueue) == false) {
 			oqueue_pop(thisMQueue, mQueue);
 			oPrefPointer = thisMQueue[1];
 		} else {
@@ -126,21 +119,22 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 		revealOblivInt(&prefPointer, oPrefPointer, 0);
 		ocCopy(&cpy5, thisPref, element(&cpy5, prefs, prefPointer)); 
 
-		obliv if (dummyAccess) {
+		obliv if (dummyAccess == true) {
 			nextDummy = thisPref[4];
 		} else {
 			//TODO: optimize the following to use one ORAM access and one queue push
 
 			oram_read(thisWStatus, wStatus, thisPref[1]);
-			obliv if (thisWStatus[2] >= thisPref[3]) {
+			obliv if (thisWStatus[0] != 0 & thisWStatus[2] < thisPref[3]) {
 				thisMQueue[1] = thisPref[4];
 				oqueue_push(mQueue, thisMQueue);
 			} else {
-				obliv if (thisWStatus[0] != -1) {
+				obliv if (thisWStatus[0] != 0) {
+					thisWStatus[0] -= 1;
 					oqueue_push(mQueue, thisWStatus);
 				}
-				thisWStatus[0] = thisMQueue[0];
-				thisWStatus[1] = thisMQueue[1];
+				thisWStatus[0] = thisPref[0] + 1;
+				thisWStatus[1] = thisPref[4];
 				thisWStatus[2] = thisPref[3];
 				oram_write(wStatus, thisWStatus, thisPref[1]);
 			}
@@ -149,7 +143,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 
 	for (size_t ii = 0; ii < n; ii++) {
 		oram_read(thisWStatus, wStatus, ii);
-		output[ii] = thisWStatus[0];
+		output[ii] = thisWStatus[0] - 1;
 	}
 
 	oqueue_free(mQueue);
