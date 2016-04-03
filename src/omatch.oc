@@ -121,8 +121,6 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 		obliv if (dummyAccess == true) {
 			nextDummy = thisPref[4];
 		} else {
-			//TODO: optimize the following to use one ORAM access and one queue push
-
 			thisWStatus[0] = thisPref[0] + 1;
 			thisWStatus[1] = thisPref[4];
 			thisWStatus[2] = thisPref[3];
@@ -140,6 +138,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 		output[ii] = thisWStatus[0] - 1;
 	}
 
+	free(prefs);
 	oqueue_free(mQueue);
 	oram_free(wStatus);
 }
