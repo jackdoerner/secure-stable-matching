@@ -12,23 +12,22 @@ static void * element(OcCopy* cpy,void * arr, int x) obliv {
 	return x*cpy->eltsize+(char*)arr;
 }
 
-//void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obliv {
-//	obliv if (((obliv uint32_t *) extBlock)[1] < ((obliv uint32_t *) oramBlock)[1] | ((obliv uint32_t *) oramBlock)[1] == -1) {
-//		obliv uint32_t temp = ((obliv uint32_t *) extBlock)[0];
-//		((obliv uint32_t *) extBlock)[0] = ((obliv uint32_t *) oramBlock)[0];
-//		((obliv uint32_t *) oramBlock)[0] = temp;
-//
-//		temp = ((obliv uint32_t *) extBlock)[1];
-//		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
-//		((obliv uint32_t *) oramBlock)[1] = temp;
-//
-//		temp = ((obliv uint32_t *) extBlock)[2];
-//		((obliv uint32_t *) extBlock)[2] = ((obliv uint32_t *) oramBlock)[2];
-//		((obliv uint32_t *) oramBlock)[2] = temp;
-//	} else {
-//		((obliv uint32_t *) extBlock)[1] = ((obliv uint32_t *) oramBlock)[1];
-//	}
-//}
+void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
+	obliv uint32_t * ob = (obliv uint32_t *) oramBlock;
+	obliv uint32_t * eb = (obliv uint32_t *) extBlock;
+	obliv uint32_t * temp;
+	~obliv(en) {
+		temp = calloc(1, cpy->eltsize);
+		memcpy(temp, ob, cpy->eltsize);
+	}
+	obliv if ((ob[0] == 0) | (ob[2] > eb[2])) {
+		ocCopy(cpy, ob, eb);
+		ocCopy(cpy, eb, temp);
+	}
+	~obliv(en) {
+		free(temp);
+	}
+}
 
 obliv char pref_cmp(OcCopy * cpy, void * el1, void * el2) {
 	obliv char result;
@@ -42,10 +41,10 @@ obliv char pref_cmp(OcCopy * cpy, void * el1, void * el2) {
 
 void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv uint32_t * wPrefsRaw, int n) {
 
-	obliv uint32_t * prefs = calloc(2*n*n, 5 * sizeof(obliv uint32_t));
-	obliv uint32_t * permutation = calloc(2*n*n, sizeof(obliv uint32_t));
-	obliv uint32_t * permutationInverse = calloc(2*n*n, sizeof(obliv uint32_t));
-	for (size_t ii = 0; ii < 2*n*n; ii++) {
+	obliv uint32_t * prefs = calloc(2*n*n-n, 5 * sizeof(obliv uint32_t));
+	obliv uint32_t * permutation = calloc(2*n*n-n, sizeof(obliv uint32_t));
+	obliv uint32_t * permutationInverse = calloc(2*n*n-n, sizeof(obliv uint32_t));
+	for (size_t ii = 0; ii < 2*n*n-n; ii++) {
 		permutation[ii] = ii;
 	}
 
@@ -58,7 +57,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 	obliv uint32_t thisMQueue[2]; // [index, pointer to next]
 	obliv uint32_t thisWStatus[3]; // [parter index, partner pointer to next, partner rating] 
 
-	OcPermNetwork w = ocPermNetworkRandom(2* n * n);
+	OcPermNetwork w = ocPermNetworkRandom(2*n*n-n);
 	ocPermNetworkApply(&w,&ocCopyInt,permutation);
 	ocPermInverseAssumingPerm(&w, permutationInverse, permutation);
 
@@ -89,11 +88,11 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 
 	obliv uint32_t nextDummy = permutationInverse[n*n];
 
-	for (size_t ii = n*n; ii < 2*n*n-1; ii++) {
+	for (size_t ii = n*n; ii < 2*n*n-n-1; ii++) {
 		prefs[ii * 5 + 4] = permutationInverse[ii + 1];
 	}
 
-	prefs[(2*n*n-1) * 5 + 4] = -1;
+	prefs[(2*n*n-n-1) * 5 + 4] = -1;
 
 	free(permutation);
 	free(permutationInverse);
@@ -124,19 +123,14 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 		} else {
 			//TODO: optimize the following to use one ORAM access and one queue push
 
-			oram_read(thisWStatus, wStatus, thisPref[1]);
-			obliv if (thisWStatus[0] != 0 & thisWStatus[2] < thisPref[3]) {
-				thisMQueue[1] = thisPref[4];
-				oqueue_push(mQueue, thisMQueue);
-			} else {
-				obliv if (thisWStatus[0] != 0) {
-					thisWStatus[0] -= 1;
-					oqueue_push(mQueue, thisWStatus);
-				}
-				thisWStatus[0] = thisPref[0] + 1;
-				thisWStatus[1] = thisPref[4];
-				thisWStatus[2] = thisPref[3];
-				oram_write(wStatus, thisWStatus, thisPref[1]);
+			thisWStatus[0] = thisPref[0] + 1;
+			thisWStatus[1] = thisPref[4];
+			thisWStatus[2] = thisPref[3];
+
+			oram_apply(wStatus, thisWStatus, wStatusFunction, thisPref[1]);
+			obliv if (thisWStatus[0] != 0) {
+				thisWStatus[0] -= 1;
+				oqueue_push(mQueue, thisWStatus);
 			}
 		}
 	}
