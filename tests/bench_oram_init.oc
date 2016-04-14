@@ -44,10 +44,13 @@ void testMain(void*varg) {
 				for (int kkkkk = 0; kkkkk < (elsz * elct); kkkkk++) input[kkkkk] = feedOblivInt(rand(), 1);
 				uint64_t startTime = current_timestamp();
 				oram * o = oram_from_array(ORAM_TYPE_AUTO, &cpy, elct, input);
-				uint64_t endTime = current_timestamp();
+				uint64_t runtime = current_timestamp() - startTime;
+
+				fprintf(stdout, ",%d", runtime);
+				fflush(stdout);
+				tally += runtime;
+
 				oram_free(o);
-				fprintf(stdout, ",%d", endTime - startTime);
-				tally += endTime - startTime;
 			}
 
 			free(input);

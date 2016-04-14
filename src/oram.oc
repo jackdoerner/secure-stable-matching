@@ -28,7 +28,7 @@ void oram_init(oram* o, oram_type mode, OcCopy * cpy, size_t size, void * src) {
 		}
 
 	} else if (o->mode == ORAM_TYPE_CIRCUIT) {
-		o->data = ckt_initialize(size, o->cpy->eltsize/sizeof(obliv bool));
+		o->data = ckt_initialize(cpy, size);
 		if (src != NULL) {
 			for(size_t ii = 0; ii < o->size; ii++) {
 				oram_write(o, element(o->cpy, src, ii), ii);

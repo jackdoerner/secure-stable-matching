@@ -24,8 +24,8 @@ void testMain(void*varg) {
 
 		uint32_t wPrefsRaw[9] = {
 			0, 1, 2,
-			2, 1, 0,
-			1, 0, 2
+			2, 2, 0,
+			1, 0, 1
 		};
 
 		uint32_t expected_output[3] = {

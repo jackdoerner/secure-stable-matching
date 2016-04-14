@@ -47,9 +47,10 @@ void testMain(void*varg) {
 				obliv uint32_t index = feedOblivInt(index_raw, 2);
 				uint64_t startTime = current_timestamp();
 				oram_write(o, &input[index_raw*elsz], index);
-				uint64_t endTime = current_timestamp();
-				fprintf(stdout, ",%d", endTime - startTime);
-				tally += endTime - startTime;
+				uint64_t runtime = current_timestamp() - startTime;
+				fprintf(stdout, ",%d", runtime);
+				fflush(stdout);
+				tally += runtime;
 			}
 
 			free(input);

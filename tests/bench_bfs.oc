@@ -7,7 +7,6 @@
 
 #include "util.h"
 #include "ograph.oh"
-#include "uint128.h"
 #include "test_generic.h"
 
 #define SAMPLES 30
@@ -35,7 +34,7 @@ void testMain(void*varg) {
 				int vertices = vcts[ii];
 			
 				ograph_edge * edges = calloc(adjacency_count * vertices, sizeof(ograph_edge));
-				uint128_t * tally = uint128_new();
+				uint64_t tally = 0;
 
 				fprintf(stdout, "%d,%d", vertices, adjacency_count);
 				fflush(stdout);
@@ -48,21 +47,14 @@ void testMain(void*varg) {
 						edges[ll].v2 = feedOblivInt(rand_range(0,vertices), 2);
 					}
 
-					uint128_t * startTime = uint128_current_timestamp();
+					uint64_t startTime = current_timestamp();
 					ograph_adjacency_matrix * adj = ograph_build_adjacency_matrix(vertices, edges, adjacency_count * vertices);
 					ograph_vertex_list * result = ograph_breadth_first_search(adj, feedOblivInt(rand_range(0,vertices), 1));
-					uint128_t * endTime = uint128_current_timestamp();
+					uint64_t runtime = current_timestamp() - startTime;
 
-
-					uint128_t * runtime = uint128_subtract(endTime, startTime);
-					free(endTime); free(startTime);
-					fprintf(stdout, ",");
-					print_uint128(stdout, runtime);
+					fprintf(stdout, ",%d", runtime);
 					fflush(stdout);
-					uint128_t * newtally = uint128_add(tally, runtime);
-					free(runtime);
-					free(tally);
-					tally = newtally;
+					tally += runtime;
 
 					ograph_free_vertex_list(result);
 					ograph_free_adjacency_matrix(adj);
@@ -70,15 +62,7 @@ void testMain(void*varg) {
 
 				free(edges);
 				fprintf(stdout, "\n");
-				fprintf(stderr, "BFS (vertices:%d, edge ratio: %d): ", vertices, adjacency_count);
-
-				uint128_t * longsamples = uint128_from(samples);
-				uint128_t * avgtime = uint128_divide(tally, longsamples);
-				print_uint128(stderr, avgtime);
-				free(avgtime);
-				free(longsamples);
-				free(tally);
-				fprintf(stderr, " microseconds avg\n");
+				fprintf(stderr, "BFS (vertices:%d, edge ratio: %d): %d microseconds avg\n", vertices, adjacency_count, tally/samples);
 			}
 		}
 

@@ -10,8 +10,10 @@ void get_random (CircuitOram * oram, obliv bool * res, int length) obliv {
 	oram->rand_pool_size+=length;
 }
 
-CircuitOram* ckt_initialize_more_param(int N, int data_size, int recursion_factor, int cutoff){
+CircuitOram* ckt_initialize_more_param(OcCopy * cpy, int N, int recursion_factor, int cutoff){
 	CircuitOram* res = calloc(sizeof(CircuitOram), 1);
+	int data_size = cpy->eltsize/sizeof(obliv bool);
+	res->cpy = cpy;
 	res->cutoff = cutoff;
 	res->recursion_factor = recursion_factor;
 	res->orams = calloc(sizeof(NonRecursiveOram*), 10);//this is an upperbound
@@ -41,8 +43,8 @@ CircuitOram* ckt_initialize_more_param(int N, int data_size, int recursion_facto
 	return res;
 }
 
-CircuitOram* ckt_initialize(int N, int data_size) {
-	return ckt_initialize_more_param(N, data_size, 8, 1<<8);
+CircuitOram* ckt_initialize(OcCopy * cpy, int N) {
+	return ckt_initialize_more_param(cpy, N, 8, 1<<8);
 }
 void ckt_release(CircuitOram * oram) {
 	for(int i = 0; i < oram->num_recursion; ++i)
@@ -79,7 +81,7 @@ void ckt_apply(CircuitOram* oram, obliv int index, block_access_function func,  
 	nro_read_and_remove(oram->orams[0], index, pos, data);
 	//for(int i = 0; i < oram->data_size/32; ++i)
 	//	bool_to_int_obliv(data+(i*32), int_data+i, 32);
-	func(NULL, data, ext_data);
+	func(oram->cpy, data, ext_data);
 	//for(int i = 0; i < oram->data_size/32; ++i)
 	//	int_to_bool_obliv(int_data+i, data+(i*32), 32);
 

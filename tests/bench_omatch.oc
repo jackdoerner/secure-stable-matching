@@ -7,7 +7,6 @@
 
 #include "util.h"
 #include "omatch.oh"
-#include "uint128.h"
 #include "test_generic.h"
 
 #define SAMPLES 30
@@ -43,7 +42,7 @@ void testMain(void*varg) {
 
 		for (int ii = 0; ii < pn; ii++) {
 			int pairs = pcts[ii];
-			uint128_t * tally = uint128_new();
+			uint64_t tally = 0;
 
 			fprintf(stdout, "%d", pairs);
 			fflush(stdout);
@@ -70,20 +69,13 @@ void testMain(void*varg) {
 					}
 				}
 
-				uint128_t * startTime = uint128_current_timestamp();
+				uint64_t startTime = current_timestamp();
 				ogale_shapley(output, mPrefs, wPrefs, pairs);
-				uint128_t * endTime = uint128_current_timestamp();
+				uint64_t runtime = current_timestamp() - startTime;
 
-
-				uint128_t * runtime = uint128_subtract(endTime, startTime);
-				free(endTime); free(startTime);
-				fprintf(stdout, ",");
-				print_uint128(stdout, runtime);
+				fprintf(stdout, ",%d", runtime);
 				fflush(stdout);
-				uint128_t * newtally = uint128_add(tally, runtime);
-				free(runtime);
-				free(tally);
-				tally = newtally;
+				tally += runtime;
 
 				
 			}
@@ -94,15 +86,7 @@ void testMain(void*varg) {
 			free(output);
 
 			fprintf(stdout, "\n");
-			fflush(stdout);
-			fprintf(stderr, "GALE SHAPLEY (pairs:%d): ", pairs);
-			uint128_t * longsamples = uint128_from(samples);
-			uint128_t * avgtime = uint128_divide(tally, longsamples);
-			print_uint128(stderr, avgtime);
-			free(avgtime);
-			free(longsamples);
-			free(tally);
-			fprintf(stderr, " microseconds avg\n");
+			fprintf(stderr, "GALE SHAPLEY (pairs:%d): %d microseconds avg\n", pairs, tally/samples);
 		}
 
 	}

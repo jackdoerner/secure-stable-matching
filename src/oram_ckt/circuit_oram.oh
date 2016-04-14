@@ -20,11 +20,12 @@ typedef struct CircuitOram{
    int rand_pool_cap;
    int rand_pool_size;
 	int data_size;
+   OcCopy * cpy;
 } CircuitOram;
 
 void get_random (CircuitOram * oram, obliv bool * res, int length) obliv ;
-CircuitOram* ckt_initialize(int N, int data_size);
-CircuitOram* ckt_initialize_more_param(int N, int data_size, int recursion_factor, int cutoff);
+CircuitOram* ckt_initialize(OcCopy * cpy, int N);
+CircuitOram* ckt_initialize_more_param(OcCopy * cpy, int N, int recursion_factor, int cutoff);
 void ckt_release(CircuitOram * oram);
 
 void ckt_read(CircuitOram* oram, obliv int index, obliv bool* data) obliv;

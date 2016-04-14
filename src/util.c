@@ -17,10 +17,7 @@ static const char remote_host[] = TO_STRING(REMOTE_HOST);
 uint64_t current_timestamp() {
 	struct timeval tv;
 	gettimeofday(&tv,NULL);
-	return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
-	//struct timespec t;
-	//clock_gettime(CLOCK_REALTIME,&t);
-	//return t.tv_sec+1e-9*t.tv_nsec;
+	return (uint64_t)tv.tv_sec*(uint64_t)1000000+(uint64_t)tv.tv_usec;
 }
 
 uint32_t rand_range(uint32_t min, uint32_t max) {
