@@ -19,8 +19,8 @@ typedef struct CircuitOram{
    obliv bool * rand_pool;
    int rand_pool_cap;
    int rand_pool_size;
-	int data_size;
    OcCopy * cpy;
+   OcCopy * cpys;
 } CircuitOram;
 
 void get_random (CircuitOram * oram, obliv bool * res, int length) obliv ;

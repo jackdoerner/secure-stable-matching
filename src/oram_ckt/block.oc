@@ -3,9 +3,9 @@
 void sort_block_using_label(Block* data){
 	
 }
-Block* block_initialize(int d_length) obliv {
+Block* block_initialize(OcCopy * cpy) obliv {
 	Block * res = calloc_obliv(sizeof(Block), 1);
-	res->data = calloc_obliv(sizeof(obliv bool), d_length);
+	res->data = calloc_obliv(1, cpy->eltsize);
 	res->is_dummy = true;
 	return res;	
 }
@@ -15,11 +15,9 @@ void block_release(Block* b) obliv {
 	free_obliv(b);
 }
 
-void block_copy(Block* block, Block * des, int data_size) obliv {
+void block_copy(OcCopy * cpy, Block* block, Block * des) obliv {
 	des->index = block->index;
 	des->is_dummy = block->is_dummy;
 	des->position_label = block->position_label;
-	for(int i = 0; i < data_size; ++i) {
-		des->data[i] = block->data[i];
-	}
+	ocCopy(cpy, des->data, block->data);
 }

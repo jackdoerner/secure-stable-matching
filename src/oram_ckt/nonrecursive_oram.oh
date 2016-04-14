@@ -13,7 +13,7 @@ typedef struct NonRecursiveOram{
    int index_size;
 	int position_label_size;
 	int N;
-	int data_size;
+	OcCopy * cpy;
    int eviction_cnt;
    obliv int * deepest_index;
    obliv int * deepest_depth;
@@ -23,14 +23,14 @@ typedef struct NonRecursiveOram{
 	Block * to_write;
 } NonRecursiveOram;
 
-NonRecursiveOram* nro_initialize(int _N, int _data_size);
+NonRecursiveOram* nro_initialize(int _N, OcCopy * cpy);
 void nro_release(NonRecursiveOram * oram);
 
 Block*** path_initialize(NonRecursiveOram* oram) obliv;
 void path_release(NonRecursiveOram * oram, Block *** path) obliv;
 
-void bucket_read_and_remove(Block** blocks, int bucket_size, obliv int index, Block* res, int data_size) obliv;
-void bucket_add(Block** blocks, int bucket_size, Block* new_block, int data_size) obliv;
+void bucket_read_and_remove(Block** blocks, int bucket_size, obliv int index, Block* res, OcCopy * cpy) obliv;
+void bucket_add(Block** blocks, int bucket_size, Block* new_block, OcCopy * cpy) obliv;
 void nro_put_back(NonRecursiveOram * oram, obliv int index, obliv int position_label, obliv bool* data) obliv;
 
 void path_read_and_remove(NonRecursiveOram* oram, obliv int index, Block* res) obliv;

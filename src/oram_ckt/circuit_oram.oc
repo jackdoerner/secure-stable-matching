@@ -12,21 +12,21 @@ void get_random (CircuitOram * oram, obliv bool * res, int length) obliv {
 
 CircuitOram* ckt_initialize_more_param(OcCopy * cpy, int N, int recursion_factor, int cutoff){
 	CircuitOram* res = calloc(sizeof(CircuitOram), 1);
-	int data_size = cpy->eltsize/sizeof(obliv bool);
 	res->cpy = cpy;
 	res->cutoff = cutoff;
 	res->recursion_factor = recursion_factor;
 	res->orams = calloc(sizeof(NonRecursiveOram*), 10);//this is an upperbound
-	res->data_size = data_size;
+	res->cpys = malloc(sizeof(OcCopy) * 10);
 
-	res->orams[0] = nro_initialize(N, data_size);
+	res->orams[0] = nro_initialize(N, res->cpy);
 
 	int new_data_size = res->orams[0]->position_label_size * recursion_factor;
 	int newN = (1 << res->orams[0]->index_size) / recursion_factor;
 	int cur = 0;
 	while(newN*recursion_factor > cutoff) {
 		cur++;
-		res->orams[cur] = nro_initialize(newN, new_data_size);
+		res->cpys[cur] = ocCopyBoolN(new_data_size);
+		res->orams[cur] = nro_initialize(newN, &res->cpys[cur]);
 		new_data_size = res->orams[cur]->position_label_size * recursion_factor;
 		newN = (1 << res->orams[cur]->index_size) / recursion_factor;
 	}
@@ -51,6 +51,7 @@ void ckt_release(CircuitOram * oram) {
 		nro_release(oram->orams[i]);
 	lso_release(oram->base);
 	free(oram->orams);
+	free(oram->cpys);
 	releaseBCipherRandomGen(oram->gen);
 	free(oram->rand_pool);
 	free(oram);
@@ -76,7 +77,7 @@ void ckt_apply(CircuitOram* oram, obliv int index, block_access_function func,  
 
 	update_trees(oram, index, 1, &pos, &new_pos);
 
-	obliv bool * data = calloc_obliv(sizeof(obliv bool), oram->data_size);
+	obliv bool * data = calloc_obliv(1, oram->cpy->eltsize);
 	//obliv int * int_data = calloc_obliv(sizeof(obliv int), oram->data_size/32);
 	nro_read_and_remove(oram->orams[0], index, pos, data);
 	//for(int i = 0; i < oram->data_size/32; ++i)

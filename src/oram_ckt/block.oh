@@ -1,4 +1,5 @@
 #include "utils.oh"
+#include "copy.oh"
 #ifndef BLOCK_H__
 #define BLOCK_H__
 
@@ -9,8 +10,8 @@ typedef struct Block {
    obliv bool* data;
 } Block;
 
-Block* block_initialize(int d_length) obliv;
+Block* block_initialize(OcCopy * cpy) obliv;
 void block_release(Block* b) obliv;
-void block_copy(Block* a, Block* des, int data_size) obliv;
+void block_copy(OcCopy * cpy, Block* a, Block* des) obliv;
 
 #endif

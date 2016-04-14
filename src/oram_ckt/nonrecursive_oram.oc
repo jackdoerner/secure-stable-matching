@@ -19,11 +19,11 @@ void print_oram(NonRecursiveOram * oram) obliv {
 	}
 }
 
-NonRecursiveOram* nro_initialize(int _N, int _data_size) {
+NonRecursiveOram* nro_initialize(int _N, OcCopy * _cpy) {
 	NonRecursiveOram* res = calloc_obliv(sizeof(NonRecursiveOram), 1);
 	res->stash_size = 33;
 	res->bucket_size = 3;
-	res -> data_size = _data_size;
+	res->cpy = _cpy;
 
 	int  a = 1;
 	int logN = 1;
@@ -41,10 +41,10 @@ NonRecursiveOram* nro_initialize(int _N, int _data_size) {
 	for(int i = 0; i < res->N; ++i) {
 		res->tree[i] = calloc_obliv(sizeof(Block*), res->bucket_size);
 		for(int j = 0; j < res->bucket_size; ++j)
-			res->tree[i][j] = block_initialize(res->data_size);
+			res->tree[i][j] = block_initialize(res->cpy);
 	}
 	for(int i = 0; i < res->stash_size; ++i)
-		res->stash[i] = block_initialize(res->data_size);
+		res->stash[i] = block_initialize(res->cpy);
 
 	res->eviction_cnt  = 0;
 	res->deepest_index = calloc_obliv(res->index_size + 1, sizeof(obliv int));
@@ -52,8 +52,8 @@ NonRecursiveOram* nro_initialize(int _N, int _data_size) {
 	res->deepest = calloc_obliv(sizeof(obliv int), res->index_size+1);
 	res->target = calloc_obliv(sizeof(obliv int), res->index_size+1);
 
-	res->hold = block_initialize(res->data_size); 
-	res->to_write = block_initialize(res->data_size); 
+	res->hold = block_initialize(res->cpy); 
+	res->to_write = block_initialize(res->cpy); 
 	res->path = path_initialize(res);
 	return res;
 }
@@ -95,20 +95,20 @@ void path_release(NonRecursiveOram * oram, Block *** path)  obliv{
 
 
 
-void bucket_read_and_remove(Block** blocks, int bucket_size, obliv int index, Block* res, int data_size) obliv {
+void bucket_read_and_remove(Block** blocks, int bucket_size, obliv int index, Block* res, OcCopy * cpy) obliv {
 	for(int i = 0; i < bucket_size; ++i) {
 		obliv if (blocks[i]->index == index & ( !blocks[i]->is_dummy)) {
-			block_copy(blocks[i], res, data_size);
+			block_copy(cpy, blocks[i], res);
 			blocks[i]->is_dummy = true;
 		}
 	}
 }
 
-void bucket_add(Block** blocks, int bucket_size, Block* new_block, int data_size) obliv {
+void bucket_add(Block** blocks, int bucket_size, Block* new_block, OcCopy * cpy) obliv {
 	obliv bool added = false;
 	for(int i = 0; i < bucket_size; ++i) {
 		obliv if( blocks[i]->is_dummy & (!added) ) {
-			block_copy(new_block, blocks[i], data_size);
+			block_copy(cpy, new_block, blocks[i]);
 			added = true;
 		}
 	}	
@@ -124,7 +124,7 @@ void path_read_and_remove(NonRecursiveOram* oram, obliv int index, Block* res) o
 	for(int i = 0; i < oram->index_size; ++i)
 		for(int j = 0; j < oram->bucket_size; ++j)
 			arr[cnt++] = oram->path[i+1][j];
-	bucket_read_and_remove(arr, bucket_size, index, res, oram->data_size);
+	bucket_read_and_remove(arr, bucket_size, index, res, oram->cpy);
 	free_obliv(arr);
 }
 
@@ -137,23 +137,20 @@ void nro_read_and_remove(NonRecursiveOram* oram, obliv int index, obliv int posi
 		revealOblivInt(&position_label_clear, position_label, 0);
 	}
 	get_path(oram, position_label_clear);
-	Block* res_block = block_initialize(oram->data_size);   
+	Block* res_block = block_initialize(oram->cpy);   
 	path_read_and_remove(oram, index, res_block);
 
-	for(int i = 0; i < oram->data_size; ++i)
-		data[i] = res_block->data[i];
+	ocCopy(oram->cpy, data, res_block->data);
 	block_release(res_block);
 }
 
 void nro_put_back(NonRecursiveOram * oram, obliv int index, obliv int position_label, obliv bool* data)  obliv {
-	Block* des = block_initialize(oram->data_size);
+	Block* des = block_initialize(oram->cpy);
 	des->index = index;
 	des->is_dummy = false;
 	des->position_label = position_label;
-	for(int i = 0; i < oram->data_size; ++i) {
-		des->data[i] = data[i];
-	}
-	bucket_add(oram->stash, oram->stash_size, des, oram->data_size);
+	ocCopy(oram->cpy, des->data, data);
+	bucket_add(oram->stash, oram->stash_size, des, oram->cpy);
 	block_release(des);  
 	nro_flush(oram);
 	nro_flush(oram);
@@ -182,7 +179,7 @@ void nro_read(NonRecursiveOram * oram, obliv int index, obliv int position_label
 }
 
 void nro_write(NonRecursiveOram * oram, obliv int index, obliv int position_label, obliv int new_position_label, obliv bool* data) {
-	obliv bool* tmp = calloc_obliv(sizeof(obliv bool), oram->data_size);
+	obliv bool* tmp = calloc_obliv(1, oram->cpy->eltsize);
 	nro_read_and_remove(oram, index, position_label, tmp);
 	nro_put_back(oram, index, new_position_label, data);
 	free_obliv(tmp);
@@ -213,7 +210,7 @@ void path_oram_flush(NonRecursiveOram * oram, int path_val) obliv {
 				for(int l = 0; l < cap; ++l) {
 					obliv int depth = compute_depth(oram->path[k][l]->position_label, path_val, oram->index_size);
 					obliv if(depth >= i & !oram->path[k][l]->is_dummy & !added) {
-						block_copy(oram->path[k][l], oram->path[i][j], oram->data_size);
+						block_copy(oram->cpy, oram->path[k][l], oram->path[i][j]);
 						oram->path[k][l]->is_dummy = true;
 						added = true; 
 					}
@@ -314,7 +311,7 @@ void circuit_oram_flush(NonRecursiveOram * oram, int path_val) obliv {
 	for(int i = 0; i <= oram->index_size; ++i) {
 		oram->to_write->is_dummy = true;
 		obliv if (!oram->hold->is_dummy & i == dest) {
-			block_copy(oram->hold, oram->to_write, oram->data_size);
+			block_copy(oram->cpy, oram->hold, oram->to_write);
 			oram->hold->is_dummy = true;
 			to_write_depth = hold_depth;
 			dest = -1;
@@ -324,7 +321,7 @@ void circuit_oram_flush(NonRecursiveOram * oram, int path_val) obliv {
 		obliv if(oram->target[i] != -1) {
 			for(int j = 0; j < cap; ++j) {
 				obliv if (oram->deepest_index[i] == j) {
-					block_copy(oram->path[i][j], oram->hold, oram->data_size);
+					block_copy(oram->cpy, oram->path[i][j], oram->hold);
 					oram->path[i][j]->is_dummy = true;
 					dest = oram->target[i];
 					hold_depth = oram->deepest_depth[i];
@@ -336,7 +333,7 @@ void circuit_oram_flush(NonRecursiveOram * oram, int path_val) obliv {
 		obliv if (!oram->to_write->is_dummy) {
 			for(int j = 0; j < cap; ++j) {
 				obliv if (oram->path[i][j]->is_dummy & !added) {
-					block_copy(oram->to_write, oram->path[i][j], oram->data_size);
+					block_copy(oram->cpy, oram->to_write, oram->path[i][j]);
 					added = true;
 					obliv if (to_write_depth > oram->deepest_depth[i]) {
 						oram->deepest_depth[i] = to_write_depth;
