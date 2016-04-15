@@ -1,9 +1,4 @@
-#include <time.h>
-#include <stdio.h>
 #include <obliv.oh>
-#include <stdbool.h>
-#include <stdlib.h>
-
 #include "oram.oh"
 #include "test_generic.h"
 

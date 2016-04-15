@@ -1,8 +1,4 @@
-#include <time.h>
-#include <stdio.h>
 #include <obliv.oh>
-#include <stdbool.h>
-
 #include "oscrypt.oh"
 #include "test_generic.h"
 

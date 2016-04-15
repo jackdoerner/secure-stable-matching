@@ -1,11 +1,4 @@
-#include <time.h>
-#include <stdio.h>
 #include <obliv.oh>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include "util.h"
 #include "osearch.oh"
 #include "test_generic.h"
 

@@ -1,9 +1,3 @@
-#include <obliv.h>
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
-
-#include "util.h"
 #include "test_generic.h"
 
 double lap;
