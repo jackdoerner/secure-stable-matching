@@ -1,5 +1,6 @@
 #include <obliv.oh>
 #include "ograph.oh"
+#include "oram.oh"
 #include "test_generic.h"
 
 #define SAMPLES 30
@@ -16,6 +17,10 @@ int vn = sizeof(vcts)/sizeof(vcts[0]);
 int en = sizeof(ects)/sizeof(ects[0]);
 
 void testMain(void*varg) {
+
+	#ifdef ORAM_OVERRIDE
+	oram_set_default_type(ORAM_OVERRIDE);
+	#endif
 
 	fprintf(stdout, "==========\nBREADTH FIRST SEARCH (vertices, edge ratio, sample 1, sample 2, ... sample n)\n----------\n");
 	fflush(stdout);

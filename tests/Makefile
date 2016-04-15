@@ -10,7 +10,9 @@ DEPS=test_main.o
 REMOTE_HOST=localhost
 CFLAGS+=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
 BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oscrypt test_ograph test_omatch test_osearch\
-		bench_oram bench_oram_init bench_oscrypt bench_bfs bench_bst bench_omatch
+		bench_oram.sqrt bench_oram.linear bench_oram.circuit bench_oram_init.sqrt bench_oram_init.linear bench_oram_init.circuit\
+		bench_oscrypt.sqrt bench_oscrypt.linear bench_oscrypt.circuit bench_bfs.sqrt bench_bfs.linear bench_bfs.circuit\
+		bench_bst.sqrt bench_bst.linear bench_bst.circuit bench_omatch.sqrt bench_omatch.linear bench_omatch.circuit
 
 
 default: $(OBLIVCC) $(BINS:%=$(BIN_OUT_PATH)/%)
@@ -30,6 +32,18 @@ $(ACKLIB):
 %.o: %.c
 	gcc -c $(CFLAGS) $*.c -o $*.o -I $(OBLIVCH)
 	cpp -MM $(CFLAGS) $*.c -I $(OBLIVCH) > $*.d
+
+%.sqrt.oo: %.oc
+	$(OBLIVCC) -c $(CFLAGS) -DORAM_OVERRIDE=ORAM_TYPE_SQRT $*.oc -o $*.sqrt.oo
+	cpp -MM $(CFLAGS) -DORAM_OVERRIDE=ORAM_TYPE_SQRT $*.oc -MT $*.sqrt.oo > $*.sqrt.od
+
+%.circuit.oo: %.oc
+	$(OBLIVCC) -c $(CFLAGS) -DORAM_OVERRIDE=ORAM_TYPE_CIRCUIT $*.oc -o $*.circuit.oo
+	cpp -MM $(CFLAGS) -DORAM_OVERRIDE=ORAM_TYPE_CIRCUIT $*.oc -MT $*.circuit.oo > $*.circuit.od
+
+%.linear.oo: %.oc
+	$(OBLIVCC) -c $(CFLAGS) -DORAM_OVERRIDE=ORAM_TYPE_LINEAR $*.oc -o $*.linear.oo
+	cpp -MM $(CFLAGS) -DORAM_OVERRIDE=ORAM_TYPE_LINEAR $*.oc -MT $*.linear.oo > $*.linear.od
 
 %.oo: %.oc
 	$(OBLIVCC) -c $(CFLAGS) $*.oc -o $*.oo

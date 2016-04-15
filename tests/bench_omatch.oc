@@ -1,5 +1,6 @@
 #include <obliv.oh>
 #include "omatch.oh"
+#include "oram.oh"
 #include "test_generic.h"
 
 #define SAMPLES 30
@@ -27,6 +28,10 @@ int pcts[] = {4,8,16,32,64,128,256,512,1024};
 int pn = sizeof(pcts)/sizeof(pcts[0]);
 
 void testMain(void*varg) {
+
+	#ifdef ORAM_OVERRIDE
+	oram_set_default_type(ORAM_OVERRIDE);
+	#endif
 
 	fprintf(stdout, "==========\nGALE SHAPLEY (pair count, sample 1, sample 2, ... sample n)\n----------\n");
 	fflush(stdout);

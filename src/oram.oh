@@ -5,14 +5,16 @@
 #include <obliv.oh>
 #include "copy.oh"
 
-#ifndef ORAM_DEFAULT_MODE
-#define ORAM_DEFAULT_MODE ORAM_TYPE_SQRT
+#ifndef ORAM_DEFAULT_TYPE
+#define ORAM_DEFAULT_TYPE ORAM_TYPE_SQRT
 #endif
 
 typedef struct oram oram;
 typedef enum {ORAM_TYPE_AUTO, ORAM_TYPE_SQRT, ORAM_TYPE_CIRCUIT, ORAM_TYPE_LINEAR} oram_type;
 
 typedef void (* block_access_function)(OcCopy *, void * oram_block, void * external_block) obliv;
+
+void oram_set_default_type(oram_type);
 
 oram * oram_new(oram_type, OcCopy * cpy, size_t);
 oram * oram_from_array(oram_type, OcCopy * cpy, size_t, void *);

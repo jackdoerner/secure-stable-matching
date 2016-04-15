@@ -1,5 +1,6 @@
 #include <obliv.oh>
 #include "osearch.oh"
+#include "oram.oh"
 #include "test_generic.h"
 
 #define SAMPLES 30
@@ -22,6 +23,10 @@ int en = sizeof(elcts)/sizeof(elcts[0]);
 int sn = sizeof(searchcts)/sizeof(searchcts[0]);
 
 void testMain(void*varg) {
+
+	#ifdef ORAM_OVERRIDE
+	oram_set_default_type(ORAM_OVERRIDE);
+	#endif
 
 	fprintf(stdout, "==========\nBINARY SEARCH (elements, searches, sample 1, sample 2, ... sample n)\n----------\n");
 	fflush(stdout);

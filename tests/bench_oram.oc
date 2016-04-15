@@ -18,6 +18,10 @@ int sn = sizeof(elszs)/sizeof(elszs[0]);
 
 void testMain(void*varg) {
 
+	#ifdef ORAM_OVERRIDE
+	oram_set_default_type(ORAM_OVERRIDE);
+	#endif
+
 	fprintf(stdout, "==========\nORAM ACCESS (WRITE) (elct, elsz, sample 1, sample 2, ... sample n)\n----------\n");
 
 	for (int ii = 0; ii < en; ii++) {

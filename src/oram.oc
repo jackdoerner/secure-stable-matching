@@ -13,11 +13,17 @@ static void * element(OcCopy* cpy,void * arr, int x) obliv {
 	return x*cpy->eltsize+(char*)arr;
 }
 
+oram_type default_oram_type = ORAM_DEFAULT_TYPE;
+
+void oram_set_default_type(oram_type new_type) {
+	default_oram_type = new_type;
+}
+
 void oram_init(oram* o, oram_type mode, OcCopy * cpy, size_t size, void * src) {
 	o->size = size;
 	o->cpy = cpy;
 	if (mode == ORAM_TYPE_AUTO) {
-		o->mode = ORAM_DEFAULT_MODE;
+		o->mode = default_oram_type;
 	} else {
 		o->mode = mode;	
 	}
