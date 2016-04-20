@@ -1,14 +1,13 @@
 #ifndef OBIG_OH
 #define OBIG_OH
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <obliv.oh>
-
-typedef unsigned char byte;
-typedef obliv unsigned char obyte;
 
 typedef struct obig {
 	size_t digits;
-	obyte* data;
+	obliv uint8_t * data;
 } obig;
 
 /* memory management */
@@ -22,76 +21,53 @@ void obig_match_sizes(obig* x, obig* y);
 void obig_match_sizes_signed(obig* x, obig* y);
 
 // Copy functions truncate or 0-extend for mismatched lengths
-void obig_copy(obig* out, obig in);
-void obig_copy_obliv(obig* out, obig in) obliv;
-// These two copy with sign extension instead of 0-extension
-void obig_copy_signed(obig* out, obig in);
-void obig_copy_obliv_signed(obig* out, obig in) obliv;
+void obig_copy(obig* out, obig in) obliv;
+// This copies with sign extension instead of 0-extension
+void obig_copy_signed(obig* out, obig in) obliv;
 
 /* convenience setters */
 
-void obig_zero(obig* x);
-void obig_zero_obliv(obig* x) obliv;
-void obig_one(obig* x);
-void obig_one_obliv(obig* x) obliv;
-void obig_set_onative(obig* x, obliv unsigned long long y);
-void obig_set_onative_signed(obig* x, obliv long long y);
-void obig_set_pointed(obig* x, void* p, size_t s);
-void obig_set_onative_obliv(obig* x, obliv unsigned long long y) obliv;
-void obig_set_onative_signed_obliv(obig* x, obliv long long y) obliv;
-void obig_set_pointed_obliv(obig* x, void* p, size_t s);
+void obig_zero(obig* x) obliv;
+void obig_one(obig* x) obliv;
+void obig_set_onative(obig* x, obliv uint64_t y) obliv;
+void obig_set_onative_signed(obig* x, obliv int64_t y) obliv;
+void obig_set_pointed(obig* x, void* p, size_t s) obliv;
 
 /* comparators */
 
-obyte obig_eq_obliv(obig x, obig y) obliv;
-obyte obig_eq_signed_obliv(obig x, obig y) obliv;
-obyte obig_gt_obliv(obig x, obig y) obliv;
-obyte obig_gt_signed_obliv(obig x, obig y) obliv;
-obyte obig_lt_obliv(obig x, obig y) obliv;
-obyte obig_lt_signed_obliv(obig x, obig y) obliv;
-obyte obig_gte_obliv(obig x, obig y) obliv;
-obyte obig_gte_signed_obliv(obig x, obig y) obliv;
-obyte obig_lte_obliv(obig x, obig y) obliv;
-obyte obig_lte_signed_obliv(obig x, obig y) obliv;
-obyte obig_gtz_obliv(obig x) obliv;
-obyte obig_gtz_signed_obliv(obig x) obliv;
-obyte obig_ltz_signed_obliv(obig x) obliv;
-obyte obig_eqz_obliv(obig x) obliv;
-obyte obig_cmp_obliv(obig x, obig y) obliv;
-obyte obig_cmp_signed_obliv(obig x, obig y) obliv;
+obliv bool obig_eq(obig x, obig y) obliv;
+obliv bool obig_eq_signed(obig x, obig y) obliv;
+obliv bool obig_gt(obig x, obig y) obliv;
+obliv bool obig_gt_signed(obig x, obig y) obliv;
+obliv bool obig_lt(obig x, obig y) obliv;
+obliv bool obig_lt_signed(obig x, obig y) obliv;
+obliv bool obig_gte(obig x, obig y) obliv;
+obliv bool obig_gte_signed(obig x, obig y) obliv;
+obliv bool obig_lte(obig x, obig y) obliv;
+obliv bool obig_lte_signed(obig x, obig y) obliv;
+obliv bool obig_gtz(obig x) obliv;
+obliv bool obig_gtz_signed(obig x) obliv;
+obliv bool obig_ltz_signed(obig x) obliv;
+obliv bool obig_eqz(obig x) obliv;
+obliv int8_t obig_cmp(obig x, obig y) obliv;
+obliv int8_t obig_cmp_signed(obig x, obig y) obliv;
 
 /* nondestructive elementary math - pass the same obig for first and second parameter for augmented assignment */
 
-void obig_shl1(obig* out, obig x);
-void obig_shl_native(obig* out, obig x, unsigned int y);
-void obig_shl_onative(obig* out, obig x, obliv unsigned int y);
-void obig_shr1(obig* out, obig x);
-void obig_shr_native(obig* out, obig x, unsigned int y);
-void obig_shr_onative(obig* out, obig x, obliv unsigned int y);
+void obig_shl1(obig* out, obig x) obliv;
+void obig_shl_native(obig* out, obig x, uint32_t y) obliv;
+void obig_shl_onative(obig* out, obig x, obliv uint32_t y obliv);
+void obig_shr1(obig* out, obig x) obliv;
+void obig_shr_native(obig* out, obig x, uint32_t y) obliv;
+void obig_shr_onative(obig* out, obig x, obliv uint32_t y) obliv;
 
-void obig_neg(obig* out, obig x);
-void obig_add(obig* out, obig x, obig y);
-void obig_sub(obig* out, obig x, obig y);
+void obig_neg(obig* out, obig x) obliv;
+void obig_add(obig* out, obig x, obig y) obliv;
+void obig_sub(obig* out, obig x, obig y) obliv;
 
-void obig_not(obig* out, obig x);
-void obig_and(obig* out, obig x, obig y);
-void obig_or(obig* out, obig x, obig y);
-void obig_xor(obig* out, obig x, obig y);
-
-void obig_shl1_obliv(obig* out, obig x) obliv;
-void obig_shl_native_obliv(obig* out, obig x, unsigned int y) obliv;
-void obig_shl_onative_obliv(obig* out, obig x, obliv unsigned int y) obliv;
-void obig_shr1_obliv(obig* out, obig x) obliv;
-void obig_shr_native_obliv(obig* out, obig x, unsigned int y) obliv;
-void obig_shr_onative_obliv(obig* out, obig x, obliv unsigned int y) obliv;
-
-void obig_neg_obliv(obig* out, obig x) obliv;
-void obig_add_obliv(obig* out, obig x, obig y) obliv;
-void obig_sub_obliv(obig* out, obig x, obig y) obliv;
-
-void obig_not_obliv(obig* out, obig x) obliv;
-void obig_and_obliv(obig* out, obig x, obig y) obliv;
-void obig_or_obliv(obig* out, obig x, obig y) obliv;
-void obig_xor_obliv(obig* out, obig x, obig y) obliv;
+void obig_not(obig* out, obig x) obliv;
+void obig_and(obig* out, obig x, obig y) obliv;
+void obig_or(obig* out, obig x, obig y) obliv;
+void obig_xor(obig* out, obig x, obig y) obliv;
 
 #endif
