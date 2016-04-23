@@ -104,7 +104,7 @@ obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 	return success;
 }
 
-oqueue * oqueue_new_static(OcCopy * cpy, int n) {
+oqueue * oqueue_new_static(OcCopy * cpy, size_t n) {
 	size_t queue_size = 0;
 	size_t layer_index = 0;
 	oqueue * result;
@@ -135,6 +135,17 @@ oqueue * oqueue_new_static(OcCopy * cpy, int n) {
 
 		queue_size += 3 * pow(2, layer_index);
 		layer_index++;
+	}
+
+	return result;
+}
+
+//TODO make this work in O(N) instead of O(NlogN)
+oqueue * oqueue_static_from_array(OcCopy * cpy, size_t n, void * src) {
+	oqueue * result = oqueue_new_static(cpy, n);
+
+	for (size_t ii = 0; ii < n; ii++) {
+		oqueue_push(result, element(cpy, src, ii));
 	}
 
 	return result;

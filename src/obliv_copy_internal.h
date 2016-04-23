@@ -1,4 +1,5 @@
-#pragma once
+#ifndef OBLIV_COPY_INTERNAL_H
+#define OBLIV_COPY_INTERNAL_H
 
 void ocShareMuxes(ProtocolDesc* pd,char* z,     
                   const char* x0,const char* x1,size_t n,size_t eltsize,
@@ -6,3 +7,5 @@ void ocShareMuxes(ProtocolDesc* pd,char* z,
 
 void ocFromShared_impl(ProtocolDesc* pd, void* dest, const void* src,
                        size_t n,size_t bits,size_t bytes);
+
+#endif

@@ -9,6 +9,7 @@ DEPS=$(SRC_PATH)/util.o $(SRC_PATH)/copy.o $(SRC_PATH)/copy.oo $(SRC_PATH)/endia
 SQRT_ORAM_DEPS=$(SRC_PATH)/oram_sqrt/decoder.oo $(SRC_PATH)/oram_sqrt/shuffle.oo $(SRC_PATH)/oram_sqrt/sqrtoram.oo $(SRC_PATH)/oram_sqrt/waksman.o
 CKT_ORAM_DEPS=$(SRC_PATH)/oram_ckt/block.oo $(SRC_PATH)/oram_ckt/circuit_oram.oo $(SRC_PATH)/oram_ckt/linear_scan_oram.oo $(SRC_PATH)/oram_ckt/nonrecursive_oram.oo $(SRC_PATH)/oram_ckt/utils.oo
 ORAM_DEPS = $(SQRT_ORAM_DEPS) $(CKT_ORAM_DEPS) $(SRC_PATH)/oram.oo
+CFLAGS+=-O3 -I/usr/include -I . -I $(SRC_PATH)
 OBJS=$(DEPS) $(ORAM_DEPS) $(SRC_PATH)/obig.oo $(SRC_PATH)/ochacha.oo $(SRC_PATH)/ograph.oo $(SRC_PATH)/omatch.oo $(SRC_PATH)/oqueue.oo\
 		$(SRC_PATH)/osalsa.oo $(SRC_PATH)/oscrypt.oo $(SRC_PATH)/osearch.oo $(SRC_PATH)/osha256.oo $(SRC_PATH)/osha512.oo $(SRC_PATH)/osort.oo
 
