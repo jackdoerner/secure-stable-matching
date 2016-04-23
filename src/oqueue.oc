@@ -35,7 +35,7 @@ obliv bool oqueue_push(oqueue * layer, void * input) obliv {
 	~obliv(en) {
 		if (layer->child != NULL) {
 			if (layer->push_time == 1) {
-				obliv if (en & (layer->tail >= 5)) {
+				obliv if (layer->tail >= 5) {
 					obliv if (oqueue_push(layer->child, element(layer->cpy,layer->data,3*layer->copymult))) {
 						ocCopyN(layer->cpy,element(layer->cpy,layer->data,3*layer->copymult), element(layer->cpy,layer->data,5*layer->copymult),layer->copymult);
 						layer->tail -= 2;	
@@ -66,7 +66,7 @@ obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 	~obliv(en) {
 		if (layer->pop_time == 0) {
 			if (layer->child == NULL) {
-				obliv if (en & layer->head >= 2) {
+				obliv if (layer->head >= 2) {
 					for (uint8_t ii = 0; ii < 4; ii ++) {
 						ocCopyN(layer->cpy,element(layer->cpy,layer->data,ii*layer->copymult), element(layer->cpy,layer->data,(ii + 2)*layer->copymult),layer->copymult);
 					}
@@ -74,7 +74,7 @@ obliv bool oqueue_pop(void * output, oqueue * layer) obliv {
 					layer->tail -= 2;
 				}
 			} else {
-				obliv if (en & layer->head >= 2) {
+				obliv if (layer->head >= 2) {
 					ocCopyN(layer->cpy,element(layer->cpy,layer->data,0), element(layer->cpy,layer->data,2*layer->copymult), layer->copymult);
 					layer->head -= 2;
 					obliv if(~oqueue_pop(element(layer->cpy,layer->data,1*layer->copymult), layer->child)) {
