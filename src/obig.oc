@@ -335,7 +335,7 @@ void obig_sub(obig* out, obig x, obig y) obliv {
 
 
 
-obliv uint8_t kcm_add_with_carry(obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
+obliv uint8_t kcm_add(obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
 	obliv uint8_t rem = 0;
 	for (size_t ii = 0; ii < n; ii ++) {
 		obliv uint16_t eresult = x[ii] + y[ii] + rem;
@@ -345,7 +345,7 @@ obliv uint8_t kcm_add_with_carry(obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t
 	return rem;
 }
 
-obliv uint8_t kcm_inc(obliv uint8_t *x,obliv uint8_t *z,size_t n) obliv {
+obliv uint8_t kcm_aadd(obliv uint8_t *x,obliv uint8_t *z,size_t n) obliv {
 	obliv uint8_t rem = 0;
 	for (size_t ii = 0; ii < n; ii ++) {
 		obliv uint16_t eresult = z[ii] + x[ii] + rem;
@@ -355,7 +355,7 @@ obliv uint8_t kcm_inc(obliv uint8_t *x,obliv uint8_t *z,size_t n) obliv {
 	return rem;
 }
 
-obliv uint8_t kcm_dec(obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
+obliv uint8_t kcm_asub(obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
 	obliv uint8_t rem = 0;
 	for (size_t ii = 0; ii < n; ii ++) {
 		obliv uint16_t eresult = z[ii] - y[ii] - rem;
@@ -365,44 +365,50 @@ obliv uint8_t kcm_dec(obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
 	return rem;
 }
 
-void kcm_comba(size_t n,obliv uint8_t *t,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
-	obliv uint16_t res = y[0] * x[0];
-	z[0] = res;
-	z[1] = res >> 8;
+void kcm_comba(size_t n,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
+	obliv uint32_t temp = 0;
+	for (size_t ii = 0; ii < n*2; ii++) {
+		size_t bo = min(ii, n-1);
+		size_t ao = ii - bo;
+
+		for (size_t jj = 0; jj < min(n-ao, bo+1); jj++) {
+			temp = temp + x[ao+jj] * y[bo-jj];
+		}
+		z[ii] = temp;
+		temp >>= 8;
+	}
 }
 
 #define COMBA_THRESHOLD 1
 void kcm(size_t n,obliv uint8_t *t,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
-	if (n % 2 != 0) {
-		kcm_comba(n,t,x,y,z);
+	if ((n % 2 != 0) | (n <= COMBA_THRESHOLD)) {
+		kcm_comba(n,x,y,z);
 		return;
 	}
 
 	size_t nd2 = n/2;
-	size_t m = n/COMBA_THRESHOLD;
-	size_t md2 = m/2;
 
-	obliv uint8_t c1=kcm_add_with_carry(x,&x[nd2],z,md2);
-    obliv uint8_t c2=kcm_add_with_carry(y,&y[nd2],&z[nd2],md2);
+	obliv uint8_t c1=kcm_add(x,&x[nd2],z,nd2);
+    obliv uint8_t c2=kcm_add(y,&y[nd2],&z[nd2],nd2);
 
     obliv uint8_t c=0;
     kcm(nd2,&t[n],z,&z[nd2],t);
-    obliv if (c1 > 0) c+=kcm_inc(&z[nd2],&t[nd2],md2);
-    obliv if (c2 > 0) c+=kcm_inc(z,&t[nd2],md2);
+    obliv if (c1 > 0) c+=kcm_aadd(&z[nd2],&t[nd2],nd2);
+    obliv if (c2 > 0) c+=kcm_aadd(z,&t[nd2],nd2);
     obliv if ((c1 & c2) > 0) c++;
 
     kcm(nd2,&t[n],x,y,z);
-    c-=kcm_dec(z,t,m);           /* subtract a0.b0 */
+    c-=kcm_asub(z,t,n);           /* subtract a0*b0 */
 
     kcm(nd2,&t[n],&x[nd2],&y[nd2],&z[n]);
-    c-=kcm_dec(&z[n],t,m);       /* subtract a1.b1 */
+    c-=kcm_asub(&z[n],t,n);       /* subtract a1*b1 */
 
-    c+=kcm_inc(t,&z[nd2],m);    /* combine results */
+    c+=kcm_aadd(t,&z[nd2],n);    /* combine results */
 
     size_t ii=n+nd2;
     z[ii]+=c;
     obliv bool keepcarrying = true;
-    for (ii++;ii<n*2;ii++) { /* propagate carries - very rare */
+    for (ii++;ii<n*2;ii++) { /* propagate carries */
     	obliv if (z[n+nd2]<c & keepcarrying & ((ii == n+nd2 + 1) | (z[ii-1]==0))) {
     		z[ii]++;
     	} else {
