@@ -5,7 +5,7 @@
 
 #define SAMPLES 30
 
-static const char TESTNAME[] = "omatch_benchmark";
+static const char TESTNAME[] = "gs_benchmark";
 
 char* testName() {
 	return TESTNAME;
@@ -54,7 +54,7 @@ void testMain(void*varg) {
 			obliv uint32_t * wPrefs = calloc(pairs * pairs, sizeof(obliv uint32_t));
 			obliv uint32_t * output = calloc(pairs, sizeof(obliv uint32_t));
 
-			int samples = pairs < 128 ? SAMPLES : (pairs < 1024 ? 3 : 1);
+			uint64_t samples = pairs < 128 ? SAMPLES : (pairs < 1024 ? 3 : 1);
 
 			for (int kk = 0; kk < samples; kk++) {
 				for (int ll = 0; ll < pairs; ll++) {
@@ -71,7 +71,7 @@ void testMain(void*varg) {
 				ogale_shapley(output, mPrefs, wPrefs, pairs);
 				uint64_t runtime = current_timestamp() - startTime;
 
-				fprintf(stdout, ",%d", runtime);
+				fprintf(stdout, ",%llu", runtime);
 				fflush(stdout);
 				tally += runtime;
 
@@ -84,7 +84,7 @@ void testMain(void*varg) {
 			free(output);
 
 			fprintf(stdout, "\n");
-			fprintf(stderr, "GALE SHAPLEY (pairs:%d): %d microseconds avg\n", pairs, tally/samples);
+			fprintf(stderr, "GALE SHAPLEY (pairs:%d): %llu microseconds avg\n", pairs, tally/samples);
 		}
 
 	}

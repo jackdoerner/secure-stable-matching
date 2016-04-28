@@ -106,14 +106,14 @@ void testMain(void*varg) {
 
 			uint64_t runtime = current_timestamp() - startTime;
 
-			fprintf(stdout, ",%d", runtime);
+			fprintf(stdout, ",%llu", runtime);
 			fflush(stdout);
 			tally += runtime;
 		}
 		
 		fprintf(stdout, "\n");
 		fflush(stdout);
-		fprintf(stderr, "SCRYPT (16384): %d microseconds avg\n", tally / SAMPLES);
+		fprintf(stderr, "SCRYPT (16384): %llu microseconds avg\n", tally / SAMPLES);
 	}
 
 	{
@@ -151,7 +151,7 @@ void testMain(void*varg) {
 
 			uint64_t runtime = current_timestamp() - startTime;
 
-			fprintf(stdout, ",%d", runtime);
+			fprintf(stdout, ",%llu", runtime);
 			fflush(stdout);
 			tally += runtime;
 
@@ -159,7 +159,7 @@ void testMain(void*varg) {
 
 		fprintf(stdout, "\n");
 		fflush(stdout);
-		fprintf(stderr, "SCRYPT (litecoin): %d microseconds avg\n", tally / SAMPLES);
+		fprintf(stderr, "SCRYPT (litecoin): %llu microseconds avg\n", tally / SAMPLES);
 	}
 
 }

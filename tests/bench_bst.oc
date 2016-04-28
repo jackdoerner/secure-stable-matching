@@ -71,7 +71,7 @@ void testMain(void*varg) {
 
 					uint64_t runtime = current_timestamp() - startTime;
 
-					fprintf(stdout, ",%d", runtime);
+					fprintf(stdout, ",%llu", runtime);
 					fflush(stdout);
 					tally += runtime;
 
@@ -81,7 +81,7 @@ void testMain(void*varg) {
 				free(input);
 
 				fprintf(stdout, "\n");
-				fprintf(stderr, "BINARY SEARCH (elements:%d, searches:%d): %d microseconds avg\n", elct, searchct, tally/samples);
+				fprintf(stderr, "BINARY SEARCH (elements:%d, searches:%d): %llu microseconds avg\n", elct, searchct, tally/samples);
 			}
 		}
 

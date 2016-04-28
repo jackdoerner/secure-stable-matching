@@ -45,7 +45,7 @@ void testMain(void*varg) {
 				uint64_t startTime = current_timestamp();
 				oram_write(o, &input[index_raw*elsz], index);
 				uint64_t runtime = current_timestamp() - startTime;
-				fprintf(stdout, ",%d", runtime);
+				fprintf(stdout, ",%llu", runtime);
 				fflush(stdout);
 				tally += runtime;
 			}
@@ -53,7 +53,7 @@ void testMain(void*varg) {
 			free(input);
 			oram_free(o);
 			fprintf(stdout, "\n");
-			fprintf(stderr, "Write (count:%d, size: %d): %d microseconds avg\n", elct, elsz, tally / (SAMPLES));
+			fprintf(stderr, "Write (count:%d, size: %d): %llu microseconds avg\n", elct, elsz, tally / (SAMPLES));
 
 		}
 	}

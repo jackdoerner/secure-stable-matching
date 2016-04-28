@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+#include "util.h"
 #include "obig.oh"
 
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
@@ -330,6 +331,147 @@ void obig_sub(obig* out, obig x, obig y) obliv {
 		}
 	}
 }
+
+
+
+
+obliv uint8_t kcm_add_with_carry(obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
+	obliv uint8_t rem = 0;
+	for (size_t ii = 0; ii < n; ii ++) {
+		obliv uint16_t eresult = x[ii] + y[ii] + rem;
+		z[ii] = eresult;
+		rem = eresult >> 8;
+	}
+	return rem;
+}
+
+obliv uint8_t kcm_inc(obliv uint8_t *x,obliv uint8_t *z,size_t n) obliv {
+	obliv uint8_t rem = 0;
+	for (size_t ii = 0; ii < n; ii ++) {
+		obliv uint16_t eresult = z[ii] + x[ii] + rem;
+		z[ii] = eresult;
+		rem = eresult >> 8;
+	}
+	return rem;
+}
+
+obliv uint8_t kcm_dec(obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
+	obliv uint8_t rem = 0;
+	for (size_t ii = 0; ii < n; ii ++) {
+		obliv uint16_t eresult = z[ii] - y[ii] - rem;
+		z[ii] = eresult;
+		rem = (eresult >> 8) & 1;
+	}
+	return rem;
+}
+
+void kcm_comba(size_t n,obliv uint8_t *t,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
+	obliv uint16_t res = y[0] * x[0];
+	z[0] = res;
+	z[1] = res >> 8;
+}
+
+#define COMBA_THRESHOLD 1
+void kcm(size_t n,obliv uint8_t *t,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
+	if (n % 2 != 0) {
+		kcm_comba(n,t,x,y,z);
+		return;
+	}
+
+	size_t nd2 = n/2;
+	size_t m = n/COMBA_THRESHOLD;
+	size_t md2 = m/2;
+
+	obliv uint8_t c1=kcm_add_with_carry(x,&x[nd2],z,md2);
+    obliv uint8_t c2=kcm_add_with_carry(y,&y[nd2],&z[nd2],md2);
+
+    obliv uint8_t c=0;
+    kcm(nd2,&t[n],z,&z[nd2],t);
+    obliv if (c1 > 0) c+=kcm_inc(&z[nd2],&t[nd2],md2);
+    obliv if (c2 > 0) c+=kcm_inc(z,&t[nd2],md2);
+    obliv if ((c1 & c2) > 0) c++;
+
+    kcm(nd2,&t[n],x,y,z);
+    c-=kcm_dec(z,t,m);           /* subtract a0.b0 */
+
+    kcm(nd2,&t[n],&x[nd2],&y[nd2],&z[n]);
+    c-=kcm_dec(&z[n],t,m);       /* subtract a1.b1 */
+
+    c+=kcm_inc(t,&z[nd2],m);    /* combine results */
+
+    size_t ii=n+nd2;
+    z[ii]+=c;
+    obliv bool keepcarrying = true;
+    for (ii++;ii<n*2;ii++) { /* propagate carries - very rare */
+    	obliv if (z[n+nd2]<c & keepcarrying & ((ii == n+nd2 + 1) | (z[ii-1]==0))) {
+    		z[ii]++;
+    	} else {
+    		keepcarrying = false;
+    	}
+    }
+}
+
+void obig_mul(obig* out, obig x, obig y) obliv {
+
+	~obliv(en) {
+		size_t indigits = max(x.digits, y.digits);
+		obliv uint8_t * temp = calloc(indigits * 2, sizeof(obliv uint8_t));
+
+		obliv uint8_t * x2;
+		obliv uint8_t * y2;
+		obliv uint8_t * z;
+
+		if (x.digits < indigits) {
+			x2 = calloc(indigits, sizeof(obliv uint8_t));
+			size_t ii = 0;
+			for (; ii < x.digits; ii++) {
+				x2[ii] = x.data[ii];
+			}
+		} else {
+			x2 = x.data;
+		}
+
+		if (y.digits < indigits) {
+			y2 = calloc(indigits, sizeof(obliv uint8_t));
+			size_t ii = 0;
+			for (; ii < y.digits; ii++) {
+				y2[ii] = y.data[ii];
+			}
+		} else {
+			y2 = y.data;
+		}
+
+		if (out->digits < indigits * 2) {
+			z = calloc(indigits * 2, sizeof(obliv uint8_t));
+		} else {
+			z = out->data;
+		}
+
+		obliv if (en) kcm(indigits,temp, x2, y2, z);
+
+		if (x.digits < indigits) {
+			free(x2);
+		}
+		if (y.digits < indigits) {
+			free(y2);
+		}
+		if (out->digits < indigits * 2) {
+			for (size_t ii = 0; ii < out->digits; ii++) {
+				out->data[ii] = z[ii];
+			}
+			free(z);
+		} else {
+			for (size_t ii = indigits * 2; ii < out->digits; ii++) {
+				out->data[ii] = 0;
+			}
+		}
+
+		free(temp);
+	}
+}
+
+
+
 
 void obig_not(obig* out, obig x) obliv {
 	for (size_t ii = 0; ii < out->digits; ii ++) {

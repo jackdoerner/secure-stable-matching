@@ -50,7 +50,7 @@ void testMain(void*varg) {
 					ograph_vertex_list * result = ograph_breadth_first_search(adj, feedOblivInt(rand_range(0,vertices), 1));
 					uint64_t runtime = current_timestamp() - startTime;
 
-					fprintf(stdout, ",%d", runtime);
+					fprintf(stdout, ",%llu", runtime);
 					fflush(stdout);
 					tally += runtime;
 
@@ -60,7 +60,7 @@ void testMain(void*varg) {
 
 				free(edges);
 				fprintf(stdout, "\n");
-				fprintf(stderr, "BFS (vertices:%d, edge ratio: %d): %d microseconds avg\n", vertices, adjacency_count, tally/samples);
+				fprintf(stderr, "BFS (vertices:%d, edge ratio: %d): %llu microseconds avg\n", vertices, adjacency_count, tally/samples);
 			}
 		}
 

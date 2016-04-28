@@ -43,7 +43,7 @@ void testMain(void*varg) {
 				oram * o = oram_from_array(ORAM_TYPE_AUTO, &cpy, elct, input);
 				uint64_t runtime = current_timestamp() - startTime;
 
-				fprintf(stdout, ",%d", runtime);
+				fprintf(stdout, ",%llu", runtime);
 				fflush(stdout);
 				tally += runtime;
 
@@ -52,7 +52,7 @@ void testMain(void*varg) {
 
 			free(input);
 			fprintf(stdout, "\n");
-			fprintf(stderr, "Init (count:%d, size: %d): %d microseconds avg\n", elct, elsz, tally / (SAMPLES));
+			fprintf(stderr, "Init (count:%d, size: %d): %llu microseconds avg\n", elct, elsz, tally / (SAMPLES));
 
 		}
 	}
