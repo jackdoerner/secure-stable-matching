@@ -14,10 +14,10 @@ uint32_t ceildiv(uint32_t dividend, uint32_t divisor) {
 obliv bool obyte_msb_is_one(obliv uint8_t x) obliv {
 	obliv bool result;
 	//big_digit pattern = ~((big_digit)-1 >> 1);
-	obliv if (x & 0x80 == 0) {
-		result = 0;
+	obliv if ((x & 0x80) == 0) {
+		result = false;
 	} else {
-		result = 1;
+		result = true;
 	}
 	return result;
 }
@@ -241,12 +241,21 @@ void obig_shr_native(obig* out, obig x, size_t y) obliv {
 }
 
 void obig_shr_onative(obig* out, obig x, obliv size_t y) obliv {
-	obig_copy(out, x);
+	obig temp;
+	obig* tempref = &temp; //workaround for obliv-c bug
+	~obliv(en) {
+		obig_init(&temp, x.digits);
+	}
+	obig_copy(&temp, x);
 	for (size_t ii = 0; ii < sizeof(y)/sizeof(obliv bool); ii++) {
 		obliv if (y & 1 > 0) {
-			obig_shr_native(out, *out, 1 << ii);
+			obig_shr_native(tempref, temp, 1 << ii);
 		}
 		y >>= 1;
+	}
+	obig_copy(out, temp);
+	~obliv(en) {
+		obig_free(&temp);
 	}
 }
 
@@ -258,15 +267,9 @@ void obig_neg(obig* out, obig x) obliv {
 			out->data[ii] = temp;
 			rem = temp >> 8;
 		} else {
-			//obliv if (obyte_msb_is_one(x.data[x.digits - 1]) == 0) {
-				obliv uint16_t temp = 0xFF + rem;
-				out->data[ii] = temp;
-				rem = temp >> 8;
-			//} else {
-			//	obliv uint16_t temp = 0x00 + rem;
-			//	x.data[ii] = temp;
-			//	rem = temp >> 8;
-			//}
+			obliv uint16_t temp = 0xFF + rem;
+			out->data[ii] = temp;
+			rem = temp >> 8;
 		}
 	}
 }
@@ -464,6 +467,143 @@ void obig_mul(obig* out, obig x, obig y) obliv {
 	}
 }
 
+
+
+obliv size_t knuth_d_count_leading_zeros(obliv uint8_t * x, size_t n) obliv {
+	obliv size_t result = 0;
+	obliv bool found_one = false;
+	for (size_t ii = 0; ii < n; ii++) {
+		obliv uint8_t temp = x[ii];
+		for (size_t jj = 0; jj < 8; jj++) {
+			obliv if (((temp >> jj) & 1) > 0) {
+				result = 0;
+			} else {
+				result ++;
+			}
+		}
+	}
+	return result;
+}
+
+void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, size_t m) obliv {
+	/* this is a straightforward implementation of Knuth's Algorithm D,
+	as described in The Art of Computer Programming Vol 2, Section 4.3.1
+
+	In addition, the implementation is partially based upon code from Hacker's Delight,
+	available at http://www.hackersdelight.org/hdcodetxt/divmnu64.c.txt
+	
+	we assume that u and v have been normalized (i.e. the first digit of v is 1),
+	that n >= 2, and that our inputs and outputs are of the following lengths:
+	u (dividend): m+n
+	v (divisor): n
+	q (quotient): m+1
+	r (remainder): n
+	*/
+
+	for (int64_t jj = m; jj >= 0; jj--) {
+		//Knuth D3
+		obliv uint8_t qhat;
+		obliv uint16_t temp1, temp2;
+		obliv if (u[jj+n] == v[n-1]) {
+			qhat = ~0;
+		} else {
+			qhat = (((obliv uint16_t)u[jj+n] << 8) + u[jj+n-1]) / v[n-1];
+		}
+
+		temp1 = v[n-2] * qhat;
+		temp2 = ((((obliv uint16_t)u[jj+n] << 8) + u[jj+n-1] - qhat * v[n-1]) << 8) +u[jj+n-2];
+		obliv if (temp1 > temp2) {
+			qhat--;
+			temp1 -= v[n-2];
+			temp2 = ((((obliv uint16_t)u[jj+n] << 8) + u[jj+n-1] - qhat * v[n-1]) << 8) +u[jj+n-2];
+		}
+		obliv if (temp1 > temp2) qhat--;
+
+		//Knuth D4
+		obliv int16_t carry = 0;
+		obliv int16_t product;
+		for (size_t ii = 0; ii < n; ii++) {
+			temp1 = qhat*v[ii];
+			product = u[ii+jj] - carry - (temp1 & 0xFF);
+			u[ii+jj] = product;
+			carry = (temp1 >> 8) - (product >> 8);
+		}
+		product = u[n+jj] - carry;
+		u[n+jj] = product;
+
+
+		//Knuth D5
+		q[jj] = qhat;
+		carry = 0;
+		obliv if (product < 0) {
+			// Knuth D6
+			q[jj]--;
+			for (size_t ii = 0; ii < n; ii++) {
+				temp1 = (obliv uint16_t) u[ii+jj] + v[ii] + carry;
+				u[ii+jj] = temp1;
+				carry = temp1 >> 8;
+			}
+			u[jj+n] = u[jj+n] + carry;
+		}
+	}
+}
+
+obliv bool obig_div_mod(obig* q, obig* r, obig x, obig y) obliv {
+
+	obig u;
+	obig * uref = &u; //workaround for obliv-c quirk
+	obig v;
+	obig * vref = &v; //workaround for obliv-c quirk
+	obliv uint8_t * q2;
+
+	size_t m = x.digits;
+	size_t n = y.digits;
+
+	~obliv(en) {
+		obig_init(uref, m + n + 1);
+		obig_init(vref, n);
+
+		if (q != NULL && q->digits > m) {
+			q2 = q->data;
+		} else {
+			q2 = calloc(m + 1, sizeof(obliv uint8_t));
+		}
+	}
+
+	// Normalize inputs (Knuth D1)
+	obliv size_t normalize_amount = knuth_d_count_leading_zeros(y.data, n);
+	obliv bool success = normalize_amount < (n * 8);
+
+	obig_shl_onative(uref, x, normalize_amount);
+	obig_shl_onative(vref, y, normalize_amount);
+
+	knuth_d(u.data, v.data, q2, n, m);
+
+	// Unnormalize output (Knuth D7)
+	if (r != NULL) obig_shr_onative(r, u, normalize_amount);
+
+	~obliv (en) {
+		if (q != NULL) {
+			if (q2 == q->data) {
+				for (size_t ii = m + 2; ii < q->digits; ii++) {
+					q->data[ii] = 0;
+				}
+			} else {
+				for (size_t ii = 0; ii < q->digits; ii++) {
+					q->data[ii] = q2[ii];
+				}
+				free(q2);
+			}
+		} else {
+			free(q2);
+		}
+		
+		obig_free(&u);
+		obig_free(&v);
+	}	
+
+	return success;
+}
 
 
 

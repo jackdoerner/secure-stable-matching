@@ -64,6 +64,7 @@ void obig_add(obig* out, obig x, obig y) obliv;
 void obig_sub(obig* out, obig x, obig y) obliv;
 
 void obig_mul(obig* out, obig x, obig y) obliv;
+obliv bool obig_div_mod(obig* q, obig*r, obig x, obig y) obliv;
 
 void obig_not(obig* out, obig x) obliv;
 void obig_and(obig* out, obig x, obig y) obliv;
