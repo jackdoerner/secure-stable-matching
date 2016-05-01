@@ -143,22 +143,51 @@ void obig_set_pointed(obig* x, void* p, size_t s) obliv {
 
 /* comparators */
 
-obliv bool obig_eq(obig x, obig y) obliv;
+obliv bool obig_eq(obig x, obig y) obliv {
+	obliv bool result = true;
+	for (size_t ii = 0; ii < max(x.digits, y.digits); ii++) {
+		if (ii < x.digits && ii < y.digits) {
+			result &= x.data[ii] == y.data[ii];
+		} else if (ii < x.digits) {
+			result &= x.data[ii] == 0;
+		} else if (ii < y.digits) {
+			result &= y.data[ii] == 0;
+		}
+	}
+	return result;
+}
+
 obliv bool obig_eq_signed(obig x, obig y) obliv;
-obliv bool obig_gt(obig x, obig y) obliv;
+
+obliv bool obig_gt(obig x, obig y) obliv {
+	return obig_cmp(x, y) > 0;
+}
+
 obliv bool obig_gt_signed(obig x, obig y) obliv;
-obliv bool obig_lt(obig x, obig y) obliv;
+
+obliv bool obig_lt(obig x, obig y) obliv {
+	return obig_cmp(x, y) < 0;
+}
+
 obliv bool obig_lt_signed(obig x, obig y) obliv;
-obliv bool obig_gte(obig x, obig y) obliv;
+
+obliv bool obig_gte(obig x, obig y) obliv {
+	return obig_cmp(x, y) >= 0;
+}
+
 obliv bool obig_gte_signed(obig x, obig y) obliv;
-obliv bool obig_lte(obig x, obig y) obliv;
+
+obliv bool obig_lte(obig x, obig y) obliv {
+	return obig_cmp(x, y) <= 0;
+}
+
 obliv bool obig_lte_signed(obig x, obig y) obliv;
 
 obliv bool obig_gtz(obig x) obliv {
-	obliv bool result = 0;
+	obliv bool result = false;
 	for (size_t ii = 0; ii < x.digits; ii++) {
 		obliv if (x.data[ii] > 0) {
-			result = 1;
+			result = true;
 		}
 	}
 	return result;
@@ -182,7 +211,21 @@ obliv bool obig_eqz(obig x) obliv {
 	return result;
 }
 
-obliv int8_t obig_cmp(obig x, obig y) obliv;
+obliv int8_t obig_cmp(obig x, obig y) obliv {
+	obliv int8_t result = 0;
+	for (size_t ii = 0; ii < max(x.digits, y.digits); ii++) {
+		if (ii < x.digits && ii < y.digits) {
+			obliv if (x.data[ii] < y.data[ii]) result = -1;
+			else obliv if (x.data[ii] > y.data[ii]) result = 1;
+		} else if (ii < x.digits) {
+			obliv if (x.data[ii] > 0) result = 1;
+		} else if (ii < y.digits) {
+			obliv if (y.data[ii] > 0) result = -1;
+		}
+	}
+	return result;
+}
+
 obliv int8_t obig_cmp_signed(obig x, obig y) obliv;
 
 /* nondestructive elementary math */
