@@ -975,7 +975,7 @@ fprintf(stderr, "\n");
 }
 
 {	// obig_multiply - augmented assignment y
-	unsigned int x = 0x7E48A840;
+	unsigned int x = 0x8E48A840;
 	unsigned int y = 0xA7E0DD18;
 	unsigned int expected = x * y;
 
@@ -1007,6 +1007,47 @@ fprintf(stderr, "\n");
 	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result);
+}
+
+{	// obig_multiply - odd sized inputs
+	unsigned int x = 0x7E48A840;
+	unsigned int y = 0xA7E0DD18;
+	unsigned long long expected = (unsigned long long)x * (unsigned long long)y;
+
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int) + 1);
+	obig_init(&y_test, sizeof(int) + 1);
+	obig_init(&result, sizeof(long long));
+
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
+	unsigned char temp;
+	unsigned long long output;
+
+	obig_mul(&result, x_test, y_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - odd sized inputs", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != output) {
+		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
 
 	obig_free(&x_test);

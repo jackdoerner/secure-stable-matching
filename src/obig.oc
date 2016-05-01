@@ -27,7 +27,7 @@ obliv bool obyte_msb_is_one(obliv uint8_t x) obliv {
 
 void obig_init(obig* x, size_t bytes) {
 	x->digits = bytes; //ceildiv(bytes,sizeof(big_digit));
-	x->data = malloc(sizeof(obliv uint8_t) * x->digits);
+	x->data = calloc(x->digits, sizeof(obliv uint8_t));
 }
 
 void obig_free(obig* x) {
@@ -39,7 +39,7 @@ void obig_free(obig* x) {
 void obig_resize(obig* x, size_t bytes) {
 	obig temp;
 	temp.digits = bytes; //ceildiv(bytes, sizeof(big_digit));
-	temp.data = malloc(sizeof(obliv uint8_t) * temp.digits);
+	temp.data = calloc(temp.digits, sizeof(obliv uint8_t));
 
 	obig_copy(&temp, *x);
 
@@ -53,33 +53,37 @@ void obig_match_sizes(obig* x, obig* y);
 void obig_match_sizes_signed(obig* x, obig* y);
 
 void obig_copy(obig* out, obig in) obliv {
-	for (size_t ii = 0; ii < out->digits; ii++) {
-		if (ii < in.digits) {
-			out->data[ii] = in.data[ii];
-		} else {
-			out->data[ii] = 0;
+	if (out->data != in.data) {
+		for (size_t ii = 0; ii < out->digits; ii++) {
+			if (ii < in.digits) {
+				out->data[ii] = in.data[ii];
+			} else {
+				out->data[ii] = 0;
+			}
 		}
 	}
 }
 
 void obig_copy_signed(obig* out, obig in) obliv {
-	if (out->digits > in.digits) {
-		obliv bool inputIsNegative = obyte_msb_is_one(in.data[in.digits-1]);
-		for (size_t ii = 0; ii < out->digits; ii++) {
-			if (ii < in.digits) {
-				out->data[ii] = in.data[ii];
-			} else {
-				// sign extend with MSB of input
-				obliv if(inputIsNegative > 0) {
-					out->data[ii] = -1;	
+	if (out->data != in.data) {
+		if (out->digits > in.digits) {
+			obliv bool inputIsNegative = obyte_msb_is_one(in.data[in.digits-1]);
+			for (size_t ii = 0; ii < out->digits; ii++) {
+				if (ii < in.digits) {
+					out->data[ii] = in.data[ii];
 				} else {
-					out->data[ii] = 0;
+					// sign extend with MSB of input
+					obliv if(inputIsNegative > 0) {
+						out->data[ii] = -1;	
+					} else {
+						out->data[ii] = 0;
+					}
 				}
 			}
-		}
-	} else {
-		for (size_t ii = 0; ii < out->digits; ii++) {
-			out->data[ii] = in.data[ii];
+		} else {
+			for (size_t ii = 0; ii < out->digits; ii++) {
+				out->data[ii] = in.data[ii];
+			}
 		}
 	}
 }
@@ -183,85 +187,66 @@ obliv int8_t obig_cmp_signed(obig x, obig y) obliv;
 
 /* nondestructive elementary math */
 
-void obig_shl1(obig* out, obig x) obliv {
-	obliv uint8_t rem = 0;
-	obliv uint8_t lastRem = 0;
-	for (size_t ii = 0; ii < out->digits; ii++) {
-		if (ii < x.digits) {
-			rem = x.data[ii] & 0x80;
-			obliv if (lastRem > 0) {
-				out->data[ii] = (x.data[ii] << 1) | 1;
-			} else {
-				out->data[ii] = x.data[ii] << 1;
+void obig_shl_native(obig* out, obig x, size_t y) obliv {
+	size_t y_digits = y >> 3;
+	uint8_t y_bits = y & 0x7;
+
+	for (size_t ii = x.digits + y_digits; ii < out->digits; ii ++) {
+		out->data[ii] = 0;
+	}
+
+	if (out->digits > y_digits) {
+		size_t ii = min(out->digits - y_digits, x.digits);
+		if (ii+y_digits < out->digits) out->data[ii+y_digits] = (x.data[ii-1] >> (8-y_bits));
+		do {
+			ii--;
+			out->data[ii+y_digits] = x.data[ii] << y_bits;	
+			if (ii > 0) {
+				out->data[ii+y_digits] |= (x.data[ii-1] >> (8-y_bits));
 			}
-			lastRem = rem;
-		} else if (ii == x.digits) {
-			obliv if (lastRem > 0) {
-				out->data[ii] = 1;
-			} else {
-				out->data[ii] = 0;
-			}
-		} else {
+		} while (ii > 0);
+	}
+
+	for (size_t ii = 0; ii < min(y_digits, out->digits); ii++) {
+		out->data[ii] = 0;
+	}
+}
+
+void obig_shl_onative(obig* out, obig x, obliv size_t y) obliv {
+	obig_copy(out, x);
+	for (size_t ii = 0; ii < sizeof(y)/sizeof(obliv bool); ii++) {
+		obliv if (y & 1 > 0) {
+			obig_shl_native(out, *out, 1 << ii);
+		}
+		y >>= 1;
+	}
+}
+
+void obig_shr_native(obig* out, obig x, size_t y) obliv {
+	size_t y_digits = y >> 3;
+	uint8_t y_bits = y & 0x7;
+
+	for (size_t ii = 0; (ii < out->digits) && (ii+y_digits < x.digits); ii++) {
+		out->data[ii] = x.data[ii+y_digits] >> y_bits;
+		if (ii+y_digits+1 < x.digits) {
+			out->data[ii] = out->data[ii] | (x.data[ii+y_digits+1] << (8-y_bits));
+		}
+	}
+
+	if (y_digits <= x.digits) {
+		for (size_t ii = x.digits-y_digits; ii < out->digits; ii++) {
 			out->data[ii] = 0;
 		}
 	}
 }
 
-void obig_shl_native(obig* out, obig x, uint32_t y) obliv {
-	if (y > 0) {
-		obig_shl1(out, x);
-	} else {
-		obig_copy(out, x);
-	}
-	for (size_t ii = 1; ii < y; ii ++) {
-		obig_shl1(out, *out);
-	}
-}
-
-void obig_shl_onative(obig* out, obig x, obliv uint32_t y) obliv {
+void obig_shr_onative(obig* out, obig x, obliv size_t y) obliv {
 	obig_copy(out, x);
-	for (size_t ii = 0; ii < x.digits; ii++) {
-		obliv if (ii < y) {
-			obig_shl1(out, *out);
+	for (size_t ii = 0; ii < sizeof(y)/sizeof(obliv bool); ii++) {
+		obliv if (y & 1 > 0) {
+			obig_shr_native(out, *out, 1 << ii);
 		}
-	}
-}
-
-void obig_shr1(obig* out, obig x) obliv {
-	obliv uint8_t rem = 0;
-	obliv uint8_t lastRem = 0;
-	for (size_t ii = out->digits - 1; ii >= 0; ii--) {
-		if (ii >= x.digits) {
-			out->data[ii] = 0;
-		} else {
-			rem = x.data[ii] & 1;
-			obliv if (lastRem > 0) {
-				out->data[ii] = (x.data[ii] >> 1) | 0x80;
-			} else {
-				out->data[ii] = (x.data[ii] >> 1);
-			}
-			lastRem = rem;
-		}
-	}
-}
-
-void obig_shr_native(obig* out, obig x, uint32_t y) obliv {
-	if (y > 0) {
-		obig_shr1(out, x);
-	} else {
-		obig_copy(out, x);
-	}
-	for (uint32_t ii = 1; ii < y; ii ++) {
-		obig_shr1(out, *out);
-	}
-}
-
-void obig_shr_onative(obig* out, obig x, obliv uint32_t y) obliv {
-	obig_copy(out, x);
-	for (size_t ii = 0; ii < x.digits; ii++) {
-		obliv if (ii < y) {
-			obig_shr1(out, *out);
-		}
+		y >>= 1;
 	}
 }
 
@@ -381,6 +366,9 @@ void kcm_comba(size_t n,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obli
 
 #define COMBA_THRESHOLD 1
 void kcm(size_t n,obliv uint8_t *t,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
+	/* This function is an implimentation of the Karatsuba-Comba multiplication method,
+	adapted from the MIRACL multiprecision library */
+
 	if ((n % 2 != 0) | (n <= COMBA_THRESHOLD)) {
 		kcm_comba(n,x,y,z);
 		return;

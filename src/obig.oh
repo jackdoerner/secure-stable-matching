@@ -54,12 +54,10 @@ obliv int8_t obig_cmp_signed(obig x, obig y) obliv;
 
 /* nondestructive elementary math - pass the same obig for first and second parameter for augmented assignment */
 
-void obig_shl1(obig* out, obig x) obliv;
-void obig_shl_native(obig* out, obig x, uint32_t y) obliv;
-void obig_shl_onative(obig* out, obig x, obliv uint32_t y obliv);
-void obig_shr1(obig* out, obig x) obliv;
-void obig_shr_native(obig* out, obig x, uint32_t y) obliv;
-void obig_shr_onative(obig* out, obig x, obliv uint32_t y) obliv;
+void obig_shl_native(obig* out, obig x, size_t y) obliv;
+void obig_shl_onative(obig* out, obig x, obliv size_t y) obliv;
+void obig_shr_native(obig* out, obig x, size_t y) obliv;
+void obig_shr_onative(obig* out, obig x, obliv size_t y) obliv;
 
 void obig_neg(obig* out, obig x) obliv;
 void obig_add(obig* out, obig x, obig y) obliv;

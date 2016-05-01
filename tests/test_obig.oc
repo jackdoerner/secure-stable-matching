@@ -12,10 +12,10 @@ void testMain(void*varg) {
 
 	#include "test_obig_components/memory.oc"
 	#include "test_obig_components/assignment.oc"
-	#include "test_obig_components/comparison.oc"
-	#include "test_obig_components/arithmetic.oc"
 	#include "test_obig_components/bitlogic.oc"
 	#include "test_obig_components/bitshifts.oc"
+	#include "test_obig_components/comparison.oc"
+	#include "test_obig_components/arithmetic.oc"
 
 	fprintf(stderr, "\n");
 
