@@ -212,6 +212,7 @@ void obig_shl_native(obig* out, obig x, size_t y) obliv {
 	}
 }
 
+//TODO: perform as few shifts as necessary for a given output length
 void obig_shl_onative(obig* out, obig x, obliv size_t y) obliv {
 	obig_copy(out, x);
 	for (size_t ii = 0; ii < sizeof(y)/sizeof(obliv bool); ii++) {
@@ -240,6 +241,7 @@ void obig_shr_native(obig* out, obig x, size_t y) obliv {
 	}
 }
 
+//TODO: perform as few shifts as necessary for a given output length
 void obig_shr_onative(obig* out, obig x, obliv size_t y) obliv {
 	obig temp;
 	obig* tempref = &temp; //workaround for obliv-c bug
@@ -323,7 +325,7 @@ void obig_sub(obig* out, obig x, obig y) obliv {
 
 
 
-obliv uint8_t kcm_add(obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
+obliv uint8_t karatsuba_add(obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
 	obliv uint8_t rem = 0;
 	for (size_t ii = 0; ii < n; ii ++) {
 		obliv uint16_t eresult = x[ii] + y[ii] + rem;
@@ -333,7 +335,7 @@ obliv uint8_t kcm_add(obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z,size_t 
 	return rem;
 }
 
-obliv uint8_t kcm_aadd(obliv uint8_t *x,obliv uint8_t *z,size_t n) obliv {
+obliv uint8_t karatsuba_aadd(obliv uint8_t *x,obliv uint8_t *z,size_t n) obliv {
 	obliv uint8_t rem = 0;
 	for (size_t ii = 0; ii < n; ii ++) {
 		obliv uint16_t eresult = z[ii] + x[ii] + rem;
@@ -343,7 +345,7 @@ obliv uint8_t kcm_aadd(obliv uint8_t *x,obliv uint8_t *z,size_t n) obliv {
 	return rem;
 }
 
-obliv uint8_t kcm_asub(obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
+obliv uint8_t karatsuba_asub(obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
 	obliv uint8_t rem = 0;
 	for (size_t ii = 0; ii < n; ii ++) {
 		obliv uint16_t eresult = z[ii] - y[ii] - rem;
@@ -353,7 +355,7 @@ obliv uint8_t kcm_asub(obliv uint8_t *y,obliv uint8_t *z,size_t n) obliv {
 	return rem;
 }
 
-void kcm_comba(size_t n,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
+void karatsuba_comba(size_t n,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
 	obliv uint32_t temp = 0;
 	for (size_t ii = 0; ii < n*2; ii++) {
 		size_t bo = min(ii, n-1);
@@ -368,44 +370,44 @@ void kcm_comba(size_t n,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obli
 }
 
 #define COMBA_THRESHOLD 1
-void kcm(size_t n,obliv uint8_t *t,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
+void karatsuba(size_t n,obliv uint8_t *t,obliv uint8_t *x,obliv uint8_t *y,obliv uint8_t *z) obliv {
 	/* This function is an implimentation of the Karatsuba-Comba multiplication method,
 	adapted from the MIRACL multiprecision library */
 
 	if ((n % 2 != 0) | (n <= COMBA_THRESHOLD)) {
-		kcm_comba(n,x,y,z);
+		karatsuba_comba(n,x,y,z);
 		return;
 	}
 
 	size_t nd2 = n/2;
 
-	obliv uint8_t c1=kcm_add(x,&x[nd2],z,nd2);
-    obliv uint8_t c2=kcm_add(y,&y[nd2],&z[nd2],nd2);
+	obliv uint8_t c1=karatsuba_add(x,&x[nd2],z,nd2);
+	obliv uint8_t c2=karatsuba_add(y,&y[nd2],&z[nd2],nd2);
 
-    obliv uint8_t c=0;
-    kcm(nd2,&t[n],z,&z[nd2],t);
-    obliv if (c1 > 0) c+=kcm_aadd(&z[nd2],&t[nd2],nd2);
-    obliv if (c2 > 0) c+=kcm_aadd(z,&t[nd2],nd2);
-    obliv if ((c1 & c2) > 0) c++;
+	obliv uint8_t c=0;
+	karatsuba(nd2,&t[n],z,&z[nd2],t);
+	obliv if (c1 > 0) c+=karatsuba_aadd(&z[nd2],&t[nd2],nd2);
+	obliv if (c2 > 0) c+=karatsuba_aadd(z,&t[nd2],nd2);
+	obliv if ((c1 & c2) > 0) c++;
 
-    kcm(nd2,&t[n],x,y,z);
-    c-=kcm_asub(z,t,n);           /* subtract a0*b0 */
+	karatsuba(nd2,&t[n],x,y,z);
+	c-=karatsuba_asub(z,t,n);           /* subtract a0*b0 */
 
-    kcm(nd2,&t[n],&x[nd2],&y[nd2],&z[n]);
-    c-=kcm_asub(&z[n],t,n);       /* subtract a1*b1 */
+	karatsuba(nd2,&t[n],&x[nd2],&y[nd2],&z[n]);
+	c-=karatsuba_asub(&z[n],t,n);       /* subtract a1*b1 */
 
-    c+=kcm_aadd(t,&z[nd2],n);    /* combine results */
+	c+=karatsuba_aadd(t,&z[nd2],n);    /* combine results */
 
-    size_t ii=n+nd2;
-    z[ii]+=c;
-    obliv bool keepcarrying = true;
-    for (ii++;ii<n*2;ii++) { /* propagate carries */
-    	obliv if (z[n+nd2]<c & keepcarrying & ((ii == n+nd2 + 1) | (z[ii-1]==0))) {
-    		z[ii]++;
-    	} else {
-    		keepcarrying = false;
-    	}
-    }
+	size_t ii=n+nd2;
+	z[ii]+=c;
+	obliv bool keepcarrying = true;
+	for (ii++;ii<n*2;ii++) { /* propagate carries */
+		obliv if (z[n+nd2]<c & keepcarrying & ((ii == n+nd2 + 1) | (z[ii-1]==0))) {
+			z[ii]++;
+		} else {
+			keepcarrying = false;
+		}
+	}
 }
 
 void obig_mul(obig* out, obig x, obig y) obliv {
@@ -444,7 +446,7 @@ void obig_mul(obig* out, obig x, obig y) obliv {
 			z = out->data;
 		}
 
-		obliv if (en) kcm(indigits,temp, x2, y2, z);
+		obliv if (en) karatsuba(indigits,temp, x2, y2, z);
 
 		if (x.digits < indigits) {
 			free(x2);
@@ -548,6 +550,15 @@ void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, siz
 	}
 }
 
+void knuth_d_1(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, obliv uint8_t * r, size_t m) obliv {
+	obliv int16_t carry = 0;                            
+	for (int64_t jj = m - 1; jj >= 0; jj--) {    
+		q[jj] = ((carry << 8) + u[jj])/v[0];      
+		carry = ((carry << 8) + u[jj]) - q[jj]*v[0];
+	}
+	r[0] = carry;
+}
+
 obliv bool obig_div_mod(obig* q, obig* r, obig x, obig y) obliv {
 
 	obig u;
@@ -555,13 +566,18 @@ obliv bool obig_div_mod(obig* q, obig* r, obig x, obig y) obliv {
 	obig v;
 	obig * vref = &v; //workaround for obliv-c quirk
 	obliv uint8_t * q2;
+	obliv uint8_t * r2;
+	obliv bool success;
 
 	size_t m = x.digits;
 	size_t n = y.digits;
 
 	~obliv(en) {
-		obig_init(uref, m + n + 1);
-		obig_init(vref, n);
+
+		if (n > 1) {
+			obig_init(uref, m + n + 1);
+			obig_init(vref, n);
+		}
 
 		if (q != NULL && q->digits > m) {
 			q2 = q->data;
@@ -570,17 +586,32 @@ obliv bool obig_div_mod(obig* q, obig* r, obig x, obig y) obliv {
 		}
 	}
 
-	// Normalize inputs (Knuth D1)
-	obliv size_t normalize_amount = knuth_d_count_leading_zeros(y.data, n);
-	obliv bool success = normalize_amount < (n * 8);
+	if (n > 1) {
+		// Normalize inputs (Knuth D1)
+		obliv size_t normalize_amount = knuth_d_count_leading_zeros(y.data, n);
+		success = normalize_amount < (n * 8);
 
-	obig_shl_onative(uref, x, normalize_amount);
-	obig_shl_onative(vref, y, normalize_amount);
+		obig_shl_onative(uref, x, normalize_amount);
+		obig_shl_onative(vref, y, normalize_amount);
 
-	knuth_d(u.data, v.data, q2, n, m);
+		knuth_d(u.data, v.data, q2, n, m);
 
-	// Unnormalize output (Knuth D7)
-	if (r != NULL) obig_shr_onative(r, u, normalize_amount);
+		// Unnormalize output (Knuth D7)
+		if (r != NULL) obig_shr_onative(r, u, normalize_amount);
+	} else {
+		obliv uint8_t rtemp;
+		if (r != NULL) r2 = r->data;
+		else r2 = &rtemp;
+
+		success = y.data[0] > 0;
+		knuth_d_1(x.data, y.data, q2, r2, m);
+
+		if (r != NULL) {
+			for (size_t ii = 1; ii < r->digits; ii++) {
+				r->data[ii] = 0;
+			}
+		}
+	}
 
 	~obliv (en) {
 		if (q != NULL) {
@@ -598,8 +629,10 @@ obliv bool obig_div_mod(obig* q, obig* r, obig x, obig y) obliv {
 			free(q2);
 		}
 		
-		obig_free(&u);
-		obig_free(&v);
+		if (n > 1) {
+			obig_free(&u);
+			obig_free(&v);
+		}
 	}	
 
 	return success;

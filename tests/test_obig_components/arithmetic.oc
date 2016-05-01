@@ -1713,3 +1713,328 @@ fprintf(stderr, "\n");
 	obig_free(&result_q);
 	obig_free(&result_r);
 }
+
+
+
+
+
+/******************************************
+ ******************************************
+ *** obig_div_mod - one digit divisor
+ ******************************************
+ ******************************************/
+
+{	// obig_div_mod
+	unsigned int x = 0x7E48A840;
+	unsigned char y = 0x18;
+	unsigned int expected_q = x / y;
+	unsigned int expected_r = x % y;
+
+	obliv unsigned int xo;
+	obliv unsigned char yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivChar(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(char));
+	obig_init(&result_q, sizeof(int));
+	obig_init(&result_r, sizeof(int));
+
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
+	unsigned char temp;
+	unsigned output_q;
+	unsigned output_r;
+
+	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	bool tempBool;
+	revealOblivBool(&tempBool, success, 0);
+
+	for (int ii = result_q.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_q.data[ii], 0);
+		output_q <<= 8;
+		output_q += temp;
+	}
+
+	for (int ii = result_r.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_r.data[ii], 0);
+		output_r <<= 8;
+		output_r += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	}
+	if (expected_r != output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
+
+{	// obig_div_mod - divisor larger than dividend
+	unsigned char y = 0x40;
+	unsigned int x = 0x00000028;
+	unsigned int expected_q = x / y;
+	unsigned int expected_r = x % y;
+
+	obliv unsigned int xo;
+	obliv unsigned char yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivChar(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(char));
+	obig_init(&result_q, sizeof(int));
+	obig_init(&result_r, sizeof(int));
+
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
+	unsigned char temp;
+	unsigned output_q;
+	unsigned output_r;
+
+	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	bool tempBool;
+	revealOblivBool(&tempBool, success, 0);
+
+	for (int ii = result_q.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_q.data[ii], 0);
+		output_q <<= 8;
+		output_q += temp;
+	}
+
+	for (int ii = result_r.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_r.data[ii], 0);
+		output_r <<= 8;
+		output_r += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - divisor larger than dividend", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	}
+	if (expected_r != output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
+
+{	// obig_div_mod - division by 0
+	unsigned int x = 0x7E48A840;
+	unsigned char y = 0x0;
+
+	obliv unsigned int xo;
+	obliv unsigned char yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivChar(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(char));
+	obig_init(&result_q, sizeof(int));
+	obig_init(&result_r, sizeof(int));
+
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
+
+	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	bool tempBool;
+	revealOblivBool(&tempBool, success, 0);
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - division by 0", (!tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
+
+{	// obig_div_mod - augmented assignment
+	unsigned int x = 0xF94AE840;
+	unsigned char y = 0x08;
+	unsigned int expected_q = x / y;
+	unsigned char expected_r = x % y;
+
+	obliv unsigned int xo;
+	obliv unsigned char yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivChar(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(char));
+
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
+	unsigned char temp;
+	unsigned output_q;
+	unsigned output_r;
+
+	obliv bool success = obig_div_mod(&x_test, &y_test, x_test, y_test);
+	bool tempBool;
+	revealOblivBool(&tempBool, success, 0);
+
+	for (int ii = x_test.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, x_test.data[ii], 0);
+		output_q <<= 8;
+		output_q += temp;
+	}
+
+	for (int ii = y_test.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, y_test.data[ii], 0);
+		output_r <<= 8;
+		output_r += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - augmented assignment", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	}
+	if (expected_r != output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+}
+
+{	// obig_div_mod
+	unsigned char x = 0x48;
+	unsigned char y = 0x19;
+	unsigned int expected_q = x / y;
+	unsigned int expected_r = x % y;
+
+	obliv unsigned char xo;
+	obliv unsigned char yo;
+	xo = feedOblivChar(x, 1);
+	yo = feedOblivChar(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+
+	obig_init(&x_test, sizeof(char));
+	obig_init(&y_test, sizeof(char));
+	obig_init(&result_q, sizeof(int));
+	obig_init(&result_r, sizeof(int));
+
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
+	unsigned char temp;
+	unsigned output_q;
+	unsigned output_r;
+
+	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	bool tempBool;
+	revealOblivBool(&tempBool, success, 0);
+
+	for (int ii = result_q.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_q.data[ii], 0);
+		output_q <<= 8;
+		output_q += temp;
+	}
+
+	for (int ii = result_r.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_r.data[ii], 0);
+		output_r <<= 8;
+		output_r += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - matched inputs", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	}
+	if (expected_r != output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
+
+{	// obig_div_mod
+	unsigned int x = 0x7E48A840;
+	unsigned char y = 0x48;
+	unsigned char expected_q = x / y;
+	unsigned char expected_r = x % y;
+
+	obliv unsigned int xo;
+	obliv unsigned char yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivChar(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(char));
+	obig_init(&result_q, sizeof(char));
+	obig_init(&result_r, sizeof(char));
+
+	obig_set_onative(&x_test, xo);
+	obig_set_onative(&y_test, yo);
+	unsigned char temp;
+	unsigned char output_q;
+	unsigned char output_r;
+
+	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	bool tempBool;
+	revealOblivBool(&tempBool, success, 0);
+
+	for (int ii = result_q.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_q.data[ii], 0);
+		output_q <<= 8;
+		output_q += temp;
+	}
+
+	for (int ii = result_r.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_r.data[ii], 0);
+		output_r <<= 8;
+		output_r += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - truncated outputs", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	}
+	if (expected_r != output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
