@@ -49,5 +49,137 @@ void testMain(void*varg) {
 		fprintf(stderr, "Test Item: %-70s %s\n", "ogale_shapley - 3 couples", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	}
 
+	{
+		uint32_t rPrefsRaw[27] = {
+			0, 1, 2,
+			2, 0, 1,
+			2, 0, 1,
+			1, 0, 2,
+			1, 2, 0,
+			1, 2, 0,
+			0, 2, 1,
+			0, 1, 2,
+			0, 1, 2
+		};
+
+		uint32_t hPrefsRaw[27] = {
+			8, 1, 2, 3, 4, 5, 6, 7, 0,
+			3, 2, 6, 0, 7, 1, 4, 5, 8,
+			1, 0, 8, 7, 6, 2, 3, 4, 5
+		};
+
+		uint32_t expected_output[9] = {
+			8, 6, 7,
+			3, 1, 0,
+			5, 4, 2
+		};
+
+		oroth_peranson_preference rPrefs[27];
+		oroth_peranson_preference hPrefs[27];
+
+		oroth_peranson_resident_data rData[9] = {
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[0]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[3]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[6]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[9]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[12]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[15]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[18]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[21]
+			},
+			{
+				.preferences_bound = 3,
+				.preferences = &rPrefs[24]
+			}
+		};
+
+		oroth_peranson_hospital_data hData[3] = {
+			{
+				.preferences_bound = 9,
+				.preferences = &hPrefs[0],
+				.positions_bound = 3,
+				.positions_available = 3,
+			},
+			{
+				.preferences_bound = 9,
+				.preferences = &hPrefs[9],
+				.positions_bound = 3,
+				.positions_available = 3,
+			},
+			{
+				.preferences_bound = 9,
+				.preferences = &hPrefs[18],
+				.positions_bound = 3,
+				.positions_available = 3,
+			}
+		};
+
+
+
+		obliv int32_t matches[9];
+		oroth_peranson_hospital_output output[3] = {
+			{
+				.matches = &matches[0],
+				.positions_bound = 3,
+				.positions_available = 3,
+			},
+			{
+				.matches = &matches[9],
+				.positions_bound = 3,
+				.positions_available = 3,
+			},
+			{
+				.matches = &matches[18],
+				.positions_bound = 3,
+				.positions_available = 3,
+			},
+		};
+
+
+		for (int ii = 0; ii < 27; ii++) {
+			rPrefs[ii].id = ii % 3;
+			rPrefs[ii].rank = feedOblivInt(rPrefsRaw[ii], 0);
+			hPrefs[ii].id = ii % 9;
+			hPrefs[ii].rank = feedOblivInt(hPrefsRaw[ii], 0);
+		}
+
+		oroth_peranson(output, rData, 9, hData, 3);
+
+		bool success = true;
+
+		uint32_t temp;
+		for (int ii = 0; ii < 3; ii++) {
+			for (int jj = 0; jj < 3; jj ++) {
+				revealOblivInt(&temp, output[ii].matches[jj], 0);
+				success &= (temp == expected_output[ii*3+jj]);
+			}
+		}
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 9 residents/3 hospitals", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	}
+
 
 }

@@ -5,6 +5,7 @@
 #include "osort.oh"
 #include "shuffle.oh"
 #include "waksman.h"
+#include "util.h"
 
 #include <stdio.h>
 
@@ -12,7 +13,7 @@ static void * element(OcCopy* cpy,void * arr, int x) obliv {
 	return x*cpy->eltsize+(char*)arr;
 }
 
-void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
+void ogs_wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
 	obliv uint32_t * ob = (obliv uint32_t *) oramBlock;
 	obliv uint32_t * eb = (obliv uint32_t *) extBlock;
 	obliv uint32_t * temp;
@@ -29,7 +30,7 @@ void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
 	}
 }
 
-obliv char pref_cmp(OcCopy * cpy, void * el1, void * el2) {
+obliv char ogs_pref_cmp(OcCopy * cpy, void * el1, void * el2) {
 	obliv char result;
 	obliv if ( ((obliv uint32_t *) el1)[2] <= ((obliv uint32_t *) el2)[2] ) {
 		result = -1;
@@ -70,7 +71,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 
 			ocCopy(&cpy5, element(&cpy5, prefs, ii*n+jj), thisPref); 
 		}
-		osort_batcher(&cpy5, element(&cpy5,prefs,ii * n), n, pref_cmp);
+		osort_batcher(&cpy5, element(&cpy5,prefs,ii * n), n, ogs_pref_cmp);
 	}
 
 	for (size_t ii = 0; ii < n; ii++) {
@@ -125,7 +126,7 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 			thisWStatus[1] = thisPref[4];
 			thisWStatus[2] = thisPref[3];
 
-			oram_apply(wStatus, thisWStatus, wStatusFunction, thisPref[1]);
+			oram_apply(wStatus, thisWStatus, ogs_wStatusFunction, thisPref[1]);
 			obliv if (thisWStatus[0] != 0) {
 				thisWStatus[0] -= 1;
 				oqueue_push(mQueue, thisWStatus);
@@ -141,4 +142,248 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 	free(prefs);
 	oqueue_free(mQueue);
 	oram_free(wStatus);
+}
+
+
+typedef struct oroth_peranson_tentative_match {
+	obliv int32_t rid;
+	obliv int32_t hrank;
+	obliv uint32_t rnext;
+} oroth_peranson_tentative_match;
+
+typedef struct oroth_peranson_augmented_match {
+	obliv int32_t rid;
+	obliv int32_t hrank;
+	obliv uint32_t rnext;
+	uint32_t hospital_positions_bound;
+} oroth_peranson_augmented_match;
+
+typedef struct oroth_peranson_pairing {
+	obliv int32_t rid;
+	obliv int32_t rrank;
+	obliv int32_t hid;
+	obliv int32_t hrank;
+	obliv uint32_t rnext;
+} oroth_peranson_pairing;
+
+obliv char orp_pref_cmp(OcCopy * cpy, void * el1, void * el2) {
+	obliv char result;
+	obliv if ( ((oroth_peranson_pairing *) el1)->rrank <= ((oroth_peranson_pairing *) el2)->rrank ) {
+		result = -1;
+	} else {
+		result = 1;
+	}
+	return result;
+}
+
+void orp_hStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
+	obliv uint32_t * thisHospitalData = (obliv uint32_t *) oramBlock;
+	oroth_peranson_augmented_match * lowestTentativeMatch = (oroth_peranson_augmented_match *) extBlock;
+	oroth_peranson_tentative_match * thisHospitalTentativeMatches = &thisHospitalData[1];
+	obliv uint32_t temp;
+
+	for (size_t jj = 0; jj < lowestTentativeMatch->hospital_positions_bound; jj++) {
+		obliv if (jj < thisHospitalData[0]) {
+			obliv if ((lowestTentativeMatch->hrank < thisHospitalTentativeMatches[jj].hrank) | thisHospitalTentativeMatches[jj].hrank == 0) {
+				temp = thisHospitalTentativeMatches[jj].rid;
+				thisHospitalTentativeMatches[jj].rid = lowestTentativeMatch->rid;
+				lowestTentativeMatch->rid = temp;
+
+				temp = thisHospitalTentativeMatches[jj].hrank;
+				thisHospitalTentativeMatches[jj].hrank = lowestTentativeMatch->hrank;
+				lowestTentativeMatch->hrank = temp;
+
+				temp = thisHospitalTentativeMatches[jj].rnext;			
+				thisHospitalTentativeMatches[jj].rnext = lowestTentativeMatch->rnext;				
+				lowestTentativeMatch->rnext = temp;
+			}
+		}
+	}
+}
+
+void oroth_peranson(oroth_peranson_hospital_output * output, oroth_peranson_resident_data * rData, size_t residentCount, oroth_peranson_hospital_data * hData, size_t hospitalCount) {
+	/*
+		preferences will be sorted in ID order and have tuples of (ID, ranking) as values. Unranked IDs will be
+		omitted. All hospitals/residents will have preferences lists of the same length, but they will not
+		necesarily use all available slots in their ranking. (-1, -1) indicates an empty slot.	
+	*/
+	OcCopy cpy2 = ocCopyIntN(2);
+	OcCopy cpy4 = ocCopyIntN(4);
+	OcCopy cpy5 = ocCopyIntN(5);
+
+	oroth_peranson_preference * hpCurrent = calloc(hospitalCount, sizeof(oroth_peranson_preference));
+	oroth_peranson_preference * rpCurrent = calloc(residentCount, sizeof(oroth_peranson_preference));
+
+	uint32_t hpBound = 0;
+	uint32_t hmBound = 0;
+	uint32_t rpBound = 0;
+
+	oqueue ** hpQueue = malloc(hospitalCount * sizeof(oqueue *));
+	for (size_t ii = 0; ii < hospitalCount; ii ++) {
+		hpBound = max(hpBound, hData[ii].preferences_bound);
+		hmBound = max(hmBound, hData[ii].positions_bound);
+		hpQueue[ii] = oqueue_static_from_array(&cpy2, hData[ii].preferences_bound, hData[ii].preferences);
+		oqueue_pop(&hpCurrent[ii], hpQueue[ii]);
+	}
+	oqueue ** rpQueue = malloc(residentCount * sizeof(oqueue *));
+	for (size_t ii = 0; ii < residentCount; ii ++) {
+		rpBound = max(rpBound, rData[ii].preferences_bound);
+		rpQueue[ii] = oqueue_static_from_array(&cpy2, rData[ii].preferences_bound, rData[ii].preferences);
+		oqueue_pop(&rpCurrent[ii], rpQueue[ii]);
+	}
+
+	oroth_peranson_pairing * preferences = calloc(2 * residentCount * rpBound - residentCount, sizeof(oroth_peranson_pairing));
+
+	for (size_t ii = 0; ii < residentCount; ii ++) {
+		oqueue * tempQueue = oqueue_new_static(&cpy4, rpBound);
+
+		for (size_t jj = 0; jj < hospitalCount; jj++) {
+			obliv if (rpCurrent[ii].id == jj & hpCurrent[jj].id == ii & rpCurrent[ii].id != -1) {
+				oroth_peranson_pairing tempPairing = {
+					.rid = ii,
+					.rrank = rpCurrent[ii].rank,
+					.hid = jj,
+					.hrank = hpCurrent[jj].rank,
+					.rnext = 0
+				};
+				oqueue_push(tempQueue, &tempPairing);
+				obliv if (oqueue_empty(rpQueue[ii]) == false) oqueue_pop(&rpCurrent[ii], rpQueue[ii]);
+				obliv if (oqueue_empty(hpQueue[jj]) == false) oqueue_pop(&hpCurrent[jj], hpQueue[jj]);
+			}
+		}
+
+		for (size_t jj = 0; jj < rpBound; jj++) {
+			obliv if (oqueue_empty(tempQueue) == false) {
+				oqueue_pop(&preferences[ii * rpBound + jj], tempQueue);
+			} else {
+				preferences[ii * rpBound + jj].rid = -1;
+				preferences[ii * rpBound + jj].rrank = -1;
+				preferences[ii * rpBound + jj].hid = -1;
+				preferences[ii * rpBound + jj].hrank = -1;
+			}
+		}
+
+		osort_batcher(&cpy5, element(&cpy5,preferences,ii * rpBound), rpBound, orp_pref_cmp);
+
+		oqueue_free(tempQueue);
+	}
+
+	free(hpCurrent);
+	free(rpCurrent);
+
+	for (size_t ii = 0; ii < hospitalCount; ii ++) {
+		oqueue_free(hpQueue[ii]);
+	}
+
+	for (size_t ii = 0; ii < residentCount; ii ++) {
+		oqueue_free(rpQueue[ii]);
+	}
+
+	free(hpQueue);
+	free(rpQueue);
+
+	oroth_peranson_pairing thisPref;
+	obliv uint32_t oPrefPointer;
+
+	obliv uint32_t * startingLinks = calloc(residentCount, sizeof(obliv uint32_t));
+	obliv uint32_t * permutation = calloc(2 * residentCount * rpBound - residentCount, sizeof(obliv uint32_t));
+	obliv uint32_t * permutationInverse = calloc(2 * residentCount * rpBound - residentCount, sizeof(obliv uint32_t));
+	for (size_t ii = 0; ii < 2 * residentCount * rpBound - residentCount; ii++) {
+		permutation[ii] = ii;
+	}
+
+	OcPermNetwork w = ocPermNetworkRandom(2 * residentCount * rpBound - residentCount);
+	ocPermNetworkApply(&w,&ocCopyInt,permutation);
+	ocPermInverseAssumingPerm(&w, permutationInverse, permutation);
+
+	for (size_t ii = 0; ii < residentCount; ii++) {
+		startingLinks[ii] = permutationInverse[ii * rpBound];
+		for (size_t jj = 0; jj < rpBound; jj++) {
+			if (jj + 1 < rpBound) {
+				obliv if (preferences[(ii * rpBound + jj + 1)].rid == -1) {
+					preferences[(ii * rpBound + jj)].rnext = -1;
+				} else {
+					preferences[(ii * rpBound + jj)].rnext = permutationInverse[ii * rpBound + jj + 1];
+				}
+			} else {
+				preferences[(ii * rpBound + jj)].rnext = -1;
+			}
+		}
+	}
+
+	oqueue * rQueueUnconsidered = oqueue_static_from_array(&ocCopyInt, residentCount, startingLinks);
+	free(startingLinks);
+
+	obliv uint32_t nextDummy = permutationInverse[residentCount * rpBound];
+
+	for (size_t ii = residentCount * rpBound; ii < 2 * residentCount * rpBound - residentCount - 1; ii++) {
+		preferences[ii].rnext = permutationInverse[ii + 1];
+	}
+
+	preferences[2 * residentCount * rpBound - residentCount - 1].rnext = -1;
+
+	free(permutation);
+	free(permutationInverse);
+
+
+	ocPermNetworkApply(&w,&cpy5,preferences);
+	ocPermNetworkCleanup(&w);
+
+	oroth_peranson_pairing nextPotentialPairing;
+
+	uint32_t prefPointer;
+	obliv bool solutionFound = false;
+
+	OcCopy cpyhpt = ocCopyIntN((sizeof(oroth_peranson_tentative_match) * hmBound) / sizeof(obliv uint32_t) + 1);
+	obliv uint32_t * hospitalTentativeMatchesSeed = calloc(hospitalCount, sizeof(oroth_peranson_tentative_match) * hmBound + sizeof(obliv uint32_t));
+	for (size_t ii = 0; ii < hospitalCount; ii ++) {
+		hospitalTentativeMatchesSeed[ii * (sizeof(oroth_peranson_tentative_match) * hmBound / sizeof(obliv uint32_t) + 1)] = hData[ii].positions_available;
+	}
+	oram * hospitalTentativeMatches = oram_from_array(ORAM_TYPE_AUTO, &cpyhpt, hospitalCount, hospitalTentativeMatchesSeed);
+	free(hospitalTentativeMatchesSeed);
+
+	oqueue_pop(&oPrefPointer, rQueueUnconsidered);
+
+	for (size_t ii = 0; ii < residentCount * rpBound; ii++) {
+		revealOblivInt(&prefPointer, oPrefPointer, 0);
+		ocCopy(&cpy5, &nextPotentialPairing, element(&cpy5, preferences, prefPointer));
+
+		obliv if (solutionFound) {
+			oPrefPointer = nextPotentialPairing.rnext;
+		} else {
+			oroth_peranson_augmented_match lowestTentativeMatch;
+			lowestTentativeMatch.hospital_positions_bound = hmBound;
+			lowestTentativeMatch.rid = nextPotentialPairing.rid + 1;
+			lowestTentativeMatch.hrank = nextPotentialPairing.hrank + 1;
+			lowestTentativeMatch.rnext = nextPotentialPairing.rnext;
+
+			oram_apply(hospitalTentativeMatches, &lowestTentativeMatch, orp_hStatusFunction, nextPotentialPairing.hid);
+
+			obliv if (lowestTentativeMatch.rid != 0 & lowestTentativeMatch.rnext >= 0) {
+				oPrefPointer = lowestTentativeMatch.rnext;
+			} else obliv if (oqueue_empty(rQueueUnconsidered) == false) {
+				obliv bool queueworked = oqueue_pop(&oPrefPointer, rQueueUnconsidered);
+			} else {
+				solutionFound = true;
+				oPrefPointer = nextDummy;
+			}
+		}
+	}
+
+	oqueue_free(rQueueUnconsidered);
+	free(preferences);
+
+	obliv uint32_t * thisHospitalData = calloc(1, sizeof(oroth_peranson_tentative_match) * hmBound + sizeof(obliv uint32_t));
+	oroth_peranson_tentative_match * thisHospitalTentativeMatches = &thisHospitalData[1];
+
+	for (size_t ii = 0; ii < hospitalCount; ii++) {
+		oram_read(thisHospitalData, hospitalTentativeMatches, ii);
+		for (size_t jj = 0; jj < hData[ii].positions_bound; jj++) {
+			output[ii].matches[jj] = thisHospitalTentativeMatches[jj].rid - 1;
+		}
+	}
+
+	oram_free(hospitalTentativeMatches);
+	free(thisHospitalData);
+
 }

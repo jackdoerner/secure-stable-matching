@@ -5,4 +5,29 @@
 
 void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefs, obliv uint32_t * wPrefs, int n);
 
+typedef struct oroth_peranson_preference {
+	obliv int32_t id;
+	obliv int32_t rank;
+} oroth_peranson_preference;
+
+typedef struct oroth_peranson_resident_data {
+	size_t preferences_bound;
+	oroth_peranson_preference * preferences;
+} oroth_peranson_resident_data;
+
+typedef struct oroth_peranson_hospital_data {
+	size_t preferences_bound;
+	oroth_peranson_preference * preferences;
+	size_t positions_bound;
+	obliv size_t positions_available;
+} oroth_peranson_hospital_data;
+
+typedef struct oroth_peranson_hospital_output {
+	size_t positions_bound;
+	obliv size_t positions_available;
+	obliv int32_t * matches;
+} oroth_peranson_hospital_output;
+
+void oroth_peranson(oroth_peranson_hospital_output * output, oroth_peranson_resident_data * rData, size_t residentCount, oroth_peranson_hospital_data * hData, size_t hospitalCount);
+
 #endif

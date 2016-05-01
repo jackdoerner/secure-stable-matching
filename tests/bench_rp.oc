@@ -1,0 +1,177 @@
+#include <obliv.oh>
+#include "omatch.oh"
+#include "oram.oh"
+#include "test_generic.h"
+
+#include <time.h>
+#include <stdlib.h>
+
+#define SAMPLES 30
+
+static const char TESTNAME[] = "rp_benchmark";
+
+char* testName() {
+	return TESTNAME;
+}
+
+void shuffle(uint32_t *array, size_t n) {
+    if (n > 1) {
+        size_t i;
+        for (i = 0; i < n - 1; i++) 
+        {
+          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+          int t = array[j];
+          array[j] = array[i];
+          array[i] = t;
+        }
+    }
+}
+
+uint32_t unsafe_rand_range(uint32_t rangemin, uint32_t rangemax) {
+	uint32_t result;
+	if (rangemin == rangemax) {
+		result = rangemin;
+	} else {
+		result = (ocBroadcastInt(rand(),1) % (rangemax - rangemin)) + rangemin;
+	}
+	return result;
+}
+
+int pcts[] = {4,8,16,32,64,128,256,512,1024};
+int pn = sizeof(pcts)/sizeof(pcts[0]);
+
+void testMain(void*varg) {
+
+	#ifdef ORAM_OVERRIDE
+	oram_set_default_type(ORAM_OVERRIDE);
+	#endif
+
+	srand(time(NULL));
+
+	fprintf(stdout, "==========\nROTH PERANSON (resident count, hospital count, positions per hospital, sample 1, sample 2, ... sample n)\n----------\n");
+	fflush(stdout);
+
+	{
+
+		for (int ii = 0; ii < pn; ii++) {
+			int hospitals = pcts[ii];
+			int residents = pcts[ii] * 8;
+			int positions_min = 1;
+			int positions_max = min(residents, 20);
+			int hratings_per_position_min = 2;
+			int hratings_per_position_max = 10;
+			int rratings_min=min(hospitals, 5);
+			int rratings_max=min(hospitals, 20);
+			int hratings_max=min(residents, hratings_per_position_max*positions_max);
+
+			uint64_t tally = 0;
+
+			fprintf(stdout, "%d,%d,%d", residents, hospitals, positions_max);
+			fflush(stdout);
+
+			uint32_t * rperm = malloc(hospitals * sizeof(uint32_t));
+			for (int kk = 0; kk < hospitals; kk++) {
+				rperm[kk] = kk;
+			}
+
+			uint32_t * hperm = malloc(residents * sizeof(uint32_t));
+			for (int kk = 0; kk < residents; kk++) {
+				hperm[kk] = kk;
+			}
+
+			oroth_peranson_preference * rPrefs = calloc(residents*rratings_max, sizeof(oroth_peranson_preference));
+			oroth_peranson_resident_data * rData = calloc(residents, sizeof(oroth_peranson_resident_data));
+
+			for (int kk = 0; kk < residents; kk++) {
+				rData[kk] = (oroth_peranson_resident_data) {
+					.preferences = &rPrefs[kk*rratings_max],
+					.preferences_bound = rratings_max
+				};
+			}
+
+			oroth_peranson_preference * hPrefs = calloc(hospitals*hratings_max, sizeof(oroth_peranson_preference));
+			oroth_peranson_hospital_data * hData = calloc(hospitals, sizeof(oroth_peranson_hospital_data));
+
+			for (int kk = 0; kk < hospitals; kk++) {
+				hData[kk] = (oroth_peranson_hospital_data) {
+					.preferences = &hPrefs[kk*hratings_max],
+					.preferences_bound = hratings_max,
+					.positions_bound = positions_max,
+					.positions_available = positions_max
+				};
+			}
+
+			obliv int32_t * matches = calloc(hospitals*positions_max, sizeof(obliv int32_t));
+			oroth_peranson_hospital_output * output = calloc(hospitals, sizeof(oroth_peranson_hospital_output));
+
+			for (int kk = 0; kk < hospitals; kk++) {
+				output[kk] = (oroth_peranson_hospital_output) {
+					.matches = &matches[kk*positions_max],
+					.positions_bound = positions_max,
+					.positions_available = positions_max
+				};
+			}
+
+			int samples = hospitals < 128 ? SAMPLES : (hospitals < 1024 ? 3 : 1);
+
+			for (int kk = 0; kk < samples; kk++) {
+				for (int ll = 0; ll < residents; ll++) {
+					uint32_t ratings = unsafe_rand_range(rratings_min, rratings_max);
+
+					shuffle(rperm, hospitals);
+					int jj = 0;
+					for (; jj < ratings; jj++) {
+						rPrefs[ll * rratings_max + jj].id = jj;
+						rPrefs[ll * rratings_max + jj].rank = feedOblivInt(rperm[jj], 1);
+					}
+					for (; jj < rratings_max; jj++) {
+						rPrefs[ll * rratings_max + jj].id = -1;
+						rPrefs[ll * rratings_max + jj].rank = -1;
+					}
+				}
+
+				for (int ll = 0; ll < hospitals; ll++) {
+					uint32_t positions = unsafe_rand_range(positions_min, positions_max);
+					uint32_t ratings = min(hratings_max, positions * unsafe_rand_range(hratings_per_position_min, hratings_per_position_max));
+					hData[ll].positions_available = positions;
+					output[ll].positions_available = positions;
+
+					shuffle(hperm, residents);
+					int jj = 0;
+					for (; jj < ratings; jj++) {
+						hPrefs[ll * hratings_max + jj].id = jj;
+						hPrefs[ll * hratings_max + jj].rank = feedOblivInt(hperm[jj], 1);
+					}
+					for (; jj < hratings_max; jj++) {
+						hPrefs[ll * hratings_max + jj].id = -1;
+						hPrefs[ll * hratings_max + jj].rank = -1;
+					}
+				}
+
+				uint64_t startTime = current_timestamp();
+				oroth_peranson(output, rData, residents, hData, hospitals);
+				uint64_t runtime = current_timestamp() - startTime;
+
+				fprintf(stdout, ",%llu", runtime);
+				fflush(stdout);
+				tally += runtime;
+
+				
+			}
+
+			free(rperm);
+			free(hperm);
+			free(rPrefs);
+			free(hPrefs);
+			free(rData);
+			free(hData);
+			free(output);
+			free(matches);
+
+			fprintf(stdout, "\n");
+			fprintf(stderr, "ROTH PERANSON (residents:%d, hospitals:%d, max positions:%d): %llu microseconds avg\n", residents, hospitals, positions_max, tally/samples);
+		}
+
+	}
+
+}
