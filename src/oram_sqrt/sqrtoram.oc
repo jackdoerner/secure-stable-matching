@@ -114,8 +114,6 @@ struct OcSqrtOram
   int n,time,period;
   SqrtPosMap* pos;
   int indexBits;
-  obliv int activeblocki;
-  void *activeBlock;
 };
 
 // Forward declarations of OcSqrtOram methods
@@ -233,18 +231,11 @@ void ocSqrtOramRefresh(OcSqrtOram* ram)
   // Copy stash elements into the empty slots of shuff
   for(i=0;i<ram->n;++i) if(ram->usedShuff[i])
   { 
-    if (j == 0) {
-      ram->shuffi[i]=ram->activeblocki;
-      ocCopy(ram->cpy,element(ram->cpy,ram->shuff,i),
-                    ram->activeBlock);
-    } else {
-      ram->shuffi[i]=ram->stashi[j];
-      ocCopy(ram->cpy,element(ram->cpy,ram->shuff,i),
-                     element(ram->cpy,ram->stash,j));
-    }
+    ram->shuffi[i]=ram->stashi[j];
+    ocCopy(ram->cpy,element(ram->cpy,ram->shuff,i),
+                   element(ram->cpy,ram->stash,j));
     j++;
   }
-  ram->activeblocki = -1;
   ram->time=0;
 
   ocSqrtOramShuffleData(ram);
@@ -271,13 +262,11 @@ OcSqrtOram* ocSqrtOramNewAux(OcCopy* cpy,void* data,int n,int period)
   ram->n=n;
   ram->cpy=cpy;
   ram->shuff = malloc(cpy->eltsize*n);
-  ram->activeBlock = calloc(1, cpy->eltsize);
   ocCopyN(cpy,ram->shuff,data,n);
   int i;
   ram->stash = calloc(period,cpy->eltsize);
   ram->shuffi = calloc(n,sizeof(obliv int));
   ram->stashi = calloc(period,sizeof(obliv int));
-  ram->activeblocki = -1;
   for(i=0;i<n;++i) ram->shuffi[i]=i;
   { // Jack's fix for segfault during reinit with non-2^n sized orams.
     const int pkl = 3; // TODO tweak
@@ -308,49 +297,8 @@ void ocSqrtOramRelease(OcSqrtOram* ram)
   free(ram->shuffi);
   free(ram->stash);
   free(ram->shuff);
-  free(ram->activeBlock);
   free(ram->physicalTemp);
   free(ram);
-}
-
-void ocSqrtOramAccess(OcSqrtOram* ram, obliv int index,ocBlockAccessFunction fn,void* data)
-{
-  if(ram->time==ram->period) {
-    ocSqrtOramRefresh(ram);
-  }
-  int i;
-  obliv bool found=false;
-  obliv bool foundThisRound;
-  // Scan through stash
-  obliv if (ram->activeblocki == index) found = true;
-  for(i=1;i<ram->time;++i) {
-    foundThisRound = index==ram->stashi[i];
-    ocSwapCondN(ram->cpy,ram->activeBlock,element(ram->cpy,ram->stash,i), NULL, &foundThisRound, 1);
-    ocSwapCondN(&ocCopyInt,&ram->activeblocki,&ram->stashi[i],NULL, &foundThisRound, 1);
-    found&=foundThisRound;
-  }
-  obliv if (!found & ram->activeblocki >= 0) {
-    ocCopy(ram->cpy,element(ram->cpy,ram->stash,ram->time),ram->activeBlock);
-    ram->stashi[ram->time] = ram->activeblocki;
-  }
-
-  // Fake/unfake posmap lookup
-  int lookupIndex = ram->pos->getPos(ram->pos,index,found);
-  ram->usedShuff[lookupIndex]=true;
-
-  // Access one more element from shuffled array
-  obliv if (found) {
-    ocCopy(ram->cpy,element(ram->cpy,ram->stash,ram->time),
-                  element(ram->cpy,ram->shuff,lookupIndex));
-    ram->stashi[ram->time]=ram->shuffi[lookupIndex];
-  } else {
-    ocCopy(ram->cpy,ram->activeBlock,
-                  element(ram->cpy,ram->shuff,lookupIndex));
-    ram->activeblocki=ram->shuffi[lookupIndex];  
-  }
-
-  ram->time++;
-  fn(ram->cpy,ram->activeBlock,data);
 }
 
 void readerFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
@@ -360,13 +308,6 @@ void readerFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
 void writerFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
   ocCopy(cpy,oramBlock,extBlock);
 }
-
-void ocSqrtOramRead(OcSqrtOram* ram,obliv int index,void* data)
-  { ocSqrtOramAccess(ram,index,readerFunction,data); }
-
-void ocSqrtOramWrite(OcSqrtOram* ram,void* data,obliv int index)
-  { ocSqrtOramAccess(ram,index,writerFunction,data); }
-
 
 void ocSqrtOramAccessObliv(OcSqrtOram* ram, obliv int index,ocBlockAccessFunction fn,void* data) obliv
 {
@@ -378,16 +319,18 @@ void ocSqrtOramAccessObliv(OcSqrtOram* ram, obliv int index,ocBlockAccessFunctio
     obliv bool found=false;
     obliv bool foundThisRound;
     // Scan through stash
-    obliv if (ram->activeblocki == index) found = true;
+    if (ram->time > 0) {
+      obliv if (index==ram->stashi[0]) found = true;
+    }
     for(i=1;i<ram->time;++i) {
-      foundThisRound = index==ram->stashi[i];
-      ocSwapCondN(ram->cpy,ram->activeBlock,element(ram->cpy,ram->stash,i), NULL, &foundThisRound, 1);
-      ocSwapCondN(&ocCopyInt,&ram->activeblocki,&ram->stashi[i],NULL, &foundThisRound, 1);
+      foundThisRound = (index==ram->stashi[i]);
+      ocSwapCondN(ram->cpy,element(ram->cpy,ram->stash,0),element(ram->cpy,ram->stash,i), NULL, &foundThisRound, 1);
+      ocSwapCondN(&ocCopyInt,&ram->stashi[0],&ram->stashi[i],NULL, &foundThisRound, 1);
       found |= foundThisRound;
     }
     obliv if (!found & ram->time > 0) {
-      ocCopy(ram->cpy,element(ram->cpy,ram->stash,ram->time),ram->activeBlock);
-      ram->stashi[ram->time] = ram->activeblocki;
+      ocCopy(ram->cpy,element(ram->cpy,ram->stash,ram->time),element(ram->cpy,ram->stash,0));
+      ram->stashi[ram->time] = ram->stashi[0];
     }
 
     // Fake/unfake posmap lookup
@@ -400,13 +343,13 @@ void ocSqrtOramAccessObliv(OcSqrtOram* ram, obliv int index,ocBlockAccessFunctio
                     element(ram->cpy,ram->shuff,lookupIndex));
       ram->stashi[ram->time]=ram->shuffi[lookupIndex];
     } else {
-      ocCopy(ram->cpy,ram->activeBlock,
+      ocCopy(ram->cpy,element(ram->cpy,ram->stash,0),
                     element(ram->cpy,ram->shuff,lookupIndex));
-      ram->activeblocki=ram->shuffi[lookupIndex];  
+      ram->stashi[0]=ram->shuffi[lookupIndex];  
     }
 
     ram->time++;
-    obliv if (en) fn(ram->cpy,ram->activeBlock,data);
+    obliv if (en) fn(ram->cpy,element(ram->cpy,ram->stash,0),data);
   }
 }
 
