@@ -765,6 +765,8 @@ obliv bool obig_div_mod(obig* q, obig* r, obig x, obig y) obliv {
 
 
 void obig_sqrt(obig* out, obig x) obliv {
+	/* we find the square root by successive approximation */
+
 	obig square;
 	obig* squareref = &square;
 	obig temp;
