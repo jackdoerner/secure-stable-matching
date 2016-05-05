@@ -2038,3 +2038,215 @@ fprintf(stderr, "\n");
 	obig_free(&result_q);
 	obig_free(&result_r);
 }
+
+
+
+
+/******************************************
+ ******************************************
+ *** obig_sqrt
+ ******************************************
+ ******************************************/
+
+fprintf(stderr, "\n");
+
+{	// obig_sqrt
+	unsigned int x = 0xAE48A840;
+	unsigned int expected = sqrt(x);
+
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(int));
+
+	obig_set_onative(&x_test, xo);
+	unsigned char temp;
+	unsigned int output;
+
+	obig_sqrt(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != output) {
+		fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
+
+{	// obig_sqrt - unfull operand
+	unsigned int x = 0x0000A840;
+	unsigned int expected = sqrt(x);
+
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(int));
+
+	obig_set_onative(&x_test, xo);
+	unsigned char temp;
+	unsigned int output;
+
+	obig_sqrt(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - unfull operand", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != output) {
+		fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
+
+{	// obig_sqrt
+	unsigned int x = 0xAE48A840;
+	unsigned int expected = sqrt(x);
+
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+
+	obig_init(&x_test, sizeof(int));
+
+	obig_set_onative(&x_test, xo);
+	unsigned char temp;
+	unsigned int output;
+
+	obig_sqrt(&x_test, x_test);
+
+	for (int ii = x_test.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, x_test.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - augmented assignment", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != output) {
+		fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+}
+
+{	// obig_sqrt - extended output
+	unsigned int x = 0xAE48A840;
+	unsigned long long expected = sqrt(x);
+
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(long long));
+
+	obig_set_onative(&x_test, xo);
+	unsigned char temp;
+	unsigned long long output;
+
+	obig_sqrt(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != output) {
+		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
+
+{	// obig_sqrt - truncated output 1
+	unsigned int x = 0xAE48A840;
+	unsigned short expected = sqrt(x);
+
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(short));
+
+	obig_set_onative(&x_test, xo);
+	unsigned char temp;
+	unsigned short output;
+
+	obig_sqrt(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - truncated output 1", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != output) {
+		fprintf(stderr, "\tExpected:\t%04X\n\tActual: \t%04X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
+
+{	// obig_sqrt - truncated output 2
+	unsigned int x = 0xAE48A840;
+	unsigned char expected = (unsigned int)sqrt(x);
+
+	obliv unsigned int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(char));
+
+	obig_set_onative(&x_test, xo);
+	unsigned char temp;
+	unsigned char output;
+
+	obig_sqrt(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - truncated output 2", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != output) {
+		fprintf(stderr, "\tExpected:\t%02X\n\tActual: \t%02X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
