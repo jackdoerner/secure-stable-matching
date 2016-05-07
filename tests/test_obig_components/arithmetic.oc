@@ -1935,6 +1935,59 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
+{	// obig_multiply - 100 random inputs
+	unsigned int x[100];
+	unsigned int y[100];
+	unsigned long long expected[100];
+	unsigned long long output[100] = 0;
+
+	obig x_test;
+	obig y_test;
+	obig result;
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(int));
+	obig_init(&result, sizeof(long long));
+
+	bool success = true;
+
+	for (int ii = 0; ii < 100; ii++) {
+		x[ii] = ocBroadcastInt(rand(), 1);
+		y[ii] = ocBroadcastInt(rand(), 1);
+		expected[ii] = (unsigned long long) x[ii] * (unsigned long long) y[ii];
+
+		obliv unsigned int xo;
+		obliv unsigned int yo;
+		xo = feedOblivInt(x[ii], 1);
+		yo = feedOblivInt(y[ii], 1);
+
+		obig_set_onative(&x_test, xo);
+		obig_set_onative(&y_test, yo);
+		unsigned char temp;
+
+		obig_mul(&result, x_test, y_test);
+
+		for (int jj = result.digits -1; jj >= 0; jj--) {
+			revealOblivChar(&temp, result.data[jj], 0);
+			output[ii] <<= 8;
+			output[ii] += temp;
+		}
+
+		success &= (output[ii] == expected[ii]);
+
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	for (int ii = 0; ii < 100; ii++) {
+		if (expected[ii] != output[ii]) {
+			fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected[ii], output[ii]);
+		}
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result);
+}
+
 
 
 
@@ -2265,6 +2318,59 @@ fprintf(stderr, "\n");
 	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result);
+}
+
+{	// obig_mul_signed - 100 random inputs
+	int x[100];
+	int y[100];
+	long long expected[100];
+	unsigned long long output[100] = 0;
+
+	obig x_test;
+	obig y_test;
+	obig result;
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(int));
+	obig_init(&result, sizeof(long long));
+
+	bool success = true;
+
+	for (int ii = 0; ii < 100; ii++) {
+		x[ii] = ocBroadcastInt((rand()+rand()-RAND_MAX), 1);
+		y[ii] = ocBroadcastInt((rand()+rand()-RAND_MAX), 1);
+		expected[ii] = (long long) x[ii] * (long long) y[ii];
+
+		obliv int xo;
+		obliv int yo;
+		xo = feedOblivInt(x[ii], 1);
+		yo = feedOblivInt(y[ii], 1);
+
+		obig_set_onative(&x_test, xo);
+		obig_set_onative(&y_test, yo);
+		unsigned char temp;
+
+		obig_mul_signed(&result, x_test, y_test);
+
+		for (int jj = result.digits -1; jj >= 0; jj--) {
+			revealOblivChar(&temp, result.data[jj], 0);
+			output[ii] <<= 8;
+			output[ii] += temp;
+		}
+
+		success &= ((long long)output[ii] == expected[ii]);
+
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	for (int ii = 0; ii < 100; ii++) {
+		if (expected[ii] != (long long)output[ii]) {
+			fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected[ii], (long long)output[ii]);
+		}
 	}
 
 	obig_free(&x_test);
@@ -2763,6 +2869,73 @@ fprintf(stderr, "\n");
 	}
 	if (expected_r != output_r) {
 		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
+
+{	// obig_div_mod - 100 random inputs
+	unsigned int x[100];
+	unsigned int y[100];
+	unsigned int expectedq[100];
+	unsigned int expectedr[100];
+	unsigned int outputq[100] = 0;
+	unsigned int outputr[100] = 0;
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(int));
+	obig_init(&result_q, sizeof(int));
+	obig_init(&result_r, sizeof(int));
+
+	bool success = true;
+
+	for (int ii = 0; ii < 100; ii++) {
+		x[ii] = ocBroadcastInt(rand(), 1);
+		y[ii] = ocBroadcastInt(rand(), 1);
+		expectedq[ii] = x[ii] / y[ii];
+		expectedr[ii] = x[ii] % y[ii];
+
+		obliv unsigned int xo;
+		obliv unsigned int yo;
+		xo = feedOblivInt(x[ii], 1);
+		yo = feedOblivInt(y[ii], 1);
+
+		obig_set_onative(&x_test, xo);
+		obig_set_onative(&y_test, yo);
+		unsigned char temp;
+
+		obig_div_mod(&result_q, &result_r, x_test, y_test);
+
+		for (int jj = result_q.digits -1; jj >= 0; jj--) {
+			revealOblivChar(&temp, result_q.data[jj], 0);
+			outputq[ii] <<= 8;
+			outputq[ii] += temp;
+		}
+		for (int jj = result_r.digits -1; jj >= 0; jj--) {
+			revealOblivChar(&temp, result_r.data[jj], 0);
+			outputr[ii] <<= 8;
+			outputr[ii] += temp;
+		}
+
+		success &= (outputq[ii] == expectedq[ii]) && (outputr[ii] == expectedr[ii]);
+
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	for (int ii = 0; ii < 100; ii++) {
+		if (expectedq[ii] != outputq[ii]) {
+			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedq[ii], outputq[ii]);
+		}
+		if (expectedr[ii] != outputr[ii]) {
+			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedr[ii], outputr[ii]);
+		}
 	}
 
 	obig_free(&x_test);
@@ -3587,6 +3760,73 @@ fprintf(stderr, "\n");
 	}
 	if (expected_r != (short)output_r) {
 		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (short)output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
+
+{	// obig_div_mod_signed - 100 random inputs
+	int x[100];
+	int y[100];
+	int expectedq[100];
+	int expectedr[100];
+	unsigned int outputq[100] = 0;
+	unsigned int outputr[100] = 0;
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(int));
+	obig_init(&result_q, sizeof(int));
+	obig_init(&result_r, sizeof(int));
+
+	bool success = true;
+
+	for (int ii = 0; ii < 100; ii++) {
+		x[ii] = ocBroadcastInt(rand()+rand()-RAND_MAX, 1);
+		y[ii] = ocBroadcastInt(rand()+rand()-RAND_MAX, 1);
+		expectedq[ii] = x[ii] / y[ii];
+		expectedr[ii] = x[ii] % y[ii];
+
+		obliv int xo;
+		obliv int yo;
+		xo = feedOblivInt(x[ii], 1);
+		yo = feedOblivInt(y[ii], 1);
+
+		obig_set_onative(&x_test, xo);
+		obig_set_onative(&y_test, yo);
+		unsigned char temp;
+
+		obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
+
+		for (int jj = result_q.digits -1; jj >= 0; jj--) {
+			revealOblivChar(&temp, result_q.data[jj], 0);
+			outputq[ii] <<= 8;
+			outputq[ii] += temp;
+		}
+		for (int jj = result_r.digits -1; jj >= 0; jj--) {
+			revealOblivChar(&temp, result_r.data[jj], 0);
+			outputr[ii] <<= 8;
+			outputr[ii] += temp;
+		}
+
+		success &= ((int)outputq[ii] == expectedq[ii]) && ((int)outputr[ii] == expectedr[ii]);
+
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	for (int ii = 0; ii < 100; ii++) {
+		if (expectedq[ii] != (int)outputq[ii]) {
+			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedq[ii], (int)outputq[ii]);
+		}
+		if (expectedr[ii] != (int)outputr[ii]) {
+			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedr[ii], (int)outputr[ii]);
+		}
 	}
 
 	obig_free(&x_test);
