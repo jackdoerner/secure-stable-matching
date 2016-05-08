@@ -12,7 +12,7 @@ static void * element(OcCopy* cpy,void * arr, int x) obliv {
 	return x*cpy->eltsize+(char*)arr;
 }
 
-void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
+static void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
 	obliv uint32_t * ob = (obliv uint32_t *) oramBlock;
 	obliv uint32_t * eb = (obliv uint32_t *) extBlock;
 	obliv uint32_t * temp;
@@ -29,7 +29,7 @@ void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
 	}
 }
 
-obliv char pref_cmp(OcCopy * cpy, void * el1, void * el2) {
+static obliv char pref_cmp(OcCopy * cpy, void * el1, void * el2) {
 	obliv char result;
 	obliv if ( ((obliv uint32_t *) el1)[2] <= ((obliv uint32_t *) el2)[2] ) {
 		result = -1;

@@ -7,11 +7,11 @@
 
 /* Utility functions to be used only internally */
 
-uint32_t ceildiv(uint32_t dividend, uint32_t divisor) {
+static uint32_t ceildiv(uint32_t dividend, uint32_t divisor) {
 	return (dividend + divisor - 1) / divisor;
 }
 
-obliv bool obyte_msb_is_one(obliv uint8_t x) obliv {
+static obliv bool obyte_msb_is_one(obliv uint8_t x) obliv {
 	obliv bool result;
 	//big_digit pattern = ~((big_digit)-1 >> 1);
 	obliv if ((x & 0x80) == 0) {

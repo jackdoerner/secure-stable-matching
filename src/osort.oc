@@ -4,7 +4,7 @@ static void * element(OcCopy* cpy,void * arr, int x) obliv {
 	return x*cpy->eltsize+(char*)arr;
 }
 
-void osort_batcher_swap(OcCopy * cpy, void* data, size_t step, size_t start,size_t end, osort_cmp_function cmpFn) {
+static void osort_batcher_swap(OcCopy * cpy, void* data, size_t step, size_t start,size_t end, osort_cmp_function cmpFn) {
 	size_t ii;
 	void * temp = malloc(cpy->eltsize);
 	for(ii=start; ii+step<end; ii+=step*2) {
@@ -17,7 +17,7 @@ void osort_batcher_swap(OcCopy * cpy, void* data, size_t step, size_t start,size
 	free(temp);
 }
 
-void osort_batcher_merge (OcCopy * cpy, void* data, size_t step, size_t start, size_t mid, size_t end, osort_cmp_function cmpFn) {
+static void osort_batcher_merge (OcCopy * cpy, void* data, size_t step, size_t start, size_t mid, size_t end, osort_cmp_function cmpFn) {
 	if (end<=step) return;
 	osort_batcher_merge(cpy, data, 2*step, start, mid, end, cmpFn);
 	osort_batcher_merge(cpy, data, 2*step, start+step, mid, end, cmpFn);
