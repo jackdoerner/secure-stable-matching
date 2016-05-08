@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "util.h"
+#include "ackutil.h"
 
 #define STATUS_SUCCESS "\e[32m[SUCCESS]\e[0m"
 #define STATUS_FAILURE "\e[31m[FAILURE]\e[0m"

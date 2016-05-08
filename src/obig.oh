@@ -67,6 +67,7 @@ void obig_shr_onative_signed(obig* out, obig x, obliv size_t y) obliv;
 
 void obig_neg(obig* out, obig x) obliv;
 void obig_neg_signed(obig* out, obig x) obliv;
+// obig_abs assumes that the input is signed
 void obig_abs(obig* out, obig x) obliv;
 void obig_add(obig* out, obig x, obig y) obliv;
 void obig_add_signed(obig* out, obig x, obig y) obliv;
