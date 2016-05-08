@@ -103,9 +103,9 @@ void obig_one(obig* x) obliv {
 	}
 }
 
-void obig_set_onative(obig* x, obliv uint64_t y) obliv {
+void obig_import_onative(obig* x, obliv uint64_t y) obliv {
 	for (size_t ii = 0; ii < x->digits; ii++) {
-		if (ii < 16) {
+		if (ii < sizeof(uint64_t)) {
 			x->data[ii] = y >> (8 * ii);
 		} else {
 			x->data[ii] = 0;
@@ -113,10 +113,11 @@ void obig_set_onative(obig* x, obliv uint64_t y) obliv {
 	}
 }
 
-void obig_set_onative_signed(obig* x, obliv int64_t y) obliv {
-	obliv uint8_t extension = y < 0;
+void obig_import_onative_signed(obig* x, obliv int64_t y) obliv {
+	obliv uint8_t extension = 0;
+	obliv if (y < 0) extension = 0xFF;
 	for (size_t ii = 0; ii < x->digits; ii++) {
-		if (ii < 16) {
+		if (ii < sizeof(int64_t)) {
 			x->data[ii] = y >> (8 * ii);
 		} else {
 			x->data[ii] = extension;
@@ -124,7 +125,7 @@ void obig_set_onative_signed(obig* x, obliv int64_t y) obliv {
 	}
 }
 
-void obig_set_pointed(obig* x, void* p, size_t s) obliv {
+void obig_import_pointed(obig* x, void* p, size_t s) obliv {
 	for (size_t ii = 0; ii < x->digits; ii++) {
 		if (ii < s) {
 			if (IS_BIG_ENDIAN) {
@@ -136,6 +137,28 @@ void obig_set_pointed(obig* x, void* p, size_t s) obliv {
 			x->data[ii] = 0;
 		}
 	}
+}
+
+obliv uint64_t obig_export_onative(obig x) obliv {
+	obliv uint64_t result = 0;
+	for (size_t ii = 0; min(sizeof(uint64_t), x.digits); ii++) {
+		result |= x.data[ii] << (ii * 8);
+	}
+	return result;
+}
+
+obliv int64_t obig_export_onative_signed(obig x) obliv {
+	obliv int64_t result = 0;
+	obliv uint8_t extension = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0xFF;
+	for (size_t ii = 0; ii < sizeof(int64_t); ii++) {
+		if (ii < x.digits) {
+			result |= x.data[ii] << (ii * 8);
+		} else {
+			result |= extension << (ii * 8);
+		}
+	}
+	return result;
 }
 
 /* comparators */
@@ -445,9 +468,26 @@ void obig_neg(obig* out, obig x) obliv {
 	}
 }
 
+void obig_neg_signed(obig* out, obig x) obliv {
+	obliv uint8_t rem = 1;
+	obliv uint8_t extension = 0xFF;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv uint16_t temp = (x.data[ii] ^ 0xFF) + rem;
+			out->data[ii] = temp;
+			rem = temp >> 8;
+		} else {
+			obliv uint16_t temp = extension + rem;
+			out->data[ii] = temp;
+			rem = temp >> 8;
+		}
+	}
+}
+
 void obig_abs(obig* out, obig x) obliv {
 	obliv if (obyte_msb_is_one(x.data[x.digits-1])) {
-		obig_neg(out, x);
+		obig_neg_signed(out, x);
 	}
 }
 
@@ -768,17 +808,18 @@ void obig_mul_signed(obig * out, obig x, obig y) obliv {
 		obig y2;
 		obig * x2ref = &x2;
 		obig * y2ref = &y2;
-		obig_init(&x2, x.digits);
-		obig_init(&y2, y.digits);
+		size_t indigits = max(x.digits, y.digits);
+		obig_init(&x2, indigits);
+		obig_init(&y2, indigits);
 		obliv bool x_ltz = obyte_msb_is_one(x.data[x.digits-1]);
 		obliv bool y_ltz = obyte_msb_is_one(y.data[y.digits-1]);
 		obliv if (x_ltz) {
-			obig_neg(x2ref, x);
+			obig_neg_signed(x2ref, x);
 		} else {
 			obig_copy(x2ref, x);
 		}
 		obliv if (y_ltz) {
-			obig_neg(y2ref, y);
+			obig_neg_signed(y2ref, y);
 		} else {
 			obig_copy(y2ref, y);
 		}
@@ -972,12 +1013,12 @@ obliv bool obig_div_mod_signed(obig * q, obig * r, obig x, obig y) obliv {
 		obliv bool numerator_ltz = obyte_msb_is_one(x.data[x.digits-1]);
 		obliv bool denominator_ltz = obyte_msb_is_one(y.data[y.digits-1]);
 		obliv if (numerator_ltz) {
-			obig_neg(x2ref, x);
+			obig_neg_signed(x2ref, x);
 		} else {
 			obig_copy(x2ref, x);
 		}
 		obliv if (denominator_ltz) {
-			obig_neg(y2ref, y);
+			obig_neg_signed(y2ref, y);
 		} else {
 			obig_copy(y2ref, y);
 		}
