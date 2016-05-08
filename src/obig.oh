@@ -29,6 +29,7 @@ void obig_copy_signed(obig* out, obig in) obliv;
 
 void obig_zero(obig* x) obliv;
 void obig_one(obig* x) obliv;
+void obig_negone(obig* x) obliv;
 void obig_import_onative(obig* x, obliv uint64_t y) obliv;
 void obig_import_onative_signed(obig* x, obliv int64_t y) obliv;
 void obig_import_pointed(obig* x, void* p, size_t s) obliv;
