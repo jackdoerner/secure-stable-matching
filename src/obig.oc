@@ -1026,11 +1026,15 @@ obliv bool obig_div_mod_signed(obig * q, obig * r, obig x, obig y) obliv {
 		obliv if (en) result = obig_div_mod(q, r, x2, y2);
 		obig_free(&x2);
 		obig_free(&y2);
-		obliv if (en & (numerator_ltz ^ denominator_ltz)) {
-			obig_neg(q, *q);
+		if (q != NULL) {
+			obliv if (en & (numerator_ltz ^ denominator_ltz)) {
+				obig_neg(q, *q);
+			}
 		}
-		obliv if (en & numerator_ltz) {
-			obig_neg(r, *r);
+		if (r != NULL) {
+			obliv if (en & numerator_ltz) {
+				obig_neg(r, *r);
+			}
 		}
 	}
 	return result;
