@@ -5,7 +5,7 @@
 #include "osort.oh"
 #include "shuffle.oh"
 #include "waksman.h"
-#include "util.h"
+#include "ackutil.h"
 
 #include <stdio.h>
 
@@ -13,7 +13,7 @@ static void * element(OcCopy* cpy,void * arr, int x) obliv {
 	return x*cpy->eltsize+(char*)arr;
 }
 
-static void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
+static void ogs_wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
 	obliv uint32_t * ob = (obliv uint32_t *) oramBlock;
 	obliv uint32_t * eb = (obliv uint32_t *) extBlock;
 	obliv uint32_t * temp;
@@ -30,7 +30,7 @@ static void wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obl
 	}
 }
 
-static obliv char pref_cmp(OcCopy * cpy, void * el1, void * el2) {
+static obliv char ogs_pref_cmp(OcCopy * cpy, void * el1, void * el2) {
 	obliv char result;
 	obliv if ( ((obliv uint32_t *) el1)[2] <= ((obliv uint32_t *) el2)[2] ) {
 		result = -1;
