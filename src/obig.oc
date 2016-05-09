@@ -1,17 +1,18 @@
 #include <stdint.h>
 
-#include "util.h"
+#include "ackutil.h"
 #include "obig.oh"
 
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
+#define BITS_PER_BYTE 8
 
 /* Utility functions to be used only internally */
 
-uint32_t ceildiv(uint32_t dividend, uint32_t divisor) {
-	return (dividend + divisor - 1) / divisor; // ceil(dividend/divisor)
+static uint32_t ceildiv(uint32_t dividend, uint32_t divisor) {
+	return (dividend + divisor - 1) / divisor;
 }
 
-obliv bool obyte_msb_is_one(obliv uint8_t x) obliv {
+static obliv bool obyte_msb_is_one(obliv uint8_t x) obliv {
 	obliv bool result;
 	//big_digit pattern = ~((big_digit)-1 >> 1);
 	obliv if ((x & 0x80) == 0) {
@@ -103,9 +104,15 @@ void obig_one(obig* x) obliv {
 	}
 }
 
-void obig_set_onative(obig* x, obliv uint64_t y) obliv {
+void obig_negone(obig* x) obliv {
 	for (size_t ii = 0; ii < x->digits; ii++) {
-		if (ii < 16) {
+		x->data[ii] = 0xFF;
+	}
+}
+
+void obig_import_onative(obig* x, obliv uint64_t y) obliv {
+	for (size_t ii = 0; ii < x->digits; ii++) {
+		if (ii < sizeof(uint64_t)) {
 			x->data[ii] = y >> (8 * ii);
 		} else {
 			x->data[ii] = 0;
@@ -113,21 +120,19 @@ void obig_set_onative(obig* x, obliv uint64_t y) obliv {
 	}
 }
 
-void obig_set_onative_signed(obig* x, obliv int64_t y) obliv {
+void obig_import_onative_signed(obig* x, obliv int64_t y) obliv {
+	obliv uint8_t extension = 0;
+	obliv if (y < 0) extension = 0xFF;
 	for (size_t ii = 0; ii < x->digits; ii++) {
-		if (ii < 16) {
+		if (ii < sizeof(int64_t)) {
 			x->data[ii] = y >> (8 * ii);
 		} else {
-			obliv if (y < 0) {
-				x->data[ii] = 0xFF;
-			} else {
-				x->data[ii] = 0;
-			}
+			x->data[ii] = extension;
 		}
 	}
 }
 
-void obig_set_pointed(obig* x, void* p, size_t s) obliv {
+void obig_import_pointed(obig* x, void* p, size_t s) obliv {
 	for (size_t ii = 0; ii < x->digits; ii++) {
 		if (ii < s) {
 			if (IS_BIG_ENDIAN) {
@@ -139,6 +144,28 @@ void obig_set_pointed(obig* x, void* p, size_t s) obliv {
 			x->data[ii] = 0;
 		}
 	}
+}
+
+obliv uint64_t obig_export_onative(obig x) obliv {
+	obliv uint64_t result = 0;
+	for (size_t ii = 0; min(sizeof(uint64_t), x.digits); ii++) {
+		result |= x.data[ii] << (ii * 8);
+	}
+	return result;
+}
+
+obliv int64_t obig_export_onative_signed(obig x) obliv {
+	obliv int64_t result = 0;
+	obliv uint8_t extension = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0xFF;
+	for (size_t ii = 0; ii < sizeof(int64_t); ii++) {
+		if (ii < x.digits) {
+			result |= x.data[ii] << (ii * 8);
+		} else {
+			result |= extension << (ii * 8);
+		}
+	}
+	return result;
 }
 
 /* comparators */
@@ -228,7 +255,56 @@ obliv int8_t obig_cmp(obig x, obig y) obliv {
 
 obliv int8_t obig_cmp_signed(obig x, obig y) obliv;
 
-/* nondestructive elementary math */
+
+
+
+void obig_not(obig* out, obig x) obliv {
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			out->data[ii] = ~x.data[ii];
+		} else {
+			out->data[ii] = 0xFF;
+		}
+	}
+}
+
+void obig_and(obig* out, obig x, obig y) obliv {
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits && ii < y.digits) {
+			out->data[ii] = x.data[ii] & y.data[ii];
+		} else {
+			out->data[ii] = 0;
+		}
+	}
+}
+
+void obig_or(obig* out, obig x, obig y) obliv {
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits && ii < y.digits) {
+			out->data[ii] = x.data[ii] | y.data[ii];
+		} else if (ii < x.digits) {
+			out->data[ii] = x.data[ii];
+		} else if (ii < y.digits) {
+			out->data[ii] = y.data[ii];
+		} else {
+			out->data[ii] = 0;
+		}
+	}
+}
+
+void obig_xor(obig* out, obig x, obig y) obliv {
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits && ii < y.digits) {
+			out->data[ii] = x.data[ii] ^ y.data[ii];
+		} else if (ii < x.digits) {
+			out->data[ii] = x.data[ii];
+		} else if (ii < y.digits) {
+			out->data[ii] = y.data[ii];
+		} else {
+			out->data[ii] = 0;
+		}
+	}
+}
 
 void obig_shl_native(obig* out, obig x, size_t y) obliv {
 	size_t y_digits = y >> 3;
@@ -255,14 +331,70 @@ void obig_shl_native(obig* out, obig x, size_t y) obliv {
 	}
 }
 
-//TODO: perform as few shifts as necessary for a given output length
+void obig_shl_native_signed(obig* out, obig x, size_t y) obliv {
+	size_t y_digits = y >> 3;
+	uint8_t y_bits = y & 0x7;
+
+	for (size_t ii = x.digits + y_digits; ii < out->digits; ii ++) {
+		out->data[ii] = 0;
+	}
+
+	if (out->digits > y_digits) {
+		size_t ii = min(out->digits - y_digits, x.digits);
+		if (ii+y_digits < out->digits) out->data[ii+y_digits] = (x.data[ii-1] >> (8-y_bits));
+		do {
+			ii--;
+			out->data[ii+y_digits] = x.data[ii] << y_bits;	
+			if (ii > 0) {
+				out->data[ii+y_digits] |= (x.data[ii-1] >> (8-y_bits));
+			}
+		} while (ii > 0);
+	}
+
+	obliv uint8_t extension = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0xFF;
+
+	for (size_t ii = 0; ii < min(y_digits, out->digits); ii++) {
+		out->data[ii] = extension;
+	}
+}
+
 void obig_shl_onative(obig* out, obig x, obliv size_t y) obliv {
 	obig_copy(out, x);
-	for (size_t ii = 0; ii < sizeof(y)/sizeof(obliv bool); ii++) {
-		obliv if (y & 1 > 0) {
-			obig_shl_native(out, *out, 1 << ii);
+	obliv bool zero_output = false;
+	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
+		if ((1 << ii) >= (out->digits * BITS_PER_BYTE)) {
+			obliv if (y & 1 > 0) {
+				zero_output = true;
+			}
+		} else {
+			obliv if (y & 1 > 0) {
+				obig_shl_native(out, *out, 1 << ii);
+			}
 		}
 		y >>= 1;
+	}
+	obliv if (zero_output) obig_zero(out);
+}
+
+void obig_shl_onative_signed(obig* out, obig x, obliv size_t y) obliv {
+	obig_copy(out, x);
+	obliv bool zero_output = false;
+	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
+		if ((1 << ii) >= (out->digits * BITS_PER_BYTE)) {
+			obliv if (y & 1 > 0) {
+				zero_output = true;
+			}
+		} else {
+			obliv if (y & 1 > 0) {
+				obig_shl_native_signed(out, *out, 1 << ii);
+			}
+		}
+		y >>= 1;
+	}
+	obliv if (zero_output) {
+		obliv if (obyte_msb_is_one(x.data[x.digits-1])) obig_negone(out);
+		else obig_zero(out);
 	}
 }
 
@@ -284,7 +416,29 @@ void obig_shr_native(obig* out, obig x, size_t y) obliv {
 	}
 }
 
-//TODO: perform as few shifts as necessary for a given output length
+void obig_shr_native_signed(obig* out, obig x, size_t y) obliv {
+	size_t y_digits = y >> 3;
+	uint8_t y_bits = y & 0x7;
+
+	obliv uint8_t extension = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0xFF;
+
+	for (size_t ii = 0; (ii < out->digits) && (ii+y_digits < x.digits); ii++) {
+		out->data[ii] = x.data[ii+y_digits] >> y_bits;
+		if (ii+y_digits+1 < x.digits) {
+			out->data[ii] = out->data[ii] | (x.data[ii+y_digits+1] << (8-y_bits));
+		} else {
+			out->data[ii] = out->data[ii] | (extension << (8-y_bits));
+		}
+	}
+
+	if (y_digits <= x.digits) {
+		for (size_t ii = x.digits-y_digits; ii < out->digits; ii++) {
+			out->data[ii] = extension;
+		}
+	}
+}
+
 void obig_shr_onative(obig* out, obig x, obliv size_t y) obliv {
 	obig temp;
 	obig* tempref = &temp; //workaround for obliv-c bug
@@ -292,13 +446,53 @@ void obig_shr_onative(obig* out, obig x, obliv size_t y) obliv {
 		obig_init(&temp, x.digits);
 	}
 	obig_copy(&temp, x);
-	for (size_t ii = 0; ii < sizeof(y)/sizeof(obliv bool); ii++) {
-		obliv if (y & 1 > 0) {
-			obig_shr_native(tempref, temp, 1 << ii);
+	obliv bool zero_output = false;
+	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
+		if ((1 << ii) >= (x.digits * BITS_PER_BYTE)) {
+			obliv if (y & 1 > 0) {
+				zero_output = true;
+			}
+		} else {
+			obliv if (y & 1 > 0) {
+				obig_shr_native(tempref, temp, 1 << ii);
+			}
 		}
 		y >>= 1;
 	}
 	obig_copy(out, temp);
+	obliv if (zero_output) {
+		obig_zero(out);
+	}
+	~obliv(en) {
+		obig_free(&temp);
+	}
+}
+
+void obig_shr_onative_signed(obig* out, obig x, obliv size_t y) obliv {
+	obig temp;
+	obig* tempref = &temp; //workaround for obliv-c bug
+	~obliv(en) {
+		obig_init(&temp, x.digits);
+	}
+	obig_copy_signed(&temp, x);
+	obliv bool zero_output = false;
+	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
+		if ((1 << ii) >= (x.digits * BITS_PER_BYTE)) {
+			obliv if (y & 1 > 0) {
+				zero_output = true;
+			}
+		} else {
+			obliv if (y & 1 > 0) {
+				obig_shr_native_signed(tempref, temp, 1 << ii);
+			}
+		}
+		y >>= 1;
+	}
+	obig_copy_signed(out, temp);
+	obliv if (zero_output) {
+		obliv if (obyte_msb_is_one(x.data[x.digits-1])) obig_negone(out);
+		else obig_zero(out);
+	}
 	~obliv(en) {
 		obig_free(&temp);
 	}
@@ -316,6 +510,29 @@ void obig_neg(obig* out, obig x) obliv {
 			out->data[ii] = temp;
 			rem = temp >> 8;
 		}
+	}
+}
+
+void obig_neg_signed(obig* out, obig x) obliv {
+	obliv uint8_t rem = 1;
+	obliv uint8_t extension = 0xFF;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv uint16_t temp = (x.data[ii] ^ 0xFF) + rem;
+			out->data[ii] = temp;
+			rem = temp >> 8;
+		} else {
+			obliv uint16_t temp = extension + rem;
+			out->data[ii] = temp;
+			rem = temp >> 8;
+		}
+	}
+}
+
+void obig_abs(obig* out, obig x) obliv {
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) {
+		obig_neg_signed(out, x);
 	}
 }
 
@@ -342,6 +559,65 @@ void obig_add(obig* out, obig x, obig y) obliv {
 	}
 }
 
+void obig_add_signed(obig* out, obig x, obig y) obliv {
+	obliv uint8_t rem = 0;
+	obliv uint8_t xext = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) xext = 0xFF;
+	obliv uint8_t yext = 0;
+	obliv if (obyte_msb_is_one(y.data[y.digits-1])) yext = 0xFF;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits && ii < y.digits) {
+			obliv uint16_t eresult = x.data[ii] + y.data[ii] + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else if (ii < x.digits) {
+			obliv uint16_t eresult = x.data[ii] + yext + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else if (ii < y.digits) {
+			obliv uint16_t eresult = y.data[ii] + xext + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else {
+			obliv uint16_t eresult = xext + yext + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		}
+	}
+}
+
+void obig_inc(obig* out, obig x) obliv {
+	obliv uint8_t rem = 1;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv uint16_t eresult = x.data[ii] + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else if (ii == x.digits) {
+			out->data[ii] = rem;
+		} else {
+			out->data[ii] = 0;
+		}
+	}
+}
+
+void obig_inc_signed(obig* out, obig x) obliv {
+	obliv uint8_t rem = 1;
+	obliv uint8_t xext = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) xext = 0xFF;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv uint16_t eresult = x.data[ii] + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else {
+			obliv uint16_t eresult = xext + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		}
+	}
+}
+
 void obig_sub(obig* out, obig x, obig y) obliv {
 	obliv uint8_t rem = 1;
 	for (size_t ii = 0; ii < out->digits; ii ++) {
@@ -359,6 +635,65 @@ void obig_sub(obig* out, obig x, obig y) obliv {
 			rem = eresult >> 8;
 		} else {
 			obliv uint16_t eresult = 0xFF + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		}
+	}
+}
+
+void obig_sub_signed(obig* out, obig x, obig y) obliv {
+	obliv uint8_t rem = 1;
+	obliv uint8_t xext = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) xext = 0xFF;
+	obliv uint8_t yext = 0xFF;
+	obliv if (obyte_msb_is_one(y.data[y.digits-1])) yext = 0;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits && ii < y.digits) {
+			obliv uint16_t eresult = x.data[ii] + (y.data[ii] ^ 0xFF) + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else if (ii < x.digits) {
+			obliv uint16_t eresult = x.data[ii] + yext + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else if (ii < y.digits) {
+			obliv uint16_t eresult = xext + (y.data[ii] ^ 0xFF) + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else {
+			obliv uint16_t eresult = xext + yext + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		}
+	}
+}
+
+void obig_dec(obig* out, obig x) obliv {
+	obliv uint8_t rem = 0;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv uint16_t eresult = x.data[ii] + 0xFF + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else {
+			obliv uint16_t eresult = 0xFF + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		}
+	}
+}
+
+void obig_dec_signed(obig* out, obig x) obliv {
+	obliv uint8_t rem = 0;
+	obliv uint8_t xext = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) xext = 0xFF;
+	for (size_t ii = 0; ii < out->digits; ii ++) {
+		if (ii < x.digits) {
+			obliv uint16_t eresult = x.data[ii] + 0xFF + rem;
+			out->data[ii] = eresult;
+			rem = eresult >> 8;
+		} else {
+			obliv uint16_t eresult = xext + 0xFF + rem;
 			out->data[ii] = eresult;
 			rem = eresult >> 8;
 		}
@@ -509,6 +844,36 @@ void obig_mul(obig* out, obig x, obig y) obliv {
 		}
 
 		free(temp);
+	}
+}
+
+void obig_mul_signed(obig * out, obig x, obig y) obliv {
+	~obliv(en) {
+		obig x2;
+		obig y2;
+		obig * x2ref = &x2;
+		obig * y2ref = &y2;
+		size_t indigits = max(x.digits, y.digits);
+		obig_init(&x2, indigits);
+		obig_init(&y2, indigits);
+		obliv bool x_ltz = obyte_msb_is_one(x.data[x.digits-1]);
+		obliv bool y_ltz = obyte_msb_is_one(y.data[y.digits-1]);
+		obliv if (x_ltz) {
+			obig_neg_signed(x2ref, x);
+		} else {
+			obig_copy(x2ref, x);
+		}
+		obliv if (y_ltz) {
+			obig_neg_signed(y2ref, y);
+		} else {
+			obig_copy(y2ref, y);
+		}
+		obliv if (en) obig_mul(out, x2, y2);
+		obig_free(&x2);
+		obig_free(&y2);
+		obliv if (en & (x_ltz ^ y_ltz)) {
+			obig_neg(out, *out);
+		}
 	}
 }
 
@@ -681,52 +1046,96 @@ obliv bool obig_div_mod(obig* q, obig* r, obig x, obig y) obliv {
 	return success;
 }
 
-
-
-void obig_not(obig* out, obig x) obliv {
-	for (size_t ii = 0; ii < out->digits; ii ++) {
-		if (ii < x.digits) {
-			out->data[ii] = ~x.data[ii];
+obliv bool obig_div_mod_signed(obig * q, obig * r, obig x, obig y) obliv {
+	obliv bool result = false;
+	~obliv(en) {
+		obig x2;
+		obig y2;
+		obig *x2ref = &x2;
+		obig *y2ref = &y2;
+		obig_init(&x2, x.digits);
+		obig_init(&y2, y.digits);
+		obliv bool numerator_ltz = obyte_msb_is_one(x.data[x.digits-1]);
+		obliv bool denominator_ltz = obyte_msb_is_one(y.data[y.digits-1]);
+		obliv if (numerator_ltz) {
+			obig_neg_signed(x2ref, x);
 		} else {
-			out->data[ii] = 0xFF;
+			obig_copy(x2ref, x);
+		}
+		obliv if (denominator_ltz) {
+			obig_neg_signed(y2ref, y);
+		} else {
+			obig_copy(y2ref, y);
+		}
+
+		obliv if (en) result = obig_div_mod(q, r, x2, y2);
+		obig_free(&x2);
+		obig_free(&y2);
+		if (q != NULL) {
+			obliv if (en & (numerator_ltz ^ denominator_ltz)) {
+				obig_neg(q, *q);
+			}
+		}
+		if (r != NULL) {
+			obliv if (en & numerator_ltz) {
+				obig_neg(r, *r);
+			}
 		}
 	}
+	return result;
 }
 
-void obig_and(obig* out, obig x, obig y) obliv {
-	for (size_t ii = 0; ii < out->digits; ii ++) {
-		if (ii < x.digits && ii < y.digits) {
-			out->data[ii] = x.data[ii] & y.data[ii];
+
+
+void obig_sqrt(obig* out, obig x) obliv {
+	/* we find the square root by successive approximation
+	input is assumed to be unsigned */
+
+	obig square;
+	obig* squareref = &square;
+	obig temp;
+	obig root;
+	obig* rootref = &root;
+	obig bit;
+
+	~obliv(en) {
+		obig_init(&square, x.digits);
+		obig_copy(&square, x);
+		
+		if (out->digits >= x.digits) {
+			root.data = out->data;
+			root.digits = out->digits;
+			obig_zero(out);
 		} else {
-			out->data[ii] = 0;
+			obig_init(&root, x.digits);
 		}
+
+		obig_init(&temp, x.digits);
+		obig_init(&bit, x.digits);
+		bit.data[x.digits - 1] = 0x40;
 	}
-}
 
-void obig_or(obig* out, obig x, obig y) obliv {
-	for (size_t ii = 0; ii < out->digits; ii ++) {
-		if (ii < x.digits && ii < y.digits) {
-			out->data[ii] = x.data[ii] | y.data[ii];
-		} else if (ii < x.digits) {
-			out->data[ii] = x.data[ii];
-		} else if (ii < y.digits) {
-			out->data[ii] = y.data[ii];
-		} else {
-			out->data[ii] = 0;
+	for (size_t ii = 0; ii < x.digits*4; ii++) {
+		obig_add(&temp, root, bit);					// 		temp = root + bit
+		obliv bool sgterb = obig_gte(square, temp);
+		obliv if(sgterb) {							// 		if ( x >= root + bit ) {
+			obig_sub(squareref, square, temp);		//			x -= root + bit
 		}
+		obig_shr_native(&root, root, 1);			//			root >>= 1 (unconditional)
+		obliv if(sgterb) {
+			obig_add(rootref, root, bit);			//			root += bit
+		}											//		}
+		obig_shr_native(&bit, bit, 2);				//		bit >>= 2
 	}
-}
 
-void obig_xor(obig* out, obig x, obig y) obliv {
-	for (size_t ii = 0; ii < out->digits; ii ++) {
-		if (ii < x.digits && ii < y.digits) {
-			out->data[ii] = x.data[ii] ^ y.data[ii];
-		} else if (ii < x.digits) {
-			out->data[ii] = x.data[ii];
-		} else if (ii < y.digits) {
-			out->data[ii] = y.data[ii];
-		} else {
-			out->data[ii] = 0;
+	~obliv(en) {
+		if (root.data != out->data) {
+			obig_copy(out, root);
+			obig_free(&root);
 		}
+
+		obig_free(&square);
+		obig_free(&temp);
+		obig_free(&bit);
 	}
 }	

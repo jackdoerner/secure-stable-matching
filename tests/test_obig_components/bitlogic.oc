@@ -19,7 +19,7 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
+	obig_import_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -51,7 +51,7 @@ fprintf(stderr, "\n");
 
 	obig_init(&x_test, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
+	obig_import_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -85,7 +85,7 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_onative(&x_test, xo);
+	obig_import_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -120,7 +120,7 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_onative(&x_test, xo);
+	obig_import_onative(&x_test, xo);
 	unsigned char temp;
 	unsigned short output;
 
@@ -170,8 +170,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -209,8 +209,8 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -247,8 +247,8 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -287,8 +287,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(short));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -328,8 +328,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -370,8 +370,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -411,8 +411,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned short output;
 
@@ -462,8 +462,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -501,8 +501,8 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -539,8 +539,8 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -579,8 +579,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(short));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -620,8 +620,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -662,8 +662,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -703,8 +703,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned short output;
 
@@ -754,8 +754,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -793,8 +793,8 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -831,8 +831,8 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&y_test, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -871,8 +871,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(short));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -912,8 +912,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned int output;
 
@@ -954,8 +954,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
@@ -995,8 +995,8 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_set_onative(&x_test, xo);
-	obig_set_onative(&y_test, yo);
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
 	unsigned char temp;
 	unsigned short output;
 

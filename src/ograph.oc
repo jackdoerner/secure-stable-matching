@@ -1,17 +1,17 @@
 #include "ograph.oh"
 #include "oqueue.oh"
 
-void middle_increment(OcCopy * cpy, void * oram_block, void * external_block) obliv {
+static void middle_increment(OcCopy * cpy, void * oram_block, void * external_block) obliv {
 	((obliv uint32_t *) oram_block)[1]++;
 }
 
-void write_first_read_others(OcCopy * cpy, void * oram_block, void * external_block) obliv {
+static void write_first_read_others(OcCopy * cpy, void * oram_block, void * external_block) obliv {
 	((obliv uint32_t *) oram_block)[0] = ((obliv uint32_t *) external_block)[0];
 	((obliv uint32_t *) external_block)[1] = ((obliv uint32_t *) oram_block)[1];
 	((obliv uint32_t *) external_block)[2] = ((obliv uint32_t *) oram_block)[2];
 }
 
-void read_and_increment_last(OcCopy * cpy, void * oram_block, void * external_block) obliv {
+static void read_and_increment_last(OcCopy * cpy, void * oram_block, void * external_block) obliv {
 	((obliv uint32_t *) external_block)[0] = ((obliv uint32_t *) oram_block)[0];
 	((obliv uint32_t *) external_block)[1] = ((obliv uint32_t *) oram_block)[1];
 	((obliv uint32_t *) external_block)[2] = ((obliv uint32_t *) oram_block)[2];
@@ -75,23 +75,23 @@ ograph_vertex_list * ograph_vertex_list_new(size_t size) {
 	return result;
 }
 
-void ograph_get_nth_adjacent_vertex(uint32_t * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex, obliv uint32_t n) {
+static void ograph_get_nth_adjacent_vertex(uint32_t * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex, obliv uint32_t n) {
 	obliv uint32_t two32[2];
 	oram_read(two32, adj->layout, vertex);
 	oram_read(out, adj->matrix, two32[0]+n);
 }
 
-void ograph_get_nth_adjacent_vertex_from_triple(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t * vertex, obliv uint32_t n) {
+static void ograph_get_nth_adjacent_vertex_from_triple(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t * vertex, obliv uint32_t n) {
 	oram_read(out, adj->matrix, vertex[1]+n);
 }
 
-void ograph_get_nth_adjacent_vertex_obliv(uint32_t * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex, obliv uint32_t n) obliv {
+static void ograph_get_nth_adjacent_vertex_obliv(uint32_t * out, ograph_adjacency_matrix * adj, obliv uint32_t vertex, obliv uint32_t n) obliv {
 	obliv uint32_t two32[2];
 	oram_read(two32, adj->layout, vertex);
 	oram_read(out, adj->matrix, two32[0]+n);
 }
 
-void ograph_get_nth_adjacent_vertex_from_triple_obliv(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t * vertex, obliv uint32_t n) obliv {
+static void ograph_get_nth_adjacent_vertex_from_triple_obliv(ograph_vertex_list * out, ograph_adjacency_matrix * adj, obliv uint32_t * vertex, obliv uint32_t n) obliv {
 	oram_read(out, adj->matrix, vertex[1]+n);
 }
 
@@ -100,7 +100,7 @@ void ograph_free_vertex_list(ograph_vertex_list * vlist) {
 	free(vlist);
 }
 
-void distance_writer(OcCopy * cpy, void * oram_block, void * external_block) obliv {
+static void distance_writer(OcCopy * cpy, void * oram_block, void * external_block) obliv {
 	obliv uint32_t existing_distance = * ((obliv uint32_t *) oram_block);
 	obliv if (existing_distance == 0) {
 		* ((obliv uint32_t *) oram_block) = * ((obliv uint32_t *) external_block);

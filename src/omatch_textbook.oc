@@ -3,7 +3,7 @@
 #include "oqueue.oh"
 #include "copy.oh"
 
-void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obliv {
+static void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obliv {
 	obliv if (((obliv uint32_t *) extBlock)[1] < ((obliv uint32_t *) oramBlock)[1] | ((obliv uint32_t *) oramBlock)[1] == -1) {
 		obliv uint32_t temp = ((obliv uint32_t *) extBlock)[0];
 		((obliv uint32_t *) extBlock)[0] = ((obliv uint32_t *) oramBlock)[0];

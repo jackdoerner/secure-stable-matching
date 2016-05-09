@@ -29,10 +29,6 @@ ograph_adjacency_matrix * ograph_build_adjacency_matrix(size_t, ograph_edge *, s
 void ograph_free_adjacency_matrix(ograph_adjacency_matrix *);
 
 ograph_vertex_list * ograph_vertex_list_new(size_t);
-void ograph_get_nth_adjacent_vertex(uint32_t *, ograph_adjacency_matrix *, obliv uint32_t, obliv uint32_t);
-void ograph_get_nth_adjacent_vertex_from_triple(ograph_vertex_list *, ograph_adjacency_matrix *, obliv uint32_t *, obliv uint32_t);
-void ograph_get_nth_adjacent_vertex_obliv(uint32_t *, ograph_adjacency_matrix *, obliv uint32_t, obliv uint32_t) obliv;
-void ograph_get_nth_adjacent_vertex_from_triple_obliv(ograph_vertex_list *, ograph_adjacency_matrix *, obliv uint32_t *, obliv uint32_t) obliv;
 void ograph_free_vertex_list(ograph_vertex_list *);
 
 ograph_vertex_list * ograph_breadth_first_search(ograph_adjacency_matrix *, obliv uint32_t);
