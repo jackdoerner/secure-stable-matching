@@ -108,7 +108,7 @@ struct OcSqrtOram
   int packingLog,packing; // packing = (1<<packingLog)
   OcCopy* cpy;
   obliv int *shuffi,*stashi; // logical index
-  void *shuff,*stash; // payloads
+  void *shuff,*stash,*swapSpace; // payloads
   bool* usedShuff;
   obliv int* physicalTemp;
   int n,time,period;
@@ -265,6 +265,7 @@ OcSqrtOram* ocSqrtOramNewAux(OcCopy* cpy,void* data,int n,int period)
   ocCopyN(cpy,ram->shuff,data,n);
   int i;
   ram->stash = calloc(period,cpy->eltsize);
+  ram->swapSpace = calloc(1,cpy->eltsize);
   ram->shuffi = calloc(n,sizeof(obliv int));
   ram->stashi = calloc(period,sizeof(obliv int));
   for(i=0;i<n;++i) ram->shuffi[i]=i;
@@ -293,6 +294,7 @@ void ocSqrtOramRelease(OcSqrtOram* ram)
 {
   free(ram->usedShuff);
   ram->pos->release(ram->pos);
+  free(ram->swapSpace);
   free(ram->stashi);
   free(ram->shuffi);
   free(ram->stash);
@@ -334,7 +336,7 @@ void ocSqrtOramAccessObliv(OcSqrtOram* ram, obliv int index,ocBlockAccessFunctio
     }
 
     // Fake/unfake posmap lookup
-    int lookupIndex = ram->pos->getPos(ram->pos,index,found);
+    int lookupIndex = ram->pos->getPos(ram->pos,index,found|!en);
     ram->usedShuff[lookupIndex]=true;
 
     // Access one more element from shuffled array
