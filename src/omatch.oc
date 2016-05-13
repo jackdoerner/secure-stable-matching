@@ -16,18 +16,8 @@ static void * element(OcCopy* cpy,void * arr, int x) obliv {
 static void ogs_wStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
 	obliv uint32_t * ob = (obliv uint32_t *) oramBlock;
 	obliv uint32_t * eb = (obliv uint32_t *) extBlock;
-	obliv uint32_t * temp;
-	~obliv(en) {
-		temp = calloc(1, cpy->eltsize);
-		memcpy(temp, ob, cpy->eltsize);
-	}
-	obliv if ((ob[0] == 0) | (ob[2] > eb[2])) {
-		ocCopy(cpy, ob, eb);
-		ocCopy(cpy, eb, temp);
-	}
-	~obliv(en) {
-		free(temp);
-	}
+	obliv bool swap = (ob[0] == 0) | (ob[2] > eb[2]);
+	ocSwapCondN(cpy, ob, eb, NULL, &swap, 1);
 }
 
 static obliv char ogs_pref_cmp(OcCopy * cpy, void * el1, void * el2) {
@@ -180,24 +170,14 @@ void orp_hStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv 
 	obliv uint32_t * thisHospitalData = (obliv uint32_t *) oramBlock;
 	oroth_peranson_augmented_match * lowestTentativeMatch = (oroth_peranson_augmented_match *) extBlock;
 	oroth_peranson_tentative_match * thisHospitalTentativeMatches = &thisHospitalData[1];
-	obliv uint32_t temp;
+	obliv bool swapThisRound;
+	obliv uint32_t temp[3];
+	OcCopy cpy;
+	~obliv() cpy = ocCopyIntN(3);
 
 	for (size_t jj = 0; jj < lowestTentativeMatch->hospital_positions_bound; jj++) {
-		obliv if (jj < thisHospitalData[0]) {
-			obliv if ((lowestTentativeMatch->hrank < thisHospitalTentativeMatches[jj].hrank) | thisHospitalTentativeMatches[jj].hrank == 0) {
-				temp = thisHospitalTentativeMatches[jj].rid;
-				thisHospitalTentativeMatches[jj].rid = lowestTentativeMatch->rid;
-				lowestTentativeMatch->rid = temp;
-
-				temp = thisHospitalTentativeMatches[jj].hrank;
-				thisHospitalTentativeMatches[jj].hrank = lowestTentativeMatch->hrank;
-				lowestTentativeMatch->hrank = temp;
-
-				temp = thisHospitalTentativeMatches[jj].rnext;			
-				thisHospitalTentativeMatches[jj].rnext = lowestTentativeMatch->rnext;				
-				lowestTentativeMatch->rnext = temp;
-			}
-		}
+		swapThisRound = (jj < thisHospitalData[0] & ((lowestTentativeMatch->hrank < thisHospitalTentativeMatches[jj].hrank) | thisHospitalTentativeMatches[jj].hrank == 0));
+		ocSwapCondN(&cpy,&thisHospitalTentativeMatches[jj],lowestTentativeMatch,&temp,&swapThisRound, 1);
 	}
 }
 
