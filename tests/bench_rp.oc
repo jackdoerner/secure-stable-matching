@@ -121,8 +121,8 @@ void testMain(void*varg) {
 					shuffle(rperm, hospitals);
 					int jj = 0;
 					for (; jj < ratings; jj++) {
-						rPrefs[ll * rratings_max + jj].id = jj;
-						rPrefs[ll * rratings_max + jj].rank = feedOblivInt(rperm[jj], 1);
+						rPrefs[ll * rratings_max + jj].id = feedOblivInt(rperm[jj], 1);
+						rPrefs[ll * rratings_max + jj].rank = feedOblivInt(rperm[jj], 2);
 					}
 					for (; jj < rratings_max; jj++) {
 						rPrefs[ll * rratings_max + jj].id = -1;
@@ -139,8 +139,8 @@ void testMain(void*varg) {
 					shuffle(hperm, residents);
 					int jj = 0;
 					for (; jj < ratings; jj++) {
-						hPrefs[ll * hratings_max + jj].id = jj;
-						hPrefs[ll * hratings_max + jj].rank = feedOblivInt(hperm[jj], 1);
+						hPrefs[ll * hratings_max + jj].id = feedOblivInt(hperm[jj], 1);
+						hPrefs[ll * hratings_max + jj].rank = feedOblivInt(hperm[jj], 2);
 					}
 					for (; jj < hratings_max; jj++) {
 						hPrefs[ll * hratings_max + jj].id = -1;
