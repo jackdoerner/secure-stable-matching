@@ -48,7 +48,7 @@ void testMain(void*varg) {
 
 	srand(time(NULL));
 
-	fprintf(stdout, "==========\nROTH PERANSON (resident count, hospital count, positions per hospital, sample 1, sample 2, ... sample n)\n----------\n");
+	fprintf(stdout, "==========\nROTH PERANSON (resident count, resident rankings bound, hospital count, hospital rankings bound, positions per hospital, sample 1, sample 2, ... sample n)\n----------\n");
 	fflush(stdout);
 
 	{
@@ -66,7 +66,7 @@ void testMain(void*varg) {
 
 			uint64_t tally = 0;
 
-			fprintf(stdout, "%d,%d,%d", residents, hospitals, positions_max);
+			fprintf(stdout, "%d,%d,%d,%d,%d", residents, rratings_max, hospitals, hratings_max, positions_max);
 			fflush(stdout);
 
 			uint32_t * rperm = malloc(hospitals * sizeof(uint32_t));
@@ -169,7 +169,7 @@ void testMain(void*varg) {
 			free(matches);
 
 			fprintf(stdout, "\n");
-			fprintf(stderr, "ROTH PERANSON (residents:%d, hospitals:%d, max positions:%d): %llu microseconds avg\n", residents, hospitals, positions_max, tally/samples);
+			fprintf(stderr, "ROTH PERANSON (residents:%d, resident rankings bound:%d, hospitals:%d, hospital rankings bound:%d, max positions:%d): %llu microseconds avg\n", residents, rratings_max, hospitals, hratings_max, positions_max, tally/samples);
 		}
 
 	}
