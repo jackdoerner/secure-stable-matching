@@ -124,7 +124,7 @@ oqueue * oqueue_new_static(OcCopy * cpy, size_t n) {
 
 		this_layer->copymult = pow(2, layer_index);
 		this_layer->cpy = cpy;
-		this_layer->data = calloc(this_layer->cpy->eltsize * this_layer->copymult * 6, sizeof(obliv uint8_t));
+		this_layer->data = calloc(1, this_layer->cpy->eltsize * this_layer->copymult * 6);
 
 		if (last_layer == NULL) {
 			result = this_layer;
