@@ -148,7 +148,7 @@ void obig_import_pointed(obig* x, void* p, size_t s) obliv {
 
 obliv uint64_t obig_export_onative(obig x) obliv {
 	obliv uint64_t result = 0;
-	for (size_t ii = 0; min(sizeof(uint64_t), x.digits); ii++) {
+	for (size_t ii = 0; ii < min(sizeof(uint64_t), x.digits); ii++) {
 		result |= x.data[ii] << (ii * 8);
 	}
 	return result;
