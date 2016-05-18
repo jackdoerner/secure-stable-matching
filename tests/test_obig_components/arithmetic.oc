@@ -847,6 +847,150 @@ fprintf(stderr, "\n");
 }
 
 
+/******************************************
+ ******************************************
+ *** obig_neg_signed
+ ******************************************
+ ******************************************/
+
+fprintf(stderr, "\n");
+
+{	// obig_neg_signed
+	int x = 0x8E48A840;
+	int expected = -x;
+
+	obliv int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(int));
+
+	obig_import_onative_signed(&x_test, xo);
+	unsigned char temp;
+	unsigned int output;
+
+	obig_neg_signed(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed", (expected == (int)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (int)output) {
+		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
+
+{	// obig_neg_signed - augmented assignment
+	int x = 0xAE48A840;
+	int expected = -x;
+
+	obliv int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+
+	obig_init(&x_test, sizeof(int));
+
+	obig_import_onative_signed(&x_test, xo);
+	unsigned char temp;
+	unsigned int output;
+
+	obig_neg_signed(&x_test, x_test);
+
+	for (int ii = x_test.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, x_test.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed - augmented assignment", (expected == (int)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (int)output) {
+		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
+	}
+
+	obig_free(&x_test);
+}
+
+{	// obig_neg_signed - extended output
+	int x = 0xAE48A840;
+	long long expected = x;
+	expected *= -1;
+
+	obliv int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(long long));
+
+	obig_import_onative_signed(&x_test, xo);
+	unsigned char temp;
+	unsigned long long output;
+
+	obig_neg_signed(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed - extended output", (expected == (long long)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (long long)output) {
+		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
+
+{	// obig_neg_signed - truncated output
+	int x = 0xAE48A840;
+	short expected = x;
+	expected *= -1;
+
+	obliv int xo;
+	xo = feedOblivInt(x, 1);
+
+	obig x_test;
+	obig result;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&result, sizeof(short));
+
+	obig_import_onative_signed(&x_test, xo);
+	unsigned char temp;
+	unsigned short output;
+
+	obig_neg_signed(&result, x_test);
+
+	for (int ii = result.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result.data[ii], 0);
+		output <<= 8;
+		output += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed - truncated output", (expected == (short)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (short)output) {
+		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
+	}
+
+	obig_free(&x_test);
+	obig_free(&result);
+}
+
+
 
 /******************************************
  ******************************************
