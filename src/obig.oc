@@ -13,14 +13,7 @@ static uint32_t ceildiv(uint32_t dividend, uint32_t divisor) {
 }
 
 static obliv bool obyte_msb_is_one(obliv uint8_t x) obliv {
-	obliv bool result;
-	//big_digit pattern = ~((big_digit)-1 >> 1);
-	obliv if ((x & 0x80) == 0) {
-		result = false;
-	} else {
-		result = true;
-	}
-	return result;
+	return ((x & 0x80) > 0);
 }
 
 
@@ -148,7 +141,7 @@ void obig_import_pointed(obig* x, void* p, size_t s) obliv {
 
 obliv uint64_t obig_export_onative(obig x) obliv {
 	obliv uint64_t result = 0;
-	for (size_t ii = 0; min(sizeof(uint64_t), x.digits); ii++) {
+	for (size_t ii = 0; ii < min(sizeof(uint64_t), x.digits); ii++) {
 		result |= x.data[ii] << (ii * 8);
 	}
 	return result;
@@ -335,13 +328,16 @@ void obig_shl_native_signed(obig* out, obig x, size_t y) obliv {
 	size_t y_digits = y >> 3;
 	uint8_t y_bits = y & 0x7;
 
+	obliv uint8_t extension = 0;
+	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0xFF;
+
 	for (size_t ii = x.digits + y_digits; ii < out->digits; ii ++) {
-		out->data[ii] = 0;
+		out->data[ii] = extension;
 	}
 
 	if (out->digits > y_digits) {
 		size_t ii = min(out->digits - y_digits, x.digits);
-		if (ii+y_digits < out->digits) out->data[ii+y_digits] = (x.data[ii-1] >> (8-y_bits));
+		if (ii+y_digits < out->digits) out->data[ii+y_digits] = (x.data[ii-1] >> (8-y_bits)) | (extension << (y_bits));
 		do {
 			ii--;
 			out->data[ii+y_digits] = x.data[ii] << y_bits;	
@@ -351,11 +347,8 @@ void obig_shl_native_signed(obig* out, obig x, size_t y) obliv {
 		} while (ii > 0);
 	}
 
-	obliv uint8_t extension = 0;
-	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0xFF;
-
 	for (size_t ii = 0; ii < min(y_digits, out->digits); ii++) {
-		out->data[ii] = extension;
+		out->data[ii] = 0;
 	}
 }
 
@@ -533,6 +526,8 @@ void obig_neg_signed(obig* out, obig x) obliv {
 void obig_abs(obig* out, obig x) obliv {
 	obliv if (obyte_msb_is_one(x.data[x.digits-1])) {
 		obig_neg_signed(out, x);
+	} else {
+		obig_copy(out, x);
 	}
 }
 
@@ -913,7 +908,7 @@ void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, siz
 	for (int64_t jj = m; jj >= 0; jj--) {
 		//Knuth D3
 		obliv uint8_t qhat;
-		obliv uint16_t temp1, temp2;
+		obliv uint32_t temp1, temp2;
 		obliv if (u[jj+n] == v[n-1]) {
 			qhat = ~0;
 		} else {
@@ -925,7 +920,7 @@ void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, siz
 		obliv if (temp1 > temp2) {
 			qhat--;
 			temp1 -= v[n-2];
-			temp2 = ((((obliv uint16_t)u[jj+n] << 8) + u[jj+n-1] - qhat * v[n-1]) << 8) +u[jj+n-2];
+			temp2 += (obliv uint16_t) v[n-1] << 8;
 		}
 		obliv if (temp1 > temp2) qhat--;
 
@@ -941,12 +936,15 @@ void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, siz
 		product = u[n+jj] - carry;
 		u[n+jj] = product;
 
-
 		//Knuth D5
 		q[jj] = qhat;
 		carry = 0;
 		obliv if (product < 0) {
 			// Knuth D6
+
+			// Oddly, this code never seems to get activated.
+			// I have no explanation.
+
 			q[jj]--;
 			for (size_t ii = 0; ii < n; ii++) {
 				temp1 = (obliv uint16_t) u[ii+jj] + v[ii] + carry;
@@ -1057,20 +1055,19 @@ obliv bool obig_div_mod_signed(obig * q, obig * r, obig x, obig y) obliv {
 		obig_init(&y2, y.digits);
 		obliv bool numerator_ltz = obyte_msb_is_one(x.data[x.digits-1]);
 		obliv bool denominator_ltz = obyte_msb_is_one(y.data[y.digits-1]);
+		obig_copy(&x2, x);
 		obliv if (numerator_ltz) {
-			obig_neg_signed(x2ref, x);
-		} else {
-			obig_copy(x2ref, x);
+			obig_neg_signed(x2ref, x2);
 		}
+		obig_copy(&y2, y);
 		obliv if (denominator_ltz) {
-			obig_neg_signed(y2ref, y);
-		} else {
-			obig_copy(y2ref, y);
+			obig_neg_signed(y2ref, y2);
 		}
 
 		obliv if (en) result = obig_div_mod(q, r, x2, y2);
 		obig_free(&x2);
 		obig_free(&y2);
+
 		if (q != NULL) {
 			obliv if (en & (numerator_ltz ^ denominator_ltz)) {
 				obig_neg(q, *q);
