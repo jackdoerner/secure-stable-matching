@@ -2592,6 +2592,63 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
+{	// obig_div_mod
+	unsigned int x = 0x78516427;
+	unsigned int y = 0x07E0DD18;
+	unsigned int expected_q = x / y;
+	unsigned int expected_r = x % y;
+
+	obliv unsigned int xo;
+	obliv unsigned int yo;
+	xo = feedOblivInt(x, 1);
+	yo = feedOblivInt(y, 2);
+
+	obig x_test;
+	obig y_test;
+	obig result_q;
+	obig result_r;
+
+	obig_init(&x_test, sizeof(int));
+	obig_init(&y_test, sizeof(int));
+	obig_init(&result_q, sizeof(int));
+	obig_init(&result_r, sizeof(int));
+
+	obig_import_onative(&x_test, xo);
+	obig_import_onative(&y_test, yo);
+	unsigned char temp;
+	unsigned output_q;
+	unsigned output_r;
+
+	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	bool tempBool;
+	revealOblivBool(&tempBool, success, 0);
+
+	for (int ii = result_q.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_q.data[ii], 0);
+		output_q <<= 8;
+		output_q += temp;
+	}
+
+	for (int ii = result_r.digits -1; ii >= 0; ii--) {
+		revealOblivChar(&temp, result_r.data[ii], 0);
+		output_r <<= 8;
+		output_r += temp;
+	}
+
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	}
+	if (expected_r != output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	}
+
+	obig_free(&x_test);
+	obig_free(&y_test);
+	obig_free(&result_q);
+	obig_free(&result_r);
+}
+
 {	// obig_div_mod - divisor larger than dividend
 	unsigned int y = 0x7E48A840;
 	unsigned int x = 0x0000DD18;
@@ -3074,11 +3131,10 @@ fprintf(stderr, "\n");
 
 	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	for (int ii = 0; ii < 100; ii++) {
-		if (expectedq[ii] != outputq[ii]) {
-			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedq[ii], outputq[ii]);
-		}
-		if (expectedr[ii] != outputr[ii]) {
-			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedr[ii], outputr[ii]);
+		if (expectedq[ii] != outputq[ii] || expectedr[ii] != outputr[ii]) {
+			fprintf(stderr, "\tx:\t%08X\n\ty:\t%08X\n", x[ii], y[ii]);
+			fprintf(stderr, "\tExpected x:\t%08X\n\tActual x: \t%08X\n", expectedq[ii], outputq[ii]);
+			fprintf(stderr, "\tExpected y:\t%08X\n\tActual y: \t%08X\n", expectedr[ii], outputr[ii]);
 		}
 	}
 
@@ -3427,8 +3483,8 @@ fprintf(stderr, "\n");
 fprintf(stderr, "\n");
 
 {	// obig_div_mod_signed
-	int x = 0xFE48A840;
-	int y = 0x07E0DD18;
+	int x = 0x8E3FF4C8;
+	int y = 0xFC348EE3;
 	int expected_q = x / y;
 	int expected_r = x % y;
 
@@ -3965,11 +4021,10 @@ fprintf(stderr, "\n");
 
 	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	for (int ii = 0; ii < 100; ii++) {
-		if (expectedq[ii] != (int)outputq[ii]) {
-			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedq[ii], (int)outputq[ii]);
-		}
-		if (expectedr[ii] != (int)outputr[ii]) {
-			fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expectedr[ii], (int)outputr[ii]);
+		if (expectedq[ii] != outputq[ii] || expectedr[ii] != outputr[ii]) {
+			fprintf(stderr, "\tx:\t%08X\n\ty:\t%08X\n", x[ii], y[ii]);
+			fprintf(stderr, "\tExpected q:\t%08X\n\tActual q: \t%08X\n", expectedq[ii], outputq[ii]);
+			fprintf(stderr, "\tExpected r:\t%08X\n\tActual r: \t%08X\n", expectedr[ii], outputr[ii]);
 		}
 	}
 

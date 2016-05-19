@@ -908,7 +908,7 @@ void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, siz
 	for (int64_t jj = m; jj >= 0; jj--) {
 		//Knuth D3
 		obliv uint8_t qhat;
-		obliv uint16_t temp1, temp2;
+		obliv uint32_t temp1, temp2;
 		obliv if (u[jj+n] == v[n-1]) {
 			qhat = ~0;
 		} else {
@@ -920,7 +920,7 @@ void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, siz
 		obliv if (temp1 > temp2) {
 			qhat--;
 			temp1 -= v[n-2];
-			temp2 = ((((obliv uint16_t)u[jj+n] << 8) + u[jj+n-1] - qhat * v[n-1]) << 8) +u[jj+n-2];
+			temp2 += (obliv uint16_t) v[n-1] << 8;
 		}
 		obliv if (temp1 > temp2) qhat--;
 
@@ -936,12 +936,15 @@ void knuth_d(obliv uint8_t *u, obliv uint8_t *v, obliv uint8_t *q, size_t n, siz
 		product = u[n+jj] - carry;
 		u[n+jj] = product;
 
-
 		//Knuth D5
 		q[jj] = qhat;
 		carry = 0;
 		obliv if (product < 0) {
 			// Knuth D6
+
+			// Oddly, this code never seems to get activated.
+			// I have no explanation.
+
 			q[jj]--;
 			for (size_t ii = 0; ii < n; ii++) {
 				temp1 = (obliv uint16_t) u[ii+jj] + v[ii] + carry;
