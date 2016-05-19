@@ -60,7 +60,7 @@ void testMain(void*varg) {
 				for (int ll = 0; ll < pairs; ll++) {
 					shuffle(perm, pairs);
 					for (int jj = 0; jj < pairs; jj++) {
-						mPrefs[ll * pairs + jj] = feedOblivInt(perm[jj], 0);
+						mPrefs[ll * pairs + jj] = feedOblivInt(perm[jj], 2);
 					}
 					for (int jj = 0; jj < pairs; jj++) {
 						wPrefs[ll * pairs + jj] = feedOblivInt(perm[jj], 1);
