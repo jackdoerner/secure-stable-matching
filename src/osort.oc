@@ -34,3 +34,8 @@ void osort_batcher(OcCopy * cpy, void * data, size_t end, osort_cmp_function cmp
 	free(temp);
 }
 
+void omerge_batcher(OcCopy * cpy, void * data, size_t mid, size_t end, osort_cmp_function cmpFn) {
+	void* temp = calloc(1, cpy->eltsize);
+	osort_batcher_merge(cpy,data,temp,1,0,mid,end,cmpFn);
+	free(temp);
+}

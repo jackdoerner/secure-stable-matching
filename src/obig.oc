@@ -142,7 +142,7 @@ void obig_import_pointed(obig* x, void* p, size_t s) obliv {
 obliv uint64_t obig_export_onative(obig x) obliv {
 	obliv uint64_t result = 0;
 	for (size_t ii = 0; ii < min(sizeof(uint64_t), x.digits); ii++) {
-		result |= x.data[ii] << (ii * 8);
+		result |= (obliv uint64_t) x.data[ii] << (ii * 8);
 	}
 	return result;
 }
@@ -153,9 +153,9 @@ obliv int64_t obig_export_onative_signed(obig x) obliv {
 	obliv if (obyte_msb_is_one(x.data[x.digits-1])) extension = 0xFF;
 	for (size_t ii = 0; ii < sizeof(int64_t); ii++) {
 		if (ii < x.digits) {
-			result |= x.data[ii] << (ii * 8);
+			result |= (obliv uint64_t) x.data[ii] << (ii * 8);
 		} else {
-			result |= extension << (ii * 8);
+			result |= (obliv uint64_t) extension << (ii * 8);
 		}
 	}
 	return result;
@@ -356,13 +356,13 @@ void obig_shl_onative(obig* out, obig x, obliv size_t y) obliv {
 	obig_copy(out, x);
 	obliv bool zero_output = false;
 	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
-		if ((1 << ii) >= (out->digits * BITS_PER_BYTE)) {
+		if ((1ull << ii) >= (out->digits * BITS_PER_BYTE)) {
 			obliv if (y & 1 > 0) {
 				zero_output = true;
 			}
 		} else {
 			obliv if (y & 1 > 0) {
-				obig_shl_native(out, *out, 1 << ii);
+				obig_shl_native(out, *out, 1ull << ii);
 			}
 		}
 		y >>= 1;
@@ -374,13 +374,13 @@ void obig_shl_onative_signed(obig* out, obig x, obliv size_t y) obliv {
 	obig_copy(out, x);
 	obliv bool zero_output = false;
 	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
-		if ((1 << ii) >= (out->digits * BITS_PER_BYTE)) {
+		if ((1ull << ii) >= (out->digits * BITS_PER_BYTE)) {
 			obliv if (y & 1 > 0) {
 				zero_output = true;
 			}
 		} else {
 			obliv if (y & 1 > 0) {
-				obig_shl_native_signed(out, *out, 1 << ii);
+				obig_shl_native_signed(out, *out, 1ull << ii);
 			}
 		}
 		y >>= 1;
@@ -441,13 +441,13 @@ void obig_shr_onative(obig* out, obig x, obliv size_t y) obliv {
 	obig_copy(&temp, x);
 	obliv bool zero_output = false;
 	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
-		if ((1 << ii) >= (x.digits * BITS_PER_BYTE)) {
+		if ((1ull << ii) >= (x.digits * BITS_PER_BYTE)) {
 			obliv if (y & 1 > 0) {
 				zero_output = true;
 			}
 		} else {
 			obliv if (y & 1 > 0) {
-				obig_shr_native(tempref, temp, 1 << ii);
+				obig_shr_native(tempref, temp, 1ull << ii);
 			}
 		}
 		y >>= 1;
@@ -470,13 +470,13 @@ void obig_shr_onative_signed(obig* out, obig x, obliv size_t y) obliv {
 	obig_copy_signed(&temp, x);
 	obliv bool zero_output = false;
 	for (size_t ii = 0; ii < ocBitSize(y); ii++) {
-		if ((1 << ii) >= (x.digits * BITS_PER_BYTE)) {
+		if ((1ull << ii) >= (x.digits * BITS_PER_BYTE)) {
 			obliv if (y & 1 > 0) {
 				zero_output = true;
 			}
 		} else {
 			obliv if (y & 1 > 0) {
-				obig_shr_native_signed(tempref, temp, 1 << ii);
+				obig_shr_native_signed(tempref, temp, 1ull << ii);
 			}
 		}
 		y >>= 1;
