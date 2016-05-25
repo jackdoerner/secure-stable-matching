@@ -5,6 +5,7 @@
 
 typedef obliv char (* osort_cmp_function)(OcCopy *, void * el1, void * el2);
 
-void osort_batcher(OcCopy * cpy, void * data, size_t len, osort_cmp_function swapFn);
+void osort_batcher(OcCopy * cpy, void * data, size_t len, osort_cmp_function cmpFn);
+void omerge_batcher(OcCopy * cpy, void * data, size_t mid, size_t end, osort_cmp_function cmpFn);
 
 #endif
