@@ -127,16 +127,22 @@ void testMain(void*varg) {
 					shuffle(rperm, hospitals);
 					if (ocCurrentParty() == 1) {
 						int jj = 0;
+						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rid = ocBroadcastInt(jj, 1);
+						jj = 0;
+						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].is_h = ocBroadcastBool(false, 1);
+						jj = 0;
 						for (; jj < ratings; jj++) rPrefs[ll * rratings_max + jj].rank = feedOblivInt(rperm[jj], 1);
-						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rank = feedOblivInt(-1, 1);;
+						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rank = feedOblivInt(-1, 1);
 						shuffle(rperm, hospitals);
 						qsort(rperm, sizeof(uint32_t), ratings, uint32cmp);
 						jj = 0;
-						for (; jj < ratings; jj++) rPrefs[ll * rratings_max + jj].id = feedOblivInt(rperm[jj], 1);
-						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].id = feedOblivInt(-1, 1);
+						for (; jj < ratings; jj++) rPrefs[ll * rratings_max + jj].hid = feedOblivInt(rperm[jj], 1);
+						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].hid = feedOblivInt(-1, 1);
 					} else {
+						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rid = ocBroadcastInt(0, 1);
+						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].is_h = ocBroadcastBool(0, 1);
 						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rank = feedOblivInt(0, 1);
-						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].id = feedOblivInt(0, 1);
+						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].hid = feedOblivInt(0, 1);
 					}
 				}
 
@@ -151,18 +157,24 @@ void testMain(void*varg) {
 						output[ll].positions_available = feedOblivInt(positions,2);
 
 						int jj = 0;
+						for (; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].hid = ocBroadcastInt(jj, 2);
+						jj = 0;
+						for (jj = 0 ; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].is_h = ocBroadcastBool(true, 2);
+						jj = 0;
 						for (; jj < ratings; jj++) hPrefs[ll * hratings_max + jj].rank = feedOblivInt(hperm[jj], 2);
 						for (; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rank = feedOblivInt(-1, 2);
 						shuffle(hperm, residents);
 						qsort(hperm, sizeof(uint32_t), ratings, uint32cmp);
 						jj = 0;
-						for (; jj < ratings; jj++) hPrefs[ll * hratings_max + jj].id = feedOblivInt(hperm[jj], 2);
-						for (; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].id = feedOblivInt(-1, 2);
+						for (; jj < ratings; jj++) hPrefs[ll * hratings_max + jj].rid = feedOblivInt(hperm[jj], 2);
+						for (; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rid = feedOblivInt(-1, 2);
 					} else {
 						hData[ll].positions_available = feedOblivInt(0, 2);
 						output[ll].positions_available = feedOblivInt(0, 2);
+						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].hid = ocBroadcastInt(0, 2);
+						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].is_h = ocBroadcastBool(0, 2);
 						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rank = feedOblivInt(0, 2);
-						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].id = feedOblivInt(0, 2);
+						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rid = feedOblivInt(0, 2);
 					}
 				}
 

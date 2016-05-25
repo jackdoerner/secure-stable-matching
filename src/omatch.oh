@@ -6,7 +6,9 @@
 void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefs, obliv uint32_t * wPrefs, int n);
 
 typedef struct oroth_peranson_preference {
-	obliv int32_t id;
+	obliv int32_t rid;
+	obliv int32_t hid;
+	obliv bool is_h;
 	obliv int32_t rank;
 } oroth_peranson_preference;
 

@@ -63,9 +63,15 @@ void testMain(void*varg) {
 		};
 
 		uint32_t hPrefsRaw[27] = {
-			8, 1, 2, 3, 4, 5, 6, 7, 0,
-			3, 2, 6, 0, 7, 1, 4, 5, 8,
-			1, 0, 8, 7, 6, 2, 3, 4, 5
+			8, 3, 1,
+			1, 2, 0,
+			2, 6, 8,
+			3, 0, 7,
+			4, 7, 6,
+			5, 1, 2,
+			6, 4, 3,
+			7, 5, 4,
+			0, 8, 5
 		};
 
 		uint32_t expected_output[9] = {
@@ -160,9 +166,14 @@ void testMain(void*varg) {
 
 
 		for (int ii = 0; ii < 27; ii++) {
-			rPrefs[ii].id = ii % 3;
+			rPrefs[ii].rid = ii / 3;
+			rPrefs[ii].hid = ii % 3;
+			rPrefs[ii].is_h = false;
 			rPrefs[ii].rank = feedOblivInt(rPrefsRaw[ii], 0);
-			hPrefs[ii].id = ii % 9;
+
+			hPrefs[ii].rid = ii / 3;
+			hPrefs[ii].hid = ii % 3;
+			hPrefs[ii].is_h = true;
 			hPrefs[ii].rank = feedOblivInt(hPrefsRaw[ii], 0);
 		}
 
