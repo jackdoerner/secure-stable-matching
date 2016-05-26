@@ -1,6 +1,7 @@
 #include <obliv.oh>
 #include "omatch.oh"
 #include "oram.oh"
+#include "osort.oh"
 #include "test_generic.h"
 
 #include <time.h>
@@ -41,6 +42,14 @@ uint32_t unsafe_rand_range(uint32_t rangemin, uint32_t rangemax) {
 		result = (ocBroadcastInt(rand(),1) % (rangemax - rangemin)) + rangemin;
 	}
 	return result;
+}
+
+static obliv char orp_pref_cmp(OcCopy * cpy, void * el1raw, void * el2raw) {
+	//NOTE: DO NOT USE NEGATIVE VALUES FOR RID
+	oroth_peranson_preference * el1 = ((oroth_peranson_preference *) el1raw);
+	oroth_peranson_preference * el2 = ((oroth_peranson_preference *) el2raw);
+	obliv int64_t result = ((((obliv int64_t) el1->rid) << 33) + (((obliv int64_t) el1->hid) << 1) + el1->is_h) - ((((obliv int64_t) el2->rid) << 33) + (((obliv int64_t) el2->hid) << 1) + el2->is_h);
+	return (result > 0) | (-1 * (result < 0));
 }
 
 int pcts[] = {4,8,16,32,64,128,256,512,1024};
@@ -149,7 +158,6 @@ void testMain(void*varg) {
 				for (int ll = 0; ll < hospitals; ll++) {
 					uint32_t positions = unsafe_rand_range(positions_min, positions_max);
 					uint32_t ratings = min(hratings_max, positions * unsafe_rand_range(hratings_per_position_min, hratings_per_position_max));
-					
 
 					shuffle(hperm, residents);
 					if (ocCurrentParty() == 2) {
@@ -177,6 +185,9 @@ void testMain(void*varg) {
 						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rid = feedOblivInt(0, 2);
 					}
 				}
+
+				OcCopy cpy_orppref = ocCopyBoolN(sizeof(oroth_peranson_preference)/sizeof(obliv bool));
+				osort_batcher(&cpy_orppref, hPrefs, hratings_max * hospitals, orp_pref_cmp);
 
 				uint64_t startTime = current_timestamp();
 				oroth_peranson(output, rData, residents, hData, hospitals);

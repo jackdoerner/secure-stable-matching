@@ -154,22 +154,15 @@ typedef struct oroth_peranson_pairing {
 	obliv uint32_t rnext;
 } oroth_peranson_pairing;
 
-obliv char orp_pref_cmp(OcCopy * cpy, void * el1raw, void * el2raw) {
-	//TODO: do this the right way
-
+static obliv char orp_pref_cmp(OcCopy * cpy, void * el1raw, void * el2raw) {
+	//NOTE: DO NOT USE NEGATIVE VALUES FOR RID
 	oroth_peranson_preference * el1 = ((oroth_peranson_preference *) el1raw);
 	oroth_peranson_preference * el2 = ((oroth_peranson_preference *) el2raw);
-	obliv char result = el1->rid - el2->rid;
-	obliv if (result == 0) {
-		result = (el1->hid - el2->hid);
-		obliv if (result == 0) {
-			result = (el1->is_h - el2->is_h);
-		}
-	}
-	return result;
+	obliv int64_t result = ((((obliv int64_t) el1->rid) << 33) + (((obliv int64_t) el1->hid) << 1) + el1->is_h) - ((((obliv int64_t) el2->rid) << 33) + (((obliv int64_t) el2->hid) << 1) + el2->is_h);
+	return (result > 0) | (-1 * (result < 0));
 }
 
-obliv char orp_pair_cmp(OcCopy * cpy, void * el1, void * el2) {
+static obliv char orp_pair_cmp(OcCopy * cpy, void * el1, void * el2) {
 	return ((oroth_peranson_pairing *) el1)->rrank - ((oroth_peranson_pairing *) el2)->rrank;
 }
 
