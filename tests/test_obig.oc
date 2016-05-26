@@ -16,6 +16,7 @@ void testMain(void*varg) {
 	#include "test_obig_components/bitlogic.oc"
 	#include "test_obig_components/bitshifts.oc"
 	#include "test_obig_components/arithmetic.oc"
+	#include "test_obig_components/signedarithmetic.oc"
 
 	fprintf(stderr, "\n");
 
