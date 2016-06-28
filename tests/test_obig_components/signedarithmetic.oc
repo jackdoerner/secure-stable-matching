@@ -1,18 +1,18 @@
 /******************************************
  ******************************************
- *** obig_add
+ *** obig_add_signed
  ******************************************
  ******************************************/
 
 fprintf(stderr, "\n");
 
 {	// obig_add
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x + y;
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	int expected = x + y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -29,7 +29,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_add(&result, x_test, y_test);
+	obig_add_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -37,7 +37,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -47,13 +47,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_add - augmented assignment x
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x+y;
+{	// obig_add_signed - augmented assignment x
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	int expected = x+y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -68,7 +68,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_add(&x_test, x_test, y_test);
+	obig_add_signed(&x_test, x_test, y_test);
 
 	for (int ii = x_test.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, x_test.data[ii], 0);
@@ -76,7 +76,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -85,13 +85,13 @@ fprintf(stderr, "\n");
 	obig_free(&y_test);
 }
 
-{	// obig_add - augmented assignment y
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x+y;
+{	// obig_add_signed - augmented assignment y
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	int expected = x+y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -106,7 +106,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_add(&y_test, x_test, y_test);
+	obig_add_signed(&y_test, x_test, y_test);
 
 	for (int ii = y_test.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, y_test.data[ii], 0);
@@ -114,7 +114,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -124,12 +124,12 @@ fprintf(stderr, "\n");
 }
 
 {	// obig_add - overflow
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned int expected = x+y;
+	int x = 0xAE48A840;
+	int y = 0xA7E0DD18;
+	int expected = x+y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -146,7 +146,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_add(&result, x_test, y_test);
+	obig_add_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -154,7 +154,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -164,13 +164,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_add - mismatched inputs (x longer than y)
-	unsigned int x = 0x7E48A840;
-	unsigned short y = 0xDD18;
-	unsigned int expected = x + y;
+{	// obig_add_signed - mismatched inputs (x longer than y)
+	int x = 0x7E48A840;
+	short y = 0xDD18;
+	int expected = x + y;
 
-	obliv unsigned int xo;
-	obliv unsigned short yo;
+	obliv int xo;
+	obliv short yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivShort(y, 2);
 
@@ -187,7 +187,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_add(&result, x_test, y_test);
+	obig_add_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -195,7 +195,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -205,13 +205,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_add - mismatched inputs (x shorter than y)
-	unsigned short x = 0xA840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x + y;
+{	// obig_add_signed - mismatched inputs (x shorter than y)
+	short x = 0xA840;
+	int y = 0x47E0DD18;
+	int expected = x + y;
 
-	obliv unsigned short xo;
-	obliv unsigned int yo;
+	obliv short xo;
+	obliv int yo;
 	xo = feedOblivShort(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -228,7 +228,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_add(&result, x_test, y_test);
+	obig_add_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -236,7 +236,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -246,14 +246,14 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_add - extended output
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned long long expected = x;
+{	// obig_add_signed - extended output
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	long long expected = x;
 	expected += y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -270,7 +270,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_add(&result, x_test, y_test);
+	obig_add_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -278,7 +278,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -289,12 +289,12 @@ fprintf(stderr, "\n");
 }
 
 {	// obig_add - truncated output
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned short expected = x + y;
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	short expected = x + y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -311,7 +311,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned short output;
 
-	obig_add(&result, x_test, y_test);
+	obig_add_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -319,9 +319,9 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_add_signed - truncated output", (expected == (short)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (short)output) {
+		fprintf(stderr, "\tExpected:\t%0hhX\n\tActual: \t%0hhX\n", expected, output);
 	}
 
 	obig_free(&x_test);
@@ -334,20 +334,19 @@ fprintf(stderr, "\n");
 
 
 
-
 /******************************************
  ******************************************
- *** obig_neg
+ *** obig_neg_signed
  ******************************************
  ******************************************/
 
 fprintf(stderr, "\n");
 
-{	// obig_neg
-	unsigned int x = 0x7E48A840;
-	unsigned int expected = -x;
+{	// obig_neg_signed
+	int x = 0x8E48A840;
+	int expected = -x;
 
-	obliv unsigned int xo;
+	obliv int xo;
 	xo = feedOblivInt(x, 1);
 
 	obig x_test;
@@ -356,11 +355,11 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(int));
 
-	obig_import_onative(&x_test, xo);
+	obig_import_onative_signed(&x_test, xo);
 	unsigned char temp;
 	unsigned int output;
 
-	obig_neg(&result, x_test);
+	obig_neg_signed(&result, x_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -368,8 +367,8 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed", (expected == (int)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (int)output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
 
@@ -377,22 +376,22 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_neg - augmented assignment
-	unsigned int x = 0x7E48A840;
-	unsigned int expected = -x;
+{	// obig_neg_signed - augmented assignment
+	int x = 0xAE48A840;
+	int expected = -x;
 
-	obliv unsigned int xo;
+	obliv int xo;
 	xo = feedOblivInt(x, 1);
 
 	obig x_test;
 
 	obig_init(&x_test, sizeof(int));
 
-	obig_import_onative(&x_test, xo);
+	obig_import_onative_signed(&x_test, xo);
 	unsigned char temp;
 	unsigned int output;
 
-	obig_neg(&x_test, x_test);
+	obig_neg_signed(&x_test, x_test);
 
 	for (int ii = x_test.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, x_test.data[ii], 0);
@@ -400,54 +399,20 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - augmented assignment", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed - augmented assignment", (expected == (int)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (int)output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
 
 	obig_free(&x_test);
 }
 
-{	// obig_neg - overflow
-	unsigned int x = 0xAE48A840;
-	unsigned int expected = -x;
-
-	obliv unsigned int xo;
-	xo = feedOblivInt(x, 1);
-
-	obig x_test;
-	obig result;
-
-	obig_init(&x_test, sizeof(int));
-	obig_init(&result, sizeof(int));
-
-	obig_import_onative(&x_test, xo);
-	unsigned char temp;
-	unsigned int output;
-
-	obig_neg(&result, x_test);
-
-	for (int ii = result.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result.data[ii], 0);
-		output <<= 8;
-		output += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - overflow", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
-	}
-
-	obig_free(&x_test);
-	obig_free(&result);
-}
-
-{	// obig_neg - extended output
-	unsigned int x = 0xAE48A840;
-	unsigned long long expected = x;
+{	// obig_neg_signed - extended output
+	int x = 0xAE48A840;
+	long long expected = x;
 	expected *= -1;
 
-	obliv unsigned int xo;
+	obliv int xo;
 	xo = feedOblivInt(x, 1);
 
 	obig x_test;
@@ -456,11 +421,11 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_import_onative(&x_test, xo);
+	obig_import_onative_signed(&x_test, xo);
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_neg(&result, x_test);
+	obig_neg_signed(&result, x_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -468,8 +433,8 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed - extended output", (expected == (long long)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (long long)output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
 
@@ -477,12 +442,12 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_neg - truncated output
-	unsigned int x = 0xAE48A840;
-	unsigned short expected = x;
+{	// obig_neg_signed - truncated output
+	int x = 0xAE48A840;
+	short expected = x;
 	expected *= -1;
 
-	obliv unsigned int xo;
+	obliv int xo;
 	xo = feedOblivInt(x, 1);
 
 	obig x_test;
@@ -491,11 +456,11 @@ fprintf(stderr, "\n");
 	obig_init(&x_test, sizeof(int));
 	obig_init(&result, sizeof(short));
 
-	obig_import_onative(&x_test, xo);
+	obig_import_onative_signed(&x_test, xo);
 	unsigned char temp;
 	unsigned short output;
 
-	obig_neg(&result, x_test);
+	obig_neg_signed(&result, x_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -503,8 +468,8 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_neg_signed - truncated output", (expected == (short)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (short)output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
 
@@ -515,23 +480,21 @@ fprintf(stderr, "\n");
 
 
 
-
-
 /******************************************
  ******************************************
- *** obig_sub
+ *** obig_sub_signed
  ******************************************
  ******************************************/
 
 fprintf(stderr, "\n");
 
-{	// obig_sub - x > y
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x - y;
+{	// obig_sub_signed - x > y
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	int expected = x - y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -548,7 +511,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_sub(&result, x_test, y_test);
+	obig_sub_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -556,7 +519,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -566,13 +529,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_sub - x < y
-	unsigned int x = 0x47E0DD18;
-	unsigned int y = 0x7E48A840;
-	unsigned int expected = x - y;
+{	// obig_sub_signed - x < y
+	int x = 0x47E0DD18;
+	int y = 0xAE48A840;
+	int expected = x - y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -589,7 +552,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_sub(&result, x_test, y_test);
+	obig_sub_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -597,7 +560,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -607,13 +570,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_sub - augmented assignment x
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x - y;
+{	// obig_sub_signed - augmented assignment x
+	int x = 0x7E48A840;
+	int y = 0x47E0DD18;
+	int expected = x - y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -628,7 +591,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_sub(&x_test, x_test, y_test);
+	obig_sub_signed(&x_test, x_test, y_test);
 
 	for (int ii = x_test.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, x_test.data[ii], 0);
@@ -636,7 +599,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -645,13 +608,13 @@ fprintf(stderr, "\n");
 	obig_free(&y_test);
 }
 
-{	// obig_sub - augmented assignment y
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x - y;
+{	// obig_sub_signed - augmented assignment y
+	int x = 0x7E48A840;
+	int y = 0x47E0DD18;
+	int expected = x - y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -666,7 +629,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_sub(&y_test, x_test, y_test);
+	obig_sub_signed(&y_test, x_test, y_test);
 
 	for (int ii = y_test.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, y_test.data[ii], 0);
@@ -674,7 +637,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -683,13 +646,13 @@ fprintf(stderr, "\n");
 	obig_free(&y_test);
 }
 
-{	// obig_sub - mismatched inputs (x longer than y)
-	unsigned int x = 0x7E48A840;
-	unsigned short y = 0xDD18;
-	unsigned int expected = x - y;
+{	// obig_sub_signed - mismatched inputs (x longer than y)
+	int x = 0x7E48A840;
+	short y = 0xDD18;
+	int expected = x - y;
 
-	obliv unsigned int xo;
-	obliv unsigned short yo;
+	obliv int xo;
+	obliv short yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivShort(y, 2);
 
@@ -706,7 +669,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_sub(&result, x_test, y_test);
+	obig_sub_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -714,7 +677,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -724,13 +687,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_sub - mismatched inputs (x shorter than y)
-	unsigned short x = 0xA840;
-	unsigned int y = 0x47E0DD18;
-	unsigned int expected = x - y;
+{	// obig_sub_signed - mismatched inputs (x shorter than y)
+	short x = 0xA840;
+	int y = 0x47E0DD18;
+	int expected = x - y;
 
-	obliv unsigned short xo;
-	obliv unsigned int yo;
+	obliv short xo;
+	obliv int yo;
 	xo = feedOblivShort(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -747,7 +710,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_sub(&result, x_test, y_test);
+	obig_sub_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -755,7 +718,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -765,14 +728,14 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_add - extended output, x > y
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x47E0DD18;
-	unsigned long long expected = x;
+{	// obig_sub_signed - extended output, x > y
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	long long expected = x;
 	expected -= y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -789,7 +752,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_sub(&result, x_test, y_test);
+	obig_sub_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -797,7 +760,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - extended output, x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - extended output, x > y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -807,14 +770,14 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_add - extended output, x < y
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned long long expected = x;
+{	// obig_sub_signed - extended output, x < y
+	int x = 0xAE48A840;
+	int y = 0x00E0DD18;
+	long long expected = x;
 	expected -= y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -831,7 +794,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_sub(&result, x_test, y_test);
+	obig_sub_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -839,7 +802,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - extended output, x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - extended output, x < y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -849,13 +812,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_sub - truncated output
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned short expected = x - y;
+{	// obig_sub_signed - truncated output
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	short expected = x - y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -872,7 +835,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned short output;
 
-	obig_sub(&result, x_test, y_test);
+	obig_sub_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -880,8 +843,8 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sub_signed - truncated output", (expected == (short)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (short)output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
 
@@ -893,23 +856,21 @@ fprintf(stderr, "\n");
 
 
 
-
-
 /******************************************
  ******************************************
- *** obig_multiply
+ *** obig_multiply_signed
  ******************************************
  ******************************************/
 
 fprintf(stderr, "\n");
 
-{	// obig_multiply
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned long long expected = (unsigned long long)x * (unsigned long long)y;
+{	// obig_multiply_signed
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	long long expected = (long long)x * (long long)y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -926,7 +887,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_mul(&result, x_test, y_test);
+	obig_mul_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -934,7 +895,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -944,13 +905,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - augmented assignment x
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned int expected = x * y;
+{	// obig_mul_signed - augmented assignment x
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	int expected = x * y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -966,7 +927,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_mul(&x_test, x_test, y_test);
+	obig_mul_signed(&x_test, x_test, y_test);
 
 	for (int ii = x_test.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, x_test.data[ii], 0);
@@ -974,7 +935,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - augmented assignment x", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -984,13 +945,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - augmented assignment y
-	unsigned int x = 0x8E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned int expected = x * y;
+{	// obig_mul_signed - augmented assignment y
+	int x = 0x8E48A840;
+	int y = 0xA7E0DD18;
+	int expected = (long long)x * (long long)y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1006,7 +967,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_mul(&y_test, x_test, y_test);
+	obig_mul_signed(&y_test, x_test, y_test);
 
 	for (int ii = y_test.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, y_test.data[ii], 0);
@@ -1014,9 +975,9 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - augmented assignment y", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - augmented assignment y", (expected == (int)output)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected != (int)output) {
+		fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expected, output);
 	}
 
 	obig_free(&x_test);
@@ -1024,13 +985,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - odd sized inputs
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned long long expected = (unsigned long long)x * (unsigned long long)y;
+{	// obig_mul_signed - odd sized inputs
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	long long expected = (long long)x * (long long)y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1047,7 +1008,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_mul(&result, x_test, y_test);
+	obig_mul_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -1055,7 +1016,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - odd sized inputs", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - odd sized inputs", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -1065,13 +1026,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - mismatched inputs x longer than y
-	unsigned int x = 0x7E48A840;
-	unsigned short y = 0xDD18;
-	unsigned long long expected = (unsigned long long)x * (unsigned long long)y;
+{	// obig_mul_signed - mismatched inputs x longer than y
+	int x = 0x7E48A840;
+	short y = 0xDD18;
+	long long expected = (long long)x * (long long)y;
 
-	obliv unsigned int xo;
-	obliv unsigned short yo;
+	obliv int xo;
+	obliv short yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivShort(y, 2);
 
@@ -1083,12 +1044,12 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(short));
 	obig_init(&result, sizeof(long long));
 
-	obig_import_onative(&x_test, xo);
-	obig_import_onative(&y_test, yo);
+	obig_import_onative_signed(&x_test, xo);
+	obig_import_onative_signed(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_mul(&result, x_test, y_test);
+	obig_mul_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -1096,7 +1057,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - mismatched inputs (x longer than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -1106,13 +1067,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - mismatched inputs x shorter than y
-	unsigned short x = 0xA840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned long long expected = (unsigned long long)x * (unsigned long long)y;
+{	// obig_mul_signed - mismatched inputs x shorter than y
+	short x = 0xA840;
+	int y = 0xA7E0DD18;
+	long long expected = (long long)x * (long long)y;
 
-	obliv unsigned short xo;
-	obliv unsigned int yo;
+	obliv short xo;
+	obliv int yo;
 	xo = feedOblivShort(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1124,12 +1085,12 @@ fprintf(stderr, "\n");
 	obig_init(&y_test, sizeof(int));
 	obig_init(&result, sizeof(long long));
 
-	obig_import_onative(&x_test, xo);
-	obig_import_onative(&y_test, yo);
+	obig_import_onative_signed(&x_test, xo);
+	obig_import_onative_signed(&y_test, yo);
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_mul(&result, x_test, y_test);
+	obig_mul_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -1137,7 +1098,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - mismatched inputs (x shorter than y)", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -1147,13 +1108,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - extended output
-	unsigned short x = 0x7E48;
-	unsigned short y = 0xA7E0;
-	unsigned long long expected = (unsigned long long)x * (unsigned long long)y;
+{	// obig_mul_signed - extended output
+	short x = 0x7E48;
+	short y = 0xA7E0;
+	long long expected = (long long)x * (long long)y;
 
-	obliv unsigned short xo;
-	obliv unsigned short yo;
+	obliv short xo;
+	obliv short yo;
 	xo = feedOblivShort(x, 1);
 	yo = feedOblivShort(y, 2);
 
@@ -1170,7 +1131,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned long long output;
 
-	obig_mul(&result, x_test, y_test);
+	obig_mul_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -1178,7 +1139,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
 	}
@@ -1188,13 +1149,13 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - truncated output
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0xA7E0DD18;
-	unsigned int expected = (unsigned long long)x * (unsigned long long)y;
+{	// obig_mul_signed - truncated output
+	int x = 0x7E48A840;
+	int y = 0xA7E0DD18;
+	int expected = (long long)x * (long long)y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1211,7 +1172,7 @@ fprintf(stderr, "\n");
 	unsigned char temp;
 	unsigned int output;
 
-	obig_mul(&result, x_test, y_test);
+	obig_mul_signed(&result, x_test, y_test);
 
 	for (int ii = result.digits -1; ii >= 0; ii--) {
 		revealOblivChar(&temp, result.data[ii], 0);
@@ -1219,7 +1180,7 @@ fprintf(stderr, "\n");
 		output += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - truncated output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
 	if (expected != output) {
 		fprintf(stderr, "\tExpected:\t%0X\n\tActual: \t%0X\n", expected, output);
 	}
@@ -1229,10 +1190,10 @@ fprintf(stderr, "\n");
 	obig_free(&result);
 }
 
-{	// obig_multiply - 100 random inputs
-	unsigned int x[100];
-	unsigned int y[100];
-	unsigned long long expected[100];
+{	// obig_mul_signed - 100 random inputs
+	int x[100];
+	int y[100];
+	long long expected[100];
 	unsigned long long output[100] = 0;
 
 	obig x_test;
@@ -1245,12 +1206,12 @@ fprintf(stderr, "\n");
 	bool success = true;
 
 	for (int ii = 0; ii < 100; ii++) {
-		x[ii] = ocBroadcastInt(rand(), 1);
-		y[ii] = ocBroadcastInt(rand(), 1);
-		expected[ii] = (unsigned long long) x[ii] * (unsigned long long) y[ii];
+		x[ii] = ocBroadcastInt((rand()+rand()-RAND_MAX), 1);
+		y[ii] = ocBroadcastInt((rand()+rand()-RAND_MAX), 1);
+		expected[ii] = (long long) x[ii] * (long long) y[ii];
 
-		obliv unsigned int xo;
-		obliv unsigned int yo;
+		obliv int xo;
+		obliv int yo;
 		xo = feedOblivInt(x[ii], 1);
 		yo = feedOblivInt(y[ii], 1);
 
@@ -1258,7 +1219,7 @@ fprintf(stderr, "\n");
 		obig_import_onative(&y_test, yo);
 		unsigned char temp;
 
-		obig_mul(&result, x_test, y_test);
+		obig_mul_signed(&result, x_test, y_test);
 
 		for (int jj = result.digits -1; jj >= 0; jj--) {
 			revealOblivChar(&temp, result.data[jj], 0);
@@ -1266,14 +1227,14 @@ fprintf(stderr, "\n");
 			output[ii] += temp;
 		}
 
-		success &= (output[ii] == expected[ii]);
+		success &= ((long long)output[ii] == expected[ii]);
 
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_mul_signed - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	for (int ii = 0; ii < 100; ii++) {
-		if (expected[ii] != output[ii]) {
-			fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected[ii], output[ii]);
+		if (expected[ii] != (long long)output[ii]) {
+			fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected[ii], (long long)output[ii]);
 		}
 	}
 
@@ -1289,20 +1250,20 @@ fprintf(stderr, "\n");
 
 /******************************************
  ******************************************
- *** obig_div_mod
+ *** obig_div_mod_signed
  ******************************************
  ******************************************/
 
 fprintf(stderr, "\n");
 
-{	// obig_div_mod
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x07E0DD18;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed
+	int x = 0x8E3FF4C8;
+	int y = 0xFC348EE3;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1322,7 +1283,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1338,12 +1299,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1352,14 +1313,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod
-	unsigned int x = 0x78516427;
-	unsigned int y = 0x07E0DD18;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed - divisor larger than dividend
+	int y = 0x9E48A840;
+	int x = 0x0000DD18;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1379,7 +1340,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1395,12 +1356,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - divisor larger than dividend", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1409,14 +1370,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod - divisor larger than dividend
-	unsigned int y = 0x7E48A840;
-	unsigned int x = 0x0000DD18;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed
+	int y = 0x00000041;
+	int x = 0x00000008;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1436,7 +1397,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1452,69 +1413,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - divisor larger than dividend", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - unfull operands", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
-	}
-
-	obig_free(&x_test);
-	obig_free(&y_test);
-	obig_free(&result_q);
-	obig_free(&result_r);
-}
-
-{	// obig_div_mod - divisor larger than dividend
-	unsigned int y = 0x00000041;
-	unsigned int x = 0x00000008;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
-
-	obliv unsigned int xo;
-	obliv unsigned int yo;
-	xo = feedOblivInt(x, 1);
-	yo = feedOblivInt(y, 2);
-
-	obig x_test;
-	obig y_test;
-	obig result_q;
-	obig result_r;
-
-	obig_init(&x_test, sizeof(int));
-	obig_init(&y_test, sizeof(int));
-	obig_init(&result_q, sizeof(int));
-	obig_init(&result_r, sizeof(int));
-
-	obig_import_onative(&x_test, xo);
-	obig_import_onative(&y_test, yo);
-	unsigned char temp;
-	unsigned output_q;
-	unsigned output_r;
-
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
-	bool tempBool;
-	revealOblivBool(&tempBool, success, 0);
-
-	for (int ii = result_q.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result_q.data[ii], 0);
-		output_q <<= 8;
-		output_q += temp;
-	}
-
-	for (int ii = result_r.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result_r.data[ii], 0);
-		output_r <<= 8;
-		output_r += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - unfull operands", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
-	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1523,12 +1427,12 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod - division by 0
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x0;
+{	// obig_div_mod_signed - division by 0
+	int x = 0x7E48A840;
+	int y = 0x0;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1545,11 +1449,11 @@ fprintf(stderr, "\n");
 	obig_import_onative(&x_test, xo);
 	obig_import_onative(&y_test, yo);
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - division by 0", (!tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - division by 0", (!tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	obig_free(&x_test);
 	obig_free(&y_test);
@@ -1557,14 +1461,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod - augmented assignment
-	unsigned int x = 0xF94AE840;
-	unsigned int y = 0x01E00D08;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed - augmented assignment
+	int x = 0xF94AE840;
+	int y = 0x01E00D08;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1582,7 +1486,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&x_test, &y_test, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&x_test, &y_test, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1598,26 +1502,26 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - augmented assignment", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - augmented assignment", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
 	obig_free(&y_test);
 }
 
-{	// obig_div_mod
-	unsigned short x = 0x7E48;
-	unsigned int y = 0x00000019;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed
+	short x = 0x8E48;
+	int y = 0x00000019;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned short xo;
-	obliv unsigned int yo;
+	obliv short xo;
+	obliv int yo;
 	xo = feedOblivShort(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1637,7 +1541,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1653,12 +1557,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - mismatched inputs (x shorter than y)", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - mismatched inputs (x shorter than y)", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1667,14 +1571,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod
-	unsigned int x = 0x4E46A140;
-	unsigned short y = 0x07E0;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed
+	int x = 0x4E46A140;
+	short y = 0x87E0;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned short yo;
+	obliv int xo;
+	obliv short yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivShort(y, 2);
 
@@ -1694,7 +1598,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1710,12 +1614,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - mismatched inputs (x longer than y)", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - mismatched inputs (x longer than y)", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1724,14 +1628,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod
-	unsigned int x = 0x9E18A840;
-	unsigned int y = 0x17E0DA10;
-	unsigned long long expected_q = x / y;
-	unsigned long long expected_r = x % y;
+{	// obig_div_mod_signed
+	int x = 0x9E18A840;
+	int y = 0xF7E0DA10;
+	long long expected_q = x / y;
+	long long expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1751,7 +1655,7 @@ fprintf(stderr, "\n");
 	unsigned long long output_q;
 	unsigned long long output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1767,12 +1671,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - extended outputs", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%0llX\n\tActual quotient: \t%0llX\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - extended outputs", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%0llX\n\tActual quotient: \t%0llX\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%0llX\n\tActual remainder: \t%0llX\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%0llX\n\tActual remainder: \t%0llX\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1781,14 +1685,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod
-	unsigned int x = 0x7E48A840;
-	unsigned int y = 0x00000048;
-	unsigned short expected_q = x / y;
-	unsigned short expected_r = x % y;
+{	// obig_div_mod_signed
+	int x = 0x8E48A840;
+	int y = 0x00000048;
+	short expected_q = x / y;
+	short expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned int yo;
+	obliv int xo;
+	obliv int yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivInt(y, 2);
 
@@ -1808,7 +1712,7 @@ fprintf(stderr, "\n");
 	unsigned short output_q;
 	unsigned short output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1824,12 +1728,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - truncated outputs", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - truncated outputs", (expected_q == (short)output_q && expected_r == (short)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (short)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (short)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (short)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (short)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1838,11 +1742,11 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod - 100 random inputs
-	unsigned int x[100];
-	unsigned int y[100];
-	unsigned int expectedq[100];
-	unsigned int expectedr[100];
+{	// obig_div_mod_signed - 100 random inputs
+	int x[100];
+	int y[100];
+	int expectedq[100];
+	int expectedr[100];
 	unsigned int outputq[100] = 0;
 	unsigned int outputr[100] = 0;
 
@@ -1858,13 +1762,13 @@ fprintf(stderr, "\n");
 	bool success = true;
 
 	for (int ii = 0; ii < 100; ii++) {
-		x[ii] = ocBroadcastInt(rand(), 1);
-		y[ii] = ocBroadcastInt(rand(), 1);
+		x[ii] = ocBroadcastInt(rand()+rand()-RAND_MAX, 1);
+		y[ii] = ocBroadcastInt(rand()+rand()-RAND_MAX, 1);
 		expectedq[ii] = x[ii] / y[ii];
 		expectedr[ii] = x[ii] % y[ii];
 
-		obliv unsigned int xo;
-		obliv unsigned int yo;
+		obliv int xo;
+		obliv int yo;
 		xo = feedOblivInt(x[ii], 1);
 		yo = feedOblivInt(y[ii], 1);
 
@@ -1872,7 +1776,7 @@ fprintf(stderr, "\n");
 		obig_import_onative(&y_test, yo);
 		unsigned char temp;
 
-		obig_div_mod(&result_q, &result_r, x_test, y_test);
+		obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 
 		for (int jj = result_q.digits -1; jj >= 0; jj--) {
 			revealOblivChar(&temp, result_q.data[jj], 0);
@@ -1885,16 +1789,16 @@ fprintf(stderr, "\n");
 			outputr[ii] += temp;
 		}
 
-		success &= (outputq[ii] == expectedq[ii]) && (outputr[ii] == expectedr[ii]);
+		success &= ((int)outputq[ii] == expectedq[ii]) && ((int)outputr[ii] == expectedr[ii]);
 
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - 100 random inputs", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 	for (int ii = 0; ii < 100; ii++) {
 		if (expectedq[ii] != outputq[ii] || expectedr[ii] != outputr[ii]) {
 			fprintf(stderr, "\tx:\t%08X\n\ty:\t%08X\n", x[ii], y[ii]);
-			fprintf(stderr, "\tExpected x:\t%08X\n\tActual x: \t%08X\n", expectedq[ii], outputq[ii]);
-			fprintf(stderr, "\tExpected y:\t%08X\n\tActual y: \t%08X\n", expectedr[ii], outputr[ii]);
+			fprintf(stderr, "\tExpected q:\t%08X\n\tActual q: \t%08X\n", expectedq[ii], outputq[ii]);
+			fprintf(stderr, "\tExpected r:\t%08X\n\tActual r: \t%08X\n", expectedr[ii], outputr[ii]);
 		}
 	}
 
@@ -1908,20 +1812,21 @@ fprintf(stderr, "\n");
 
 
 
+
 /******************************************
  ******************************************
- *** obig_div_mod - one digit divisor
+ *** obig_div_mod_signed - one digit divisor
  ******************************************
  ******************************************/
 
-{	// obig_div_mod
-	unsigned int x = 0x7E48A840;
-	unsigned char y = 0x18;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed
+	int x = 0x7E48A840;
+	char y = 0x18;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned char yo;
+	obliv int xo;
+	obliv char yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivChar(y, 2);
 
@@ -1941,7 +1846,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -1957,12 +1862,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - one digit divisor", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -1971,14 +1876,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod - divisor larger than dividend
-	unsigned char y = 0x40;
-	unsigned int x = 0x00000028;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed - divisor larger than dividend
+	char y = 0x40;
+	int x = 0x00000028;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned char yo;
+	obliv int xo;
+	obliv char yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivChar(y, 2);
 
@@ -1998,7 +1903,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -2014,12 +1919,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - divisor larger than dividend", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - one digit divisor - divisor larger than dividend", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -2028,12 +1933,12 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod - division by 0
-	unsigned int x = 0x7E48A840;
-	unsigned char y = 0x0;
+{	// obig_div_mod_signed - division by 0
+	int x = 0x7E48A840;
+	char y = 0x0;
 
-	obliv unsigned int xo;
-	obliv unsigned char yo;
+	obliv int xo;
+	obliv char yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivChar(y, 2);
 
@@ -2050,11 +1955,11 @@ fprintf(stderr, "\n");
 	obig_import_onative(&x_test, xo);
 	obig_import_onative(&y_test, yo);
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - division by 0", (!tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - one digit divisor - division by 0", (!tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
 
 	obig_free(&x_test);
 	obig_free(&y_test);
@@ -2062,14 +1967,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod - augmented assignment
-	unsigned int x = 0xF94AE840;
-	unsigned char y = 0x08;
-	unsigned int expected_q = x / y;
-	unsigned char expected_r = x % y;
+{	// obig_div_mod_signed - augmented assignment
+	int x = 0xF94AE840;
+	char y = 0x08;
+	int expected_q = x / y;
+	char expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned char yo;
+	obliv int xo;
+	obliv char yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivChar(y, 2);
 
@@ -2087,7 +1992,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&x_test, &y_test, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&x_test, &y_test, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -2103,26 +2008,26 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - augmented assignment", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - one digit divisor - augmented assignment", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
 	obig_free(&y_test);
 }
 
-{	// obig_div_mod
-	unsigned char x = 0x48;
-	unsigned char y = 0x19;
-	unsigned int expected_q = x / y;
-	unsigned int expected_r = x % y;
+{	// obig_div_mod_signed
+	char x = 0xA8;
+	char y = 0x19;
+	int expected_q = x / y;
+	int expected_r = x % y;
 
-	obliv unsigned char xo;
-	obliv unsigned char yo;
+	obliv char xo;
+	obliv char yo;
 	xo = feedOblivChar(x, 1);
 	yo = feedOblivChar(y, 2);
 
@@ -2142,7 +2047,7 @@ fprintf(stderr, "\n");
 	unsigned output_q;
 	unsigned output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -2158,12 +2063,12 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - matched inputs", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - one digit divisor - matched inputs", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
@@ -2172,14 +2077,14 @@ fprintf(stderr, "\n");
 	obig_free(&result_r);
 }
 
-{	// obig_div_mod
-	unsigned int x = 0x7E48A840;
-	unsigned char y = 0x48;
-	unsigned char expected_q = x / y;
-	unsigned char expected_r = x % y;
+{	// obig_div_mod_signed
+	int x = 0x7E48A840;
+	char y = 0x88;
+	char expected_q = x / y;
+	char expected_r = x % y;
 
-	obliv unsigned int xo;
-	obliv unsigned char yo;
+	obliv int xo;
+	obliv char yo;
 	xo = feedOblivInt(x, 1);
 	yo = feedOblivChar(y, 2);
 
@@ -2199,7 +2104,7 @@ fprintf(stderr, "\n");
 	unsigned char output_q;
 	unsigned char output_r;
 
-	obliv bool success = obig_div_mod(&result_q, &result_r, x_test, y_test);
+	obliv bool success = obig_div_mod_signed(&result_q, &result_r, x_test, y_test);
 	bool tempBool;
 	revealOblivBool(&tempBool, success, 0);
 
@@ -2215,231 +2120,16 @@ fprintf(stderr, "\n");
 		output_r += temp;
 	}
 
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod - one digit divisor - truncated outputs", (expected_q == output_q && expected_r == output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected_q != output_q) {
-		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, output_q);
+	fprintf(stderr, "Test Item: %-70s %s\n", "obig_div_mod_signed - one digit divisor - truncated outputs", (expected_q == (int)output_q && expected_r == (int)output_r && tempBool)?STATUS_SUCCESS:STATUS_FAILURE);
+	if (expected_q != (int)output_q) {
+		fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, (int)output_q);
 	}
-	if (expected_r != output_r) {
-		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, output_r);
+	if (expected_r != (int)output_r) {
+		fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, (int)output_r);
 	}
 
 	obig_free(&x_test);
 	obig_free(&y_test);
 	obig_free(&result_q);
 	obig_free(&result_r);
-}
-
-
-
-
-
-
-
-/******************************************
- ******************************************
- *** obig_sqrt
- ******************************************
- ******************************************/
-
-fprintf(stderr, "\n");
-
-{	// obig_sqrt
-	unsigned int x = 0xAE48A840;
-	unsigned int expected = sqrt(x);
-
-	obliv unsigned int xo;
-	xo = feedOblivInt(x, 1);
-
-	obig x_test;
-	obig result;
-
-	obig_init(&x_test, sizeof(int));
-	obig_init(&result, sizeof(int));
-
-	obig_import_onative(&x_test, xo);
-	unsigned char temp;
-	unsigned int output;
-
-	obig_sqrt(&result, x_test);
-
-	for (int ii = result.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result.data[ii], 0);
-		output <<= 8;
-		output += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expected, output);
-	}
-
-	obig_free(&x_test);
-	obig_free(&result);
-}
-
-{	// obig_sqrt - unfull operand
-	unsigned int x = 0x0000A840;
-	unsigned int expected = sqrt(x);
-
-	obliv unsigned int xo;
-	xo = feedOblivInt(x, 1);
-
-	obig x_test;
-	obig result;
-
-	obig_init(&x_test, sizeof(int));
-	obig_init(&result, sizeof(int));
-
-	obig_import_onative(&x_test, xo);
-	unsigned char temp;
-	unsigned int output;
-
-	obig_sqrt(&result, x_test);
-
-	for (int ii = result.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result.data[ii], 0);
-		output <<= 8;
-		output += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - unfull operand", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expected, output);
-	}
-
-	obig_free(&x_test);
-	obig_free(&result);
-}
-
-{	// obig_sqrt
-	unsigned int x = 0xAE48A840;
-	unsigned int expected = sqrt(x);
-
-	obliv unsigned int xo;
-	xo = feedOblivInt(x, 1);
-
-	obig x_test;
-
-	obig_init(&x_test, sizeof(int));
-
-	obig_import_onative(&x_test, xo);
-	unsigned char temp;
-	unsigned int output;
-
-	obig_sqrt(&x_test, x_test);
-
-	for (int ii = x_test.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, x_test.data[ii], 0);
-		output <<= 8;
-		output += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - augmented assignment", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%08X\n\tActual: \t%08X\n", expected, output);
-	}
-
-	obig_free(&x_test);
-}
-
-{	// obig_sqrt - extended output
-	unsigned int x = 0xAE48A840;
-	unsigned long long expected = sqrt(x);
-
-	obliv unsigned int xo;
-	xo = feedOblivInt(x, 1);
-
-	obig x_test;
-	obig result;
-
-	obig_init(&x_test, sizeof(int));
-	obig_init(&result, sizeof(long long));
-
-	obig_import_onative(&x_test, xo);
-	unsigned char temp;
-	unsigned long long output;
-
-	obig_sqrt(&result, x_test);
-
-	for (int ii = result.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result.data[ii], 0);
-		output <<= 8;
-		output += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - extended output", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%0llX\n\tActual: \t%0llX\n", expected, output);
-	}
-
-	obig_free(&x_test);
-	obig_free(&result);
-}
-
-{	// obig_sqrt - truncated output 1
-	unsigned int x = 0xAE48A840;
-	unsigned short expected = sqrt(x);
-
-	obliv unsigned int xo;
-	xo = feedOblivInt(x, 1);
-
-	obig x_test;
-	obig result;
-
-	obig_init(&x_test, sizeof(int));
-	obig_init(&result, sizeof(short));
-
-	obig_import_onative(&x_test, xo);
-	unsigned char temp;
-	unsigned short output;
-
-	obig_sqrt(&result, x_test);
-
-	for (int ii = result.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result.data[ii], 0);
-		output <<= 8;
-		output += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - truncated output 1", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%04X\n\tActual: \t%04X\n", expected, output);
-	}
-
-	obig_free(&x_test);
-	obig_free(&result);
-}
-
-{	// obig_sqrt - truncated output 2
-	unsigned int x = 0xAE48A840;
-	unsigned char expected = (unsigned int)sqrt(x);
-
-	obliv unsigned int xo;
-	xo = feedOblivInt(x, 1);
-
-	obig x_test;
-	obig result;
-
-	obig_init(&x_test, sizeof(int));
-	obig_init(&result, sizeof(char));
-
-	obig_import_onative(&x_test, xo);
-	unsigned char temp;
-	unsigned char output;
-
-	obig_sqrt(&result, x_test);
-
-	for (int ii = result.digits -1; ii >= 0; ii--) {
-		revealOblivChar(&temp, result.data[ii], 0);
-		output <<= 8;
-		output += temp;
-	}
-
-	fprintf(stderr, "Test Item: %-70s %s\n", "obig_sqrt - truncated output 2", (expected == output)?STATUS_SUCCESS:STATUS_FAILURE);
-	if (expected != output) {
-		fprintf(stderr, "\tExpected:\t%02X\n\tActual: \t%02X\n", expected, output);
-	}
-
-	obig_free(&x_test);
-	obig_free(&result);
 }
