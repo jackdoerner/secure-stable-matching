@@ -39,7 +39,11 @@ uint32_t unsafe_rand_range(uint32_t rangemin, uint32_t rangemax) {
 	if (rangemin == rangemax) {
 		result = rangemin;
 	} else {
-		result = (ocBroadcastInt(rand(),1) % (rangemax - rangemin)) + rangemin;
+		uint32_t rawrand = rand() & 0xff;
+		rawrand |= (rand() & 0xff) << 8;
+		rawrand |= (rand() & 0xff) << 16;
+		rawrand |= (rand() & 0xff) << 24;
+		result = (ocBroadcastInt(rawrand,1) % (rangemax - rangemin)) + rangemin;
 	}
 	return result;
 }
@@ -85,113 +89,116 @@ void testMain(void*varg) {
 			fflush(stdout);
 
 			uint32_t * rperm = malloc(hospitals * sizeof(uint32_t));
-			for (int kk = 0; kk < hospitals; kk++) {
-				rperm[kk] = kk;
-			}
+			uint32_t * rperm2 = malloc(rratings_max * sizeof(uint32_t));
+			for (int kk = 0; kk < hospitals; kk++) rperm[kk] = kk;
+			for (int kk = 0; kk < rratings_max; kk++) rperm2[kk] = kk;
 
 			uint32_t * hperm = malloc(residents * sizeof(uint32_t));
-			for (int kk = 0; kk < residents; kk++) {
-				hperm[kk] = kk;
-			}
+			uint32_t * hperm2 = malloc(residents * sizeof(uint32_t));
+			for (int kk = 0; kk < residents; kk++) hperm[kk] = kk;
+			for (int kk = 0; kk < hratings_max; kk++) hperm2[kk] = kk;
 
-			oroth_peranson_preference * rPrefs = calloc(residents*rratings_max, sizeof(oroth_peranson_preference));
-			oroth_peranson_resident_data * rData = calloc(residents, sizeof(oroth_peranson_resident_data));
+			oroth_peranson_preference_share * r_prefs_a = calloc(residents*rratings_max, sizeof(oroth_peranson_preference_share));
+			oroth_peranson_preference_share * r_prefs_b = calloc(residents*rratings_max, sizeof(oroth_peranson_preference_share));
+			oroth_peranson_resident_share * r_data_a = calloc(residents, sizeof(oroth_peranson_resident_share));
+			oroth_peranson_resident_share * r_data_b = calloc(residents, sizeof(oroth_peranson_resident_share));
 
 			for (int kk = 0; kk < residents; kk++) {
-				rData[kk] = (oroth_peranson_resident_data) {
-					.preferences = &rPrefs[kk*rratings_max],
+				r_data_a[kk] = (oroth_peranson_resident_share) {
+					.preferences = &r_prefs_a[kk*rratings_max],
+					.preferences_bound = rratings_max
+				};
+				r_data_b[kk] = (oroth_peranson_resident_share) {
+					.preferences = &r_prefs_b[kk*rratings_max],
 					.preferences_bound = rratings_max
 				};
 			}
 
-			oroth_peranson_preference * hPrefs = calloc(hospitals*hratings_max, sizeof(oroth_peranson_preference));
-			oroth_peranson_hospital_data * hData = calloc(hospitals, sizeof(oroth_peranson_hospital_data));
+			oroth_peranson_preference_share * h_prefs_a = calloc(hospitals*hratings_max, sizeof(oroth_peranson_preference_share));
+			oroth_peranson_preference_share * h_prefs_b = calloc(hospitals*hratings_max, sizeof(oroth_peranson_preference_share));
+			oroth_peranson_hospital_share * h_data_a = calloc(hospitals, sizeof(oroth_peranson_hospital_share));
+			oroth_peranson_hospital_share * h_data_b = calloc(hospitals, sizeof(oroth_peranson_hospital_share));
 
 			for (int kk = 0; kk < hospitals; kk++) {
-				hData[kk] = (oroth_peranson_hospital_data) {
-					.preferences = &hPrefs[kk*hratings_max],
+				h_data_a[kk] = (oroth_peranson_hospital_share) {
+					.preferences = &h_prefs_a[kk*hratings_max],
 					.preferences_bound = hratings_max,
-					.positions_bound = positions_max,
-					.positions_available = positions_max
+					.positions_available_share = positions_max
+				};
+				h_data_b[kk] = (oroth_peranson_hospital_share) {
+					.preferences = &h_prefs_b[kk*hratings_max],
+					.preferences_bound = hratings_max,
+					.positions_available_share = positions_max
 				};
 			}
 
 			obliv int32_t * matches = calloc(hospitals*positions_max, sizeof(obliv int32_t));
-			oroth_peranson_hospital_output * output = calloc(hospitals, sizeof(oroth_peranson_hospital_output));
-
-			for (int kk = 0; kk < hospitals; kk++) {
-				output[kk] = (oroth_peranson_hospital_output) {
-					.matches = &matches[kk*positions_max],
-					.positions_bound = positions_max,
-					.positions_available = positions_max
-				};
-			}
 
 			int samples = hospitals < 128 ? SAMPLES : (hospitals < 1024 ? 3 : 1);
 
 			for (int kk = 0; kk < samples; kk++) {
 				for (int ll = 0; ll < residents; ll++) {
 					uint32_t ratings = unsafe_rand_range(rratings_min, rratings_max);
-
 					shuffle(rperm, hospitals);
-					if (ocCurrentParty() == 1) {
-						int jj = 0;
-						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rid = ocBroadcastInt(jj, 1);
-						jj = 0;
-						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].is_h = ocBroadcastBool(false, 1);
-						jj = 0;
-						for (; jj < ratings; jj++) rPrefs[ll * rratings_max + jj].rank = feedOblivInt(rperm[jj], 1);
-						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rank = feedOblivInt(-1, 1);
-						shuffle(rperm, hospitals);
-						qsort(rperm, sizeof(uint32_t), ratings, uint32cmp);
-						jj = 0;
-						for (; jj < ratings; jj++) rPrefs[ll * rratings_max + jj].hid = feedOblivInt(rperm[jj], 1);
-						for (; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].hid = feedOblivInt(-1, 1);
-					} else {
-						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rid = ocBroadcastInt(0, 1);
-						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].is_h = ocBroadcastBool(0, 1);
-						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].rank = feedOblivInt(0, 1);
-						for (int jj = 0; jj < rratings_max; jj++) rPrefs[ll * rratings_max + jj].hid = feedOblivInt(0, 1);
+					qsort(rperm, sizeof(uint32_t), ratings, uint32cmp);
+					for (int jj = 0; jj < ratings; jj++) rperm2[jj] = jj;
+					shuffle(rperm2, ratings);
+
+					for (int jj = 0; jj < rratings_max; jj++) {
+						uint32_t hid = rperm[jj];
+						uint32_t rank;
+						if (jj < ratings) {
+							rank = rperm2[jj];	
+						} else {
+							rank = -1;	
+						}
+						uint32_t rnd_id = unsafe_rand_range(0, 0xFFFFFFFF);
+						uint32_t rnd_rank = unsafe_rand_range(0, 0xFFFFFFFF);
+						r_prefs_a[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
+						r_prefs_b[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id ^ hid, 2);
+						r_prefs_a[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
+						r_prefs_b[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
 					}
 				}
 
 				for (int ll = 0; ll < hospitals; ll++) {
 					uint32_t positions = unsafe_rand_range(positions_min, positions_max);
+					uint32_t rnd_positions = unsafe_rand_range(0, 0xFFFFFFFF);
+					h_data_a[ll].positions_available_share = feedOblivInt(rnd_positions, 1);
+					h_data_b[ll].positions_available_share = feedOblivInt(rnd_positions ^ positions, 2);
+
 					uint32_t ratings = min(hratings_max, positions * unsafe_rand_range(hratings_per_position_min, hratings_per_position_max));
-
 					shuffle(hperm, residents);
-					if (ocCurrentParty() == 2) {
-						hData[ll].positions_available = feedOblivInt(positions,2);
-						output[ll].positions_available = feedOblivInt(positions,2);
+					qsort(hperm, sizeof(uint32_t), ratings, uint32cmp);
+					for (int jj = 0; jj < ratings; jj++) hperm2[jj] = jj;
+					shuffle(hperm2, hospitals);
 
-						int jj = 0;
-						for (; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].hid = ocBroadcastInt(jj, 2);
-						jj = 0;
-						for (jj = 0 ; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].is_h = ocBroadcastBool(true, 2);
-						jj = 0;
-						for (; jj < ratings; jj++) hPrefs[ll * hratings_max + jj].rank = feedOblivInt(hperm[jj], 2);
-						for (; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rank = feedOblivInt(-1, 2);
-						shuffle(hperm, residents);
-						qsort(hperm, sizeof(uint32_t), ratings, uint32cmp);
-						jj = 0;
-						for (; jj < ratings; jj++) hPrefs[ll * hratings_max + jj].rid = feedOblivInt(hperm[jj], 2);
-						for (; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rid = feedOblivInt(-1, 2);
-					} else {
-						hData[ll].positions_available = feedOblivInt(0, 2);
-						output[ll].positions_available = feedOblivInt(0, 2);
-						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].hid = ocBroadcastInt(0, 2);
-						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].is_h = ocBroadcastBool(0, 2);
-						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rank = feedOblivInt(0, 2);
-						for (int jj = 0; jj < hratings_max; jj++) hPrefs[ll * hratings_max + jj].rid = feedOblivInt(0, 2);
+					for (int jj = 0; jj < rratings_max; jj++) {
+						uint32_t rid = hperm[jj];
+						uint32_t rank;
+						if (jj < ratings) {
+							rank = hperm2[jj];	
+						} else {
+							rank = -1;	
+						}
+						uint32_t rnd_id = unsafe_rand_range(0, 0xFFFFFFFF);
+						uint32_t rnd_rank = unsafe_rand_range(0, 0xFFFFFFFF);
+						r_prefs_a[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
+						r_prefs_b[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id ^ rid, 2);
+						r_prefs_a[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
+						r_prefs_b[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
 					}
 				}
 
-				OcCopy cpy_orppref = ocCopyBoolN(sizeof(oroth_peranson_preference)/sizeof(obliv bool));
-				osort_batcher(&cpy_orppref, hPrefs, hratings_max * hospitals, orp_pref_cmp);
-
 				uint64_t startTime = current_timestamp();
-				oroth_peranson(output, rData, residents, hData, hospitals);
+				oroth_peranson_preference_package * pkg = oroth_peranson_preference_package_from_shares(r_data_a, r_data_b, residents, h_data_a, h_data_b, hospitals, positions_max);
+				oroth_peranson_output * output = oroth_peranson(pkg);
 				uint64_t runtime = current_timestamp() - startTime;
+
+				oroth_peranson_preference_package_free(pkg);
+				oroth_peranson_output_free(output);
+				free(pkg);
+				free(output);
 
 				fprintf(stdout, ",%llu", runtime);
 				fflush(stdout);
@@ -201,12 +208,17 @@ void testMain(void*varg) {
 			}
 
 			free(rperm);
+			free(rperm2);
 			free(hperm);
-			free(rPrefs);
-			free(hPrefs);
-			free(rData);
-			free(hData);
-			free(output);
+			free(hperm2);
+			free(r_data_a);
+			free(r_data_b);
+			free(h_data_a);
+			free(h_data_b);
+			free(r_prefs_a);
+			free(r_prefs_b);
+			free(h_prefs_a);
+			free(h_prefs_b);
 			free(matches);
 
 			fprintf(stdout, "\n");

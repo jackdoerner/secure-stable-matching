@@ -5,6 +5,22 @@
 
 void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefs, obliv uint32_t * wPrefs, int n);
 
+typedef struct oroth_peranson_preference_share {
+	obliv int32_t id_share;
+	obliv int32_t rank_share;
+} oroth_peranson_preference_share;
+
+typedef struct oroth_peranson_resident_share {
+	size_t preferences_bound;
+	oroth_peranson_preference_share * preferences;
+} oroth_peranson_resident_share;
+
+typedef struct oroth_peranson_hospital_share {
+	size_t preferences_bound;
+	oroth_peranson_preference_share * preferences;
+	obliv size_t positions_available_share;
+} oroth_peranson_hospital_share;
+
 typedef struct oroth_peranson_preference {
 	obliv int32_t rid;
 	obliv int32_t hid;
@@ -12,24 +28,32 @@ typedef struct oroth_peranson_preference {
 	obliv int32_t rank;
 } oroth_peranson_preference;
 
-typedef struct oroth_peranson_resident_data {
-	size_t preferences_bound;
-	oroth_peranson_preference * preferences;
-} oroth_peranson_resident_data;
-
-typedef struct oroth_peranson_hospital_data {
-	size_t preferences_bound;
-	oroth_peranson_preference * preferences;
-	size_t positions_bound;
-	obliv size_t positions_available;
-} oroth_peranson_hospital_data;
+typedef struct oroth_peranson_preference_package {
+	size_t resident_count;
+	size_t hospital_count;
+	size_t r_preferences_bound;
+	size_t h_preferences_bound;
+	size_t h_positions_bound;
+	oroth_peranson_preference * r_prefs;
+	oroth_peranson_preference * h_prefs;
+	obliv uint32_t * h_positions_available;
+} oroth_peranson_preference_package;
 
 typedef struct oroth_peranson_hospital_output {
-	size_t positions_bound;
 	obliv size_t positions_available;
 	obliv int32_t * matches;
 } oroth_peranson_hospital_output;
 
-void oroth_peranson(oroth_peranson_hospital_output * output, oroth_peranson_resident_data * rData, size_t residentCount, oroth_peranson_hospital_data * hData, size_t hospitalCount);
+typedef struct oroth_peranson_output {
+	size_t hospital_count;
+	size_t positions_bound;
+	oroth_peranson_hospital_output * hospitals;
+} oroth_peranson_output;
+
+oroth_peranson_preference_package * oroth_peranson_preference_package_from_shares(oroth_peranson_resident_share * ra, oroth_peranson_resident_share * rb, size_t resident_count, oroth_peranson_hospital_share * ha, oroth_peranson_hospital_share * hb, size_t hospital_count, size_t hospital_positions_bound);
+void oroth_peranson_preference_package_free(oroth_peranson_preference_package * pkg);
+
+oroth_peranson_output * oroth_peranson(oroth_peranson_preference_package * pkg);
+void oroth_peranson_output_free(oroth_peranson_output * output);
 
 #endif
