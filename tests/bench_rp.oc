@@ -173,7 +173,7 @@ void testMain(void*varg) {
 					for (int jj = 0; jj < ratings; jj++) hperm2[jj] = jj;
 					shuffle(hperm2, hospitals);
 
-					for (int jj = 0; jj < rratings_max; jj++) {
+					for (int jj = 0; jj < hratings_max; jj++) {
 						uint32_t rid = hperm[jj];
 						uint32_t rank;
 						if (jj < ratings) {
@@ -183,10 +183,10 @@ void testMain(void*varg) {
 						}
 						uint32_t rnd_id = unsafe_rand_range(0, 0xFFFFFFFF);
 						uint32_t rnd_rank = unsafe_rand_range(0, 0xFFFFFFFF);
-						r_prefs_a[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
-						r_prefs_b[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id ^ rid, 2);
-						r_prefs_a[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
-						r_prefs_b[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
+						h_prefs_a[ll * hratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
+						h_prefs_b[ll * hratings_max + jj].id_share = feedOblivInt(rnd_id ^ rid, 2);
+						h_prefs_a[ll * hratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
+						h_prefs_b[ll * hratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
 					}
 				}
 
