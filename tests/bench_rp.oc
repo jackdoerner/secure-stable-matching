@@ -93,9 +93,9 @@ void testMain(void*varg) {
 			for (int kk = 0; kk < hospitals; kk++) rperm[kk] = kk;
 			for (int kk = 0; kk < rratings_max; kk++) rperm2[kk] = kk;
 
-			uint32_t * hperm = malloc(residents * sizeof(uint32_t));
-			uint32_t * hperm2 = malloc(residents * sizeof(uint32_t));
-			for (int kk = 0; kk < residents; kk++) hperm[kk] = kk;
+			uint32_t * hperm = malloc(hospitals * sizeof(uint32_t));
+			uint32_t * hperm2 = malloc(hratings_max * sizeof(uint32_t));
+			for (int kk = 0; kk < hospitals; kk++) hperm[kk] = kk;
 			for (int kk = 0; kk < hratings_max; kk++) hperm2[kk] = kk;
 
 			oroth_peranson_preference_share * r_prefs_a = calloc(residents*rratings_max, sizeof(oroth_peranson_preference_share));
@@ -132,9 +132,7 @@ void testMain(void*varg) {
 				};
 			}
 
-			obliv int32_t * matches = calloc(hospitals*positions_max, sizeof(obliv int32_t));
-
-			int samples = hospitals < 128 ? SAMPLES : (hospitals < 1024 ? 3 : 1);
+			int samples = SAMPLES;
 
 			for (int kk = 0; kk < samples; kk++) {
 				for (int ll = 0; ll < residents; ll++) {
@@ -168,10 +166,10 @@ void testMain(void*varg) {
 					h_data_b[ll].positions_available_share = feedOblivInt(rnd_positions ^ positions, 2);
 
 					uint32_t ratings = min(hratings_max, positions * unsafe_rand_range(hratings_per_position_min, hratings_per_position_max));
-					shuffle(hperm, residents);
+					shuffle(hperm, hospitals);
 					qsort(hperm, sizeof(uint32_t), ratings, uint32cmp);
 					for (int jj = 0; jj < ratings; jj++) hperm2[jj] = jj;
-					shuffle(hperm2, hospitals);
+					shuffle(hperm2, ratings);
 
 					for (int jj = 0; jj < hratings_max; jj++) {
 						uint32_t rid = hperm[jj];
@@ -219,7 +217,6 @@ void testMain(void*varg) {
 			free(r_prefs_b);
 			free(h_prefs_a);
 			free(h_prefs_b);
-			free(matches);
 
 			fprintf(stdout, "\n");
 			fprintf(stderr, "ROTH PERANSON (residents:%d, resident rankings bound:%d, hospitals:%d, hospital rankings bound:%d, max positions:%d): %llu microseconds avg\n", residents, rratings_max, hospitals, hratings_max, positions_max, tally/samples);

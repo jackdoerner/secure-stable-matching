@@ -204,9 +204,9 @@ oroth_peranson_preference_package * oroth_peranson_preference_package_from_share
 	result->hospital_count = hospital_count;
 	result->r_preferences_bound = r_preferences_bound;
 	result->h_preferences_bound = h_preferences_bound;
-	result->r_prefs = calloc(resident_count * r_preferences_bound, sizeof(* result->r_prefs));
-	result->h_prefs = calloc(hospital_count * h_preferences_bound, sizeof(* result->h_prefs));
-	result->h_positions_available = calloc(hospital_count, sizeof(* result->h_positions_available));
+	result->r_prefs = calloc(resident_count * r_preferences_bound, sizeof(oroth_peranson_preference));
+	result->h_prefs = calloc(hospital_count * h_preferences_bound, sizeof(oroth_peranson_preference));
+	result->h_positions_available = calloc(hospital_count, sizeof(obliv uint32_t));
 	result->h_positions_bound = hospital_positions_bound;
 	
 	for (size_t ii = 0; ii < resident_count; ii++) {
