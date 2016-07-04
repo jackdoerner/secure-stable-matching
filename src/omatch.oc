@@ -152,13 +152,13 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 typedef struct oroth_peranson_tentative_match {
 	obliv int32_t rid;
 	obliv int32_t hrank;
-	obliv uint32_t rnext;
+	obliv int32_t rnext;
 } oroth_peranson_tentative_match;
 
 typedef struct oroth_peranson_augmented_match {
 	obliv int32_t rid;
 	obliv int32_t hrank;
-	obliv uint32_t rnext;
+	obliv int32_t rnext;
 	uint32_t hospital_positions_bound;
 } oroth_peranson_augmented_match;
 
@@ -167,7 +167,7 @@ typedef struct oroth_peranson_pairing {
 	obliv int32_t rrank;
 	obliv int32_t hid;
 	obliv int32_t hrank;
-	obliv uint32_t rnext;
+	obliv int32_t rnext;
 } oroth_peranson_pairing;
 
 static obliv char orp_pref_cmp(OcCopy * cpy, void * el1raw, void * el2raw) {

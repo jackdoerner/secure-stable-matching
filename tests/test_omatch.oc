@@ -1224,4 +1224,311 @@ void testMain(void*varg) {
 	}
 
 
+
+	{
+		int32_t rPrefIdsRaw[16*4] = {
+			0, 1, 2, 3,
+			0, 1, 2, 3,
+			0, 1, 2, 3,
+			0, 1, 2, 3,
+
+			0, 3, -1, -1,
+			0, 1, 2, 3,
+			0, 1, 2, 3,
+			0, 1, 2, 3,
+
+			0, 1, 2, 3,
+			2, -1, -1, -1,
+			1, 3, -1, -1,
+			0, 1, 2, 3,
+
+			0, 2, -1, -1,
+			1, 2, 3, -1,
+			0, 1, 2, 3,
+			0, 1, 2, 3
+		};
+
+		int32_t rPrefsRaw[16*4] = {
+			1, 2, 3, 0,
+			1, 2, 0, 3,
+			2, 3, 1, 0,
+			3, 0, 1, 2,
+
+			0, 1, -1, -1,
+			3, 2, 0, 1,
+			3, 0, 1, 2,
+			0, 1, 2, 3,
+
+			0, 1, 3, 2,
+			0, -1, -1, -1,
+			1, 0, -1, -1,
+			0, 1, 2, 3,
+			
+			0, 1, -1, -1,
+			2, 0, 1, -1,
+			0, 1, 2, 3,
+			3, 2, 1, 0
+		};
+
+		int32_t hPrefIdsRaw[4*8] = {
+			0, 1, 2, 7, 8, 10, 14, 15,
+			0, 1, 3, 4, 6, 9, 10, 11,
+			1, 2, 5, 8, 9, 12, 15, -1,
+			4, 5, 6, -1, -1, -1, -1, -1
+		};
+
+		int32_t hPrefsRaw[4*8] = {
+			0, 7, 5, 4, 6, 3, 2, 1,
+			0, 5, 6, 7, 4, 1, 2, 3,
+			6, 5, 3, 4, 2, 1, 0, -1,
+			0, 1, 2, -1, -1, -1, -1, -1
+		};
+
+		int32_t expected_output[4*4] = {
+			0, 14, -1, -1,
+			10, 11, 6, 1,
+			15, 12, 9, -1,
+			4, -1, -1, -1
+		};
+
+		oroth_peranson_preference_share r_prefs_a[16*4];
+		oroth_peranson_preference_share r_prefs_b[16*4];
+		oroth_peranson_preference_share h_prefs_a[4*8];
+		oroth_peranson_preference_share h_prefs_b[4*8];
+
+		oroth_peranson_resident_share r_data_a[16] = {
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[0]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[4]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[8]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[12]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[16]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[20]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[24]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[28]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[32]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[36]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[40]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[44]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[48]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[52]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[56]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_a[60]
+			}
+		};
+
+		oroth_peranson_resident_share r_data_b[16] = {
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[0]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[4]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[8]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[12]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[16]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[20]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[24]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[28]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[32]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[36]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[40]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[44]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[48]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[52]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[56]
+			},
+			{
+				.preferences_bound = 4,
+				.preferences = &r_prefs_b[60]
+			}
+		};
+
+		uint32_t pos_rand[4];
+		for (int ii = 0; ii < 4; ii++) {
+			pos_rand[ii] = unsafe_rand_range(0, 0xFFFFFFFF);
+		}
+
+		oroth_peranson_hospital_share h_data_a[4] = {
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_a[0],
+				.positions_available_share = feedOblivInt(2 ^ pos_rand[0], 1),
+			},
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_a[8],
+				.positions_available_share = feedOblivInt(4 ^ pos_rand[1], 1),
+			},
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_a[16],
+				.positions_available_share = feedOblivInt(3 ^ pos_rand[2], 1),
+			},
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_a[24],
+				.positions_available_share = feedOblivInt(1 ^ pos_rand[3], 1),
+			}
+		};
+
+		oroth_peranson_hospital_share h_data_b[4] = {
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_b[0],
+				.positions_available_share = feedOblivInt(pos_rand[0], 2),
+			},
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_b[8],
+				.positions_available_share = feedOblivInt(pos_rand[1], 2),
+			},
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_b[16],
+				.positions_available_share = feedOblivInt(pos_rand[2], 2),
+			},
+			{
+				.preferences_bound = 8,
+				.preferences = &h_prefs_b[24],
+				.positions_available_share = feedOblivInt(pos_rand[3], 2),
+			}
+		};
+
+
+		for (int ii = 0; ii < 16*4; ii++) {
+			uint32_t id_rand = unsafe_rand_range(0, 0xFFFFFFFF);
+			uint32_t share_rand = unsafe_rand_range(0, 0xFFFFFFFF);
+
+			r_prefs_a[ii].id_share = feedOblivInt(rPrefIdsRaw[ii] ^ id_rand, 1);
+			r_prefs_a[ii].rank_share = feedOblivInt(rPrefsRaw[ii] ^ share_rand, 1);
+			r_prefs_b[ii].id_share = feedOblivInt(id_rand, 2);
+			r_prefs_b[ii].rank_share = feedOblivInt(share_rand, 2);
+		}
+		for (int ii = 0; ii < 4*8; ii++) {
+			uint32_t id_rand = unsafe_rand_range(0, 0xFFFFFFFF);
+			uint32_t share_rand = unsafe_rand_range(0, 0xFFFFFFFF);
+
+			h_prefs_a[ii].id_share = feedOblivInt(hPrefIdsRaw[ii] ^ id_rand, 1);
+			h_prefs_a[ii].rank_share = feedOblivInt(hPrefsRaw[ii] ^ share_rand, 1);
+			h_prefs_b[ii].id_share = feedOblivInt(id_rand, 2);
+			h_prefs_b[ii].rank_share = feedOblivInt(share_rand, 2);
+		}
+
+		oroth_peranson_preference_package * pkg = oroth_peranson_preference_package_from_shares(r_data_a, r_data_b, 16, h_data_a, h_data_b, 4, 4);
+		oroth_peranson_output * output = oroth_peranson(pkg);
+
+		bool success = true;
+
+		int32_t temp;
+		for (int ii = 0; ii < 4; ii++) {
+			for (int jj = 0; jj < 4; jj++) {
+				revealOblivInt(&temp, output->hospitals[ii].matches[jj], 0);
+				success &= (temp == expected_output[ii*4+jj]);
+			}
+		}
+
+		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 16r/4h - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		if (!success) {
+			for (int ii = 0; ii < 4; ii++) {
+				for (int jj = 0; jj < 4; jj++) {
+					revealOblivInt(&temp, output->hospitals[ii].matches[jj], 0);
+					if (expected_output[ii*4+jj] != temp) fprintf(stderr, "\th:%d, i:%d, expected: %d, actual: %d\n", ii, jj, expected_output[ii*4+jj], temp);
+				}
+			}
+		}
+
+		oroth_peranson_preference_package_free(pkg);
+		free(pkg);
+		oroth_peranson_output_free(output);
+		free(output);
+	}
+
+
 }
