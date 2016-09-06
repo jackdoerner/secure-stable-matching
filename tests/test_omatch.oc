@@ -320,7 +320,7 @@ void test_main(void*varg) {
 			success &= (temp == rPrefsRaw[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson_preference_package_from_shares - 9r/3h - XOR with 0", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson_preference_package_from_shares - 9p/3r - XOR with 0", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			if (pkg->proposer_count != 9) fprintf(stderr, "\texpected proposer_count: %d, actual proposer_count %d\n", 9, pkg->proposer_count);
 			if (pkg->reviewer_count != 3) fprintf(stderr, "\texpected reviewer_count: %d, actual reviewer_count %d\n", 3, pkg->reviewer_count);
@@ -581,7 +581,7 @@ void test_main(void*varg) {
 			success &= (temp == rPrefsRaw[ii]);
 		}
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson_preference_package_from_shares - 9r/3h - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson_preference_package_from_shares - 9p/3r - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			if (pkg->proposer_count != 9) fprintf(stderr, "\texpected proposer_count: %d, actual proposer_count %d\n", 9, pkg->proposer_count);
 			if (pkg->reviewer_count != 3) fprintf(stderr, "\texpected reviewer_count: %d, actual reviewer_count %d\n", 3, pkg->reviewer_count);
@@ -815,12 +815,12 @@ void test_main(void*varg) {
 			}
 		}
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 9r/3h (perfect match) - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 9p/3r (perfect match) - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			for (int ii = 0; ii < 3; ii++) {
 				for (int jj = 0; jj < 3; jj ++) {
 					revealOblivInt(&temp, output->reviewers[ii].matches[jj], 0);
-					if (expected_output[ii*3+jj] != temp) fprintf(stderr, "\th:%d, i:%d, expected: %d, actual: %d\n", ii, jj, expected_output[ii*3+jj], temp);
+					if (expected_output[ii*3+jj] != temp) fprintf(stderr, "\tr:%d, i:%d, expected: %d, actual: %d\n", ii, jj, expected_output[ii*3+jj], temp);
 				}
 			}
 		}
@@ -1261,12 +1261,12 @@ void test_main(void*varg) {
 			}
 		}
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 24r/8h (scarcety of proposers) - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 24p/8r (scarcety of proposers) - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			for (int ii = 0; ii < 8; ii++) {
 				for (int jj = 0; jj < 8; jj++) {
 					revealOblivInt(&temp, output->reviewers[ii].matches[jj], 0);
-					if (expected_output[ii*8+jj] != temp) fprintf(stderr, "\th:%d, i:%d, expected: %d, actual: %d\n", ii, jj, expected_output[ii*8+jj], temp);
+					if (expected_output[ii*8+jj] != temp) fprintf(stderr, "\tr:%d, i:%d, expected: %d, actual: %d\n", ii, jj, expected_output[ii*8+jj], temp);
 				}
 			}
 		}
@@ -1568,12 +1568,12 @@ void test_main(void*varg) {
 			}
 		}
 
-		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 16r/4h (scarcety of positions) - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
+		fprintf(stderr, "Test Item: %-70s %s\n", "oroth_peranson - 16p/4r (scarcety of positions) - XOR with RN", (success)?STATUS_SUCCESS:STATUS_FAILURE);
 		if (!success) {
 			for (int ii = 0; ii < 4; ii++) {
 				for (int jj = 0; jj < 4; jj++) {
 					revealOblivInt(&temp, output->reviewers[ii].matches[jj], 0);
-					if (expected_output[ii*4+jj] != temp) fprintf(stderr, "\th:%d, i:%d, expected: %d, actual: %d\n", ii, jj, expected_output[ii*4+jj], temp);
+					if (expected_output[ii*4+jj] != temp) fprintf(stderr, "\tr:%d, i:%d, expected: %d, actual: %d\n", ii, jj, expected_output[ii*4+jj], temp);
 				}
 			}
 		}

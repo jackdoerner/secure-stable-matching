@@ -58,8 +58,8 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 	OcCopy cpy5 = ocCopyIntN(5);
 	oqueue * mQueue = oqueue_new_static(&cpy2, n);
 
-	obliv uint32_t thisPref[5]; // [man index, woman index, man rank, woman rank, pointer to next]
-	obliv uint32_t thisMQueue[2]; // [index, pointer to next]
+	obliv uint32_t thisPref[5]; //    [proposer index, reviewer index, proposer rank, reviewer rank, pointer to next]
+	obliv uint32_t thisMQueue[2]; //  [index, pointer to next]
 	obliv uint32_t thisWStatus[3]; // [parter index, partner pointer to next, partner rating] 
 
 	OcPermNetwork w = ocPermNetworkRandom(2*n*n-n);
