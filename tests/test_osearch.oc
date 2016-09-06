@@ -44,7 +44,7 @@ void test_main(void*varg) {
 
 	args_t * args_pass = varg;
 	int arg;
-	optind = 0;
+	optind = 0; // this allows us to getopt a second time
 	while ((arg = getopt_long(args_pass->argc, args_pass->argv, options_string, long_options, NULL)) != -1) {
 		if (arg == 'o') {
 			if (strcmp(optarg,"sqrt") == 0) {
