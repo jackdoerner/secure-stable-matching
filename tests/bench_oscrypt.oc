@@ -3,78 +3,108 @@
 #include "oram.oh"
 #include "test_generic.h"
 
-#define SAMPLES 30
-
 static const char TESTNAME[] = "oscrypt_benchmark";
 
-char* testName() {
+#define TEXT_HELP_SUPPLEMENTARY "\
+  -N \x1b[4mNUMBER\x1b[0m \n\t\tuse \x1b[4mNUMBER\x1b[0m for scrypt parameter N\n\n\
+  -R \x1b[4mNUMBER\x1b[0m \n\t\tuse \x1b[4mNUMBER\x1b[0m for scrypt parameter R\n\n\
+  -P \x1b[4mNUMBER\x1b[0m \n\t\tuse \x1b[4mNUMBER\x1b[0m for scrypt parameter P\n\n\
+  -o \x1b[4mTYPE\x1b[0m, --oram-type=\x1b[4mTYPE\x1b[0m \n\t\tforce all ORAMs to be \x1b[4mTYPE\x1b[0m ORAMs. Valid types are \033[1msqrt\033[0m, \033[1mcircuit\033[0m, and \033[1mlinear\033[0m.\n\n\
+  -i \x1b[4mNUMBER\x1b[0m, --samples=\x1b[4mNUMBER\x1b[0m \n\t\trun \x1b[4mNUMBER\x1b[0m iterations of the benchmark\n\n"
+
+static const char options_string[] = "N:R:P:o:i:";
+static struct option long_options[] = {
+	{"scrypt-n", required_argument, NULL, 'N'},
+	{"scrypt-r", required_argument, NULL, 'R'},
+	{"scrypt-p", required_argument, NULL, 'P'},
+	{"oram-type", required_argument, NULL, 'o'},
+	{"samples", required_argument, NULL, 'i'},
+	{0, 0, 0, 0}
+};
+
+char* get_test_name() {
 	return TESTNAME;
 }
 
-int nvals[] = {4,8,16,32,64,128,256,512,1024};
-int nn = sizeof(nvals)/sizeof(nvals[0]);
+char* get_supplementary_options_string() {
+	return options_string;
+}
 
-void testMain(void*varg) {
+struct option* get_long_options() {
+	return long_options;
+}
+
+void print_supplementary_help() {
+	fprintf(stderr, TEXT_HELP_SUPPLEMENTARY);
+}
+
+void test_main(void*varg) {
 
 	#ifdef ORAM_OVERRIDE
 	oram_set_default_type(ORAM_OVERRIDE);
 	#endif
 
-	{
+	int N = 64;
+	int r = 8;
+	int p = 1;
+	int samples = 1;
 
-		fprintf(stdout, "==========\nSCRYPT (N, sample 1, sample 2, ... sample n)\n----------\n");
-		fflush(stdout);
-
-		char passwd_raw[13] = "pleaseletmein";
-		obliv uint8_t passwd[13];
-		int passwd_len = 13;
-		char salt_raw[14] = "SodiumChloride";
-		obliv uint8_t salt[14];
-		int salt_len = 14;
-		obliv uint8_t result[64];
-		int r = 8;
-		int p = 1;
-
-		for (int ii = 0; ii < passwd_len; ii++) {
-			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-		}
-
-		for (int ii = 0; ii < salt_len; ii++) {
-			salt[ii] = feedOblivChar(salt_raw[ii], 2);
-		}
-
-		for (int ii = 0; ii < nn; ii++) {
-			
-			int N = nvals[ii];
-
-			fprintf(stdout, "%d", N);
-			fflush(stdout);
-
-			uint64_t tally = 0;
-
-			for (int ii = 0; ii < SAMPLES; ii++) {
-
-				uint64_t startTime = current_timestamp();
-
-				oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
-
-				uint64_t endTime = current_timestamp();
-
-				fprintf(stdout, ",%d", endTime - startTime);
-				fflush(stdout);
-				tally += endTime - startTime;
-
+	args_t * args_pass = varg;
+	int arg;
+	optind = 0;
+	while ((arg = getopt_long(args_pass->argc, args_pass->argv, options_string, long_options, NULL)) != -1) {
+		if (arg == 'N') {
+			N = atoi(optarg);
+			if (N <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
 			}
-
-			fprintf(stdout, "\n");
-			fflush(stdout);
-			fprintf(stderr, "SCRYPT (N:%d): %d microseconds avg\n", N, tally / SAMPLES);
+		} else if (arg == 'R') {
+			r = atoi(optarg);
+			if (r <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 'P') {
+			p = atoi(optarg);
+			if (p <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 'o') {
+			if (strcmp(optarg,"sqrt") == 0) {
+				oram_set_default_type(ORAM_TYPE_SQRT);
+			} else if (strcmp(optarg,"circuit") == 0) {
+				oram_set_default_type(ORAM_TYPE_CIRCUIT);
+			} else if (strcmp(optarg,"linear") == 0) {
+				oram_set_default_type(ORAM_TYPE_LINEAR);
+			} else {
+				fprintf (stderr, "Invalid argument for -%c.\n", arg);
+				return;
+			}
+		} else if (arg == 'i') {
+			samples = atoi(optarg);
+			if (samples <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == '?' || arg == ':') {
+			if (optopt == 'N' || optopt == 'R' || optopt == 'P' || optopt == 'o' || optopt == 'i') {
+				fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+				return;
+			} else {
+				fprintf (stderr, "Option -%c not recognized.\n", optopt);
+				return;
+			}
+		} else {
+			abort();
 		}
 	}
 
 	{
 
-		uint64_t tally = 0;
+		fprintf(stdout, "# SCRYPT (N, sample 1, sample 2, ... sample n)\n");
+		fflush(stdout);
 
 		char passwd_raw[13] = "pleaseletmein";
 		obliv uint8_t passwd[13];
@@ -83,12 +113,6 @@ void testMain(void*varg) {
 		obliv uint8_t salt[14];
 		int salt_len = 14;
 		obliv uint8_t result[64];
-		int N = 16384;
-		int r = 8;
-		int p = 1;
-
-		fprintf(stdout, "16384");
-		fflush(stdout);
 
 		for (int ii = 0; ii < passwd_len; ii++) {
 			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
@@ -98,68 +122,28 @@ void testMain(void*varg) {
 			salt[ii] = feedOblivChar(salt_raw[ii], 2);
 		}
 
-		for (int ii = 0; ii < 3; ii++) {
+		fprintf(stdout, "%d", N);
+		fflush(stdout);
+
+		uint64_t tally = 0;
+
+		for (int ii = 0; ii < samples; ii++) {
 
 			uint64_t startTime = current_timestamp();
 
 			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 64);
 
-			uint64_t runtime = current_timestamp() - startTime;
+			uint64_t endTime = current_timestamp();
 
-			fprintf(stdout, ",%llu", runtime);
+			fprintf(stdout, ",%d", endTime - startTime);
 			fflush(stdout);
-			tally += runtime;
-		}
-		
-		fprintf(stdout, "\n");
-		fflush(stdout);
-		fprintf(stderr, "SCRYPT (16384): %llu microseconds avg\n", tally / SAMPLES);
-	}
-
-	{
-
-		uint64_t tally = 0;
-
-		char passwd_raw[13] = "pleaseletmein";
-		obliv uint8_t passwd[13];
-		int passwd_len = 13;
-		char salt_raw[14] = "SodiumChloride";
-		obliv uint8_t salt[14];
-		int salt_len = 14;
-		obliv uint8_t result[32];
-		int N = 1024;
-		int r = 1;
-		int p = 1;
-
-		fprintf(stdout, "litecoin");
-		fflush(stdout);
-
-		for (int ii = 0; ii < passwd_len; ii++) {
-			passwd[ii] = feedOblivChar(passwd_raw[ii],1);
-		}
-
-		for (int ii = 0; ii < salt_len; ii++) {
-			salt[ii] = feedOblivChar(salt_raw[ii], 2);
-		}
-
-		for (int ii = 0; ii < SAMPLES; ii++) {
-			
-
-			uint64_t startTime = current_timestamp();
-
-			oscrypt(passwd, passwd_len, salt, salt_len, N, r, p, result, 32);
-
-			uint64_t runtime = current_timestamp() - startTime;
-
-			fprintf(stdout, ",%llu", runtime);
-			fflush(stdout);
-			tally += runtime;
+			tally += endTime - startTime;
 
 		}
 
 		fprintf(stdout, "\n");
 		fflush(stdout);
-		fprintf(stderr, "SCRYPT (litecoin): %llu microseconds avg\n", tally / SAMPLES);
+		fprintf(stderr, "SCRYPT (N:%d): %d microseconds avg\n", N, tally / samples);
 	}
 
 }

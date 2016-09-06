@@ -1,14 +1,68 @@
 #include <obliv.oh>
+#include "oram.oh"
 #include "omatch.oh"
 #include "test_generic.h"
 
-static const char TESTNAME[] = "omatch";
+static const char TESTNAME[] = "omatch_textbook";
 
-char* testName() {
+#define TEXT_HELP_SUPPLEMENTARY "\
+  -o \x1b[4mTYPE\x1b[0m, --oram-type=\x1b[4mTYPE\x1b[0m \n\t\tforce all ORAMs to be \x1b[4mTYPE\x1b[0m ORAMs. Valid types are \033[1msqrt\033[0m, \033[1mcircuit\033[0m, and \033[1mlinear\033[0m.\n\n"
+
+static const char options_string[] = "o:";
+static struct option long_options[] = {
+	{"oram-type", required_argument, NULL, 'o'},
+	{0, 0, 0, 0}
+};
+
+char* get_test_name() {
 	return TESTNAME;
 }
 
-void testMain(void*varg) {
+char* get_supplementary_options_string() {
+	return options_string;
+}
+
+struct option* get_long_options() {
+	return long_options;
+}
+
+void print_supplementary_help() {
+	fprintf(stderr, TEXT_HELP_SUPPLEMENTARY);
+}
+
+void test_main(void*varg) {
+
+	#ifdef ORAM_OVERRIDE
+	oram_set_default_type(ORAM_OVERRIDE);
+	#endif
+
+	args_t * args_pass = varg;
+	int arg;
+	optind = 0;
+	while ((arg = getopt_long(args_pass->argc, args_pass->argv, options_string, long_options, NULL)) != -1) {
+		if (arg == 'o') {
+			if (strcmp(optarg,"sqrt") == 0) {
+				oram_set_default_type(ORAM_TYPE_SQRT);
+			} else if (strcmp(optarg,"circuit") == 0) {
+				oram_set_default_type(ORAM_TYPE_CIRCUIT);
+			} else if (strcmp(optarg,"linear") == 0) {
+				oram_set_default_type(ORAM_TYPE_LINEAR);
+			} else {
+				fprintf (stderr, "Invalid argument for -%c.\n", arg);
+				return;
+			}
+		} else if (arg == '?' || arg == ':') {
+			if (optopt == 'o') {
+				fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+				return;
+			} else {
+				fprintf (stderr, "Option -%c not recognized.\n", optopt);
+				return;
+			}
+		} else {
+			abort();
+		}
+	}
 
 	{
 		uint32_t mPrefsRaw[9] = {

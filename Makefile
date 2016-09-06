@@ -1,7 +1,7 @@
 OBLIVCC = $(OBLIVC_PATH)/bin/oblivcc
 OBLIVCH = $(OBLIVC_PATH)/src/ext/oblivc
 OBLIVCA = $(OBLIVC_PATH)/_build/libobliv.a
-CFLAGS+=-DREMOTE_HOST=$(REMOTE_HOST) -O3 -I/usr/include -I . -I $(SRC_PATH)
+CFLAGS+= -O3 -I/usr/include -I . -I $(SRC_PATH)
 
 SRC_PATH=src/
 LIB_OUT_PATH=build/lib/
@@ -16,11 +16,8 @@ OBJS=$(DEPS) $(ORAM_DEPS) obig.oo ochacha.oo ograph.oo omatch.oo oqueue.oo\
 TEST_PATH=tests/
 TEST_OUT_PATH=build/tests/
 TEST_DEPS=test_main.o
-REMOTE_HOST=localhost
 TEST_BINS = test_obig test_osha256 test_osha512 test_osalsa test_ochacha test_oqueue test_oram test_oscrypt test_ograph test_omatch test_osearch\
-		bench_oram.sqrt bench_oram.linear bench_oram.circuit bench_oram_init.sqrt bench_oram_init.linear bench_oram_init.circuit\
-		bench_oscrypt.sqrt bench_oscrypt.linear bench_oscrypt.circuit bench_bfs.sqrt bench_bfs.linear bench_bfs.circuit\
-		bench_bst.sqrt bench_bst.linear bench_bst.circuit bench_gs.sqrt bench_gs.linear bench_gs.circuit
+		bench_oram bench_oram_init bench_oscrypt bench_bfs bench_bst bench_gs bench_rp
 
 default: $(ACKLIB) tests
 

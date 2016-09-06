@@ -10,47 +10,61 @@ typedef struct oroth_peranson_preference_share {
 	obliv int32_t rank_share;
 } oroth_peranson_preference_share;
 
-typedef struct oroth_peranson_resident_share {
+typedef struct oroth_peranson_proposer_share {
 	size_t preferences_bound;
 	oroth_peranson_preference_share * preferences;
-} oroth_peranson_resident_share;
+} oroth_peranson_proposer_share;
 
-typedef struct oroth_peranson_hospital_share {
+typedef struct oroth_peranson_reviewer_share {
 	size_t preferences_bound;
 	oroth_peranson_preference_share * preferences;
 	obliv size_t positions_available_share;
-} oroth_peranson_hospital_share;
+} oroth_peranson_reviewer_share;
 
 typedef struct oroth_peranson_preference {
+	obliv int32_t pid;
 	obliv int32_t rid;
-	obliv int32_t hid;
-	obliv bool is_h;
+	obliv bool is_r;
 	obliv int32_t rank;
 } oroth_peranson_preference;
 
 typedef struct oroth_peranson_preference_package {
-	size_t resident_count;
-	size_t hospital_count;
+	size_t proposer_count;
+	size_t reviewer_count;
+	size_t p_preferences_bound;
 	size_t r_preferences_bound;
-	size_t h_preferences_bound;
-	size_t h_positions_bound;
+	size_t r_positions_bound;
+	oroth_peranson_preference * p_prefs;
 	oroth_peranson_preference * r_prefs;
-	oroth_peranson_preference * h_prefs;
-	obliv uint32_t * h_positions_available;
+	obliv uint32_t * r_positions_available;
 } oroth_peranson_preference_package;
 
-typedef struct oroth_peranson_hospital_output {
+typedef struct oroth_peranson_reviewer_output {
 	obliv size_t positions_available;
 	obliv int32_t * matches;
-} oroth_peranson_hospital_output;
+} oroth_peranson_reviewer_output;
+
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+typedef struct oroth_peranson_benchmark_output {
+	int64_t setup_time;
+	int64_t setup_gates;
+	int64_t permutation_time;
+	int64_t permutation_gates;
+	int64_t proposereject_time;
+	int64_t proposereject_gates;
+} oroth_peranson_benchmark_output;
+#endif
 
 typedef struct oroth_peranson_output {
-	size_t hospital_count;
+	size_t reviewer_count;
 	size_t positions_bound;
-	oroth_peranson_hospital_output * hospitals;
+	oroth_peranson_reviewer_output * reviewers;
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+	oroth_peranson_benchmark_output times;
+#endif
 } oroth_peranson_output;
 
-oroth_peranson_preference_package * oroth_peranson_preference_package_from_shares(oroth_peranson_resident_share * ra, oroth_peranson_resident_share * rb, size_t resident_count, oroth_peranson_hospital_share * ha, oroth_peranson_hospital_share * hb, size_t hospital_count, size_t hospital_positions_bound);
+oroth_peranson_preference_package * oroth_peranson_preference_package_from_shares(oroth_peranson_proposer_share * ra, oroth_peranson_proposer_share * rb, size_t proposer_count, oroth_peranson_reviewer_share * ha, oroth_peranson_reviewer_share * hb, size_t reviewer_count, size_t reviewer_positions_bound);
 void oroth_peranson_preference_package_free(oroth_peranson_preference_package * pkg);
 
 oroth_peranson_output * oroth_peranson(oroth_peranson_preference_package * pkg);

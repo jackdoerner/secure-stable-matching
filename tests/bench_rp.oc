@@ -7,25 +7,55 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define SAMPLES 30
+#define TEXT_HELP_SUPPLEMENTARY "\
+  -n \x1b[4mNUMBER\x1b[0m, --proposers=\x1b[4mNUMBER\x1b[0m \n\t\tsimulate \x1b[4mNUMBER\x1b[0m proposers\n\n\
+  -m \x1b[4mNUMBER\x1b[0m, --reviewers=\x1b[4mNUMBER\x1b[0m \n\t\tsimulate \x1b[4mNUMBER\x1b[0m reviewers\n\n\
+  -q \x1b[4mNUMBER\x1b[0m, --proposer-preference-bound=\x1b[4mNUMBER\x1b[0m \n\t\tgenerate at most \x1b[4mNUMBER\x1b[0m preferences per proposer\n\n\
+  -r \x1b[4mNUMBER\x1b[0m, --reviewer-preference-bound=\x1b[4mNUMBER\x1b[0m \n\t\tgenerate at most \x1b[4mNUMBER\x1b[0m preferences per reviewer\n\n\
+  -s \x1b[4mNUMBER\x1b[0m, --reviewer-position-bound=\x1b[4mNUMBER\x1b[0m \n\t\toffer at most \x1b[4mNUMBER\x1b[0m positions per reviewer\n\n\
+  -o \x1b[4mTYPE\x1b[0m, --oram-type=\x1b[4mTYPE\x1b[0m \n\t\tforce all ORAMs to be \x1b[4mTYPE\x1b[0m ORAMs. Valid types are \033[1msqrt\033[0m, \033[1mcircuit\033[0m, and \033[1mlinear\033[0m.\n\n\
+  -i \x1b[4mNUMBER\x1b[0m, --samples=\x1b[4mNUMBER\x1b[0m \n\t\trun \x1b[4mNUMBER\x1b[0m iterations of the benchmark\n\n"
 
 static const char TESTNAME[] = "rp_benchmark";
+static const char options_string[] = "n:m:q:r:s:o:i:";
+static struct option long_options[] = {
+	{"proposers", required_argument, NULL, 'n'},
+	{"reviewers", required_argument, NULL, 'm'},
+	{"proposer-preference-bound", required_argument, NULL, 'q'},
+	{"reviewer-preference-bound", required_argument, NULL, 'r'},
+	{"reviewer-position-bound", required_argument, NULL, 's'},
+	{"oram-type", required_argument, NULL, 'o'},
+	{"samples", required_argument, NULL, 'i'},
+	{0, 0, 0, 0}
+};
 
-char* testName() {
+char* get_test_name() {
 	return TESTNAME;
 }
 
+char* get_supplementary_options_string() {
+	return options_string;
+}
+
+struct option* get_long_options() {
+	return long_options;
+}
+
+void print_supplementary_help() {
+	fprintf(stderr, TEXT_HELP_SUPPLEMENTARY);
+}
+
 void shuffle(uint32_t *array, size_t n) {
-    if (n > 1) {
-        size_t i;
-        for (i = 0; i < n - 1; i++) 
-        {
-          size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
-          int t = array[j];
-          array[j] = array[i];
-          array[i] = t;
-        }
-    }
+	if (n > 1) {
+		size_t i;
+		for (i = 0; i < n - 1; i++) 
+		{
+		  size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+		  int t = array[j];
+		  array[j] = array[i];
+		  array[i] = t;
+		}
+	}
 }
 
 int uint32cmp(const void *a,const void *b) {
@@ -49,179 +79,269 @@ uint32_t unsafe_rand_range(uint32_t rangemin, uint32_t rangemax) {
 }
 
 static obliv char orp_pref_cmp(OcCopy * cpy, void * el1raw, void * el2raw) {
-	//NOTE: DO NOT USE NEGATIVE VALUES FOR RID
+	//NOTE: DO NOT USE NEGATIVE VALUES FOR PID
 	oroth_peranson_preference * el1 = ((oroth_peranson_preference *) el1raw);
 	oroth_peranson_preference * el2 = ((oroth_peranson_preference *) el2raw);
-	obliv int64_t result = ((((obliv int64_t) el1->rid) << 33) + (((obliv int64_t) el1->hid) << 1) + el1->is_h) - ((((obliv int64_t) el2->rid) << 33) + (((obliv int64_t) el2->hid) << 1) + el2->is_h);
+	obliv int64_t result = ((((obliv int64_t) el1->pid) << 33) + (((obliv int64_t) el1->rid) << 1) + el1->is_r) - ((((obliv int64_t) el2->pid) << 33) + (((obliv int64_t) el2->rid) << 1) + el2->is_r);
 	return (result > 0) | (-1 * (result < 0));
 }
 
-int pcts[] = {4,8,16,32,64,128,256,512,1024};
-int pn = sizeof(pcts)/sizeof(pcts[0]);
-
-void testMain(void*varg) {
+void test_main(void * varg) {
 
 	#ifdef ORAM_OVERRIDE
 	oram_set_default_type(ORAM_OVERRIDE);
 	#endif
 
-	srand(time(NULL));
+	int reviewers = 4;
+	int proposers = 16;
+	int positions_min = 1;
+	int positions_max = 4;
+	int pratings_min=1;
+	int pratings_max=4;
+	int rratings_min=1;
+	int rratings_max=16;
+	int samples = 1;
 
-	fprintf(stdout, "==========\nROTH PERANSON (resident count, resident rankings bound, hospital count, hospital rankings bound, positions per hospital, sample 1, sample 2, ... sample n)\n----------\n");
+	args_t * args_pass = varg;
+	int arg;
+	optind = 0;
+	while ((arg = getopt_long(args_pass->argc, args_pass->argv, options_string, long_options, NULL)) != -1) {
+		if (arg == 'n') {
+			proposers = atoi(optarg);
+			if (proposers <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 'm') {
+			reviewers = atoi(optarg);
+			if (reviewers <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 'q') {
+			pratings_max = atoi(optarg);
+			if (pratings_max <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 'r') {
+			rratings_max = atoi(optarg);
+			if (rratings_max <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 's') {
+			positions_max = atoi(optarg);
+			if (positions_max <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 'o') {
+			if (strcmp(optarg,"sqrt") == 0) {
+				oram_set_default_type(ORAM_TYPE_SQRT);
+			} else if (strcmp(optarg,"circuit") == 0) {
+				oram_set_default_type(ORAM_TYPE_CIRCUIT);
+			} else if (strcmp(optarg,"linear") == 0) {
+				oram_set_default_type(ORAM_TYPE_LINEAR);
+			} else {
+				fprintf (stderr, "Invalid argument for -%c.\n", arg);
+				return;
+			}
+		} else if (arg == 'i') {
+			samples = atoi(optarg);
+			if (samples <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == '?' || arg == ':') {
+			if (optopt == 'n' || optopt == 'm' || optopt == 'q' || optopt == 'r' || optopt == 's' || optopt == 'o' || optopt == 'i') {
+				fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+				return;
+			} else {
+				fprintf (stderr, "Option -%c not recognized.\n", optopt);
+				return;
+			}
+		} else {
+			abort();
+		}
+	}
+
+	fprintf(stdout, "# ROTH PERANSON (proposer count, proposer rankings bound, reviewer count, reviewer rankings bound, positions per reviewer, sample 1, sample 2, ... sample n)\n");
 	fflush(stdout);
 
 	{
 
-		for (int ii = 0; ii < pn; ii++) {
-			int hospitals = pcts[ii];
-			int residents = pcts[ii] * 8;
-			int positions_min = 1;
-			int positions_max = min(residents, 20);
-			int hratings_per_position_min = 2;
-			int hratings_per_position_max = 10;
-			int rratings_min=min(hospitals, 5);
-			int rratings_max=min(hospitals, 20);
-			int hratings_max=min(residents, hratings_per_position_max*positions_max);
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+		oroth_peranson_benchmark_output tally = 0;
+		uint64_t xorgatestally = 0;
+		uint64_t xortimetally = 0;
+#else
+		uint64_t tally = 0;
+#endif
 
-			uint64_t tally = 0;
+		fprintf(stdout, "%d,%d,%d,%d,%d", proposers, pratings_max, reviewers, rratings_max, positions_max);
+		fflush(stdout);
 
-			fprintf(stdout, "%d,%d,%d,%d,%d", residents, rratings_max, hospitals, hratings_max, positions_max);
-			fflush(stdout);
+		uint32_t * pperm = malloc(reviewers * sizeof(uint32_t));
+		uint32_t * pperm2 = malloc(pratings_max * sizeof(uint32_t));
+		for (int kk = 0; kk < reviewers; kk++) pperm[kk] = kk;
+		for (int kk = 0; kk < pratings_max; kk++) pperm2[kk] = kk;
 
-			uint32_t * rperm = malloc(hospitals * sizeof(uint32_t));
-			uint32_t * rperm2 = malloc(rratings_max * sizeof(uint32_t));
-			for (int kk = 0; kk < hospitals; kk++) rperm[kk] = kk;
-			for (int kk = 0; kk < rratings_max; kk++) rperm2[kk] = kk;
+		uint32_t * rperm = malloc(proposers * sizeof(uint32_t));
+		uint32_t * rperm2 = malloc(rratings_max * sizeof(uint32_t));
+		for (int kk = 0; kk < proposers; kk++) rperm[kk] = kk;
+		for (int kk = 0; kk < rratings_max; kk++) rperm2[kk] = kk;
 
-			uint32_t * hperm = malloc(residents * sizeof(uint32_t));
-			uint32_t * hperm2 = malloc(hratings_max * sizeof(uint32_t));
-			for (int kk = 0; kk < residents; kk++) hperm[kk] = kk;
-			for (int kk = 0; kk < hratings_max; kk++) hperm2[kk] = kk;
+		oroth_peranson_preference_share * p_prefs_a = calloc(proposers * pratings_max, sizeof(oroth_peranson_preference_share));
+		oroth_peranson_preference_share * p_prefs_b = calloc(proposers * pratings_max, sizeof(oroth_peranson_preference_share));
+		oroth_peranson_proposer_share * p_data_a = calloc(proposers, sizeof(oroth_peranson_proposer_share));
+		oroth_peranson_proposer_share * p_data_b = calloc(proposers, sizeof(oroth_peranson_proposer_share));
 
-			oroth_peranson_preference_share * r_prefs_a = calloc(residents*rratings_max, sizeof(oroth_peranson_preference_share));
-			oroth_peranson_preference_share * r_prefs_b = calloc(residents*rratings_max, sizeof(oroth_peranson_preference_share));
-			oroth_peranson_resident_share * r_data_a = calloc(residents, sizeof(oroth_peranson_resident_share));
-			oroth_peranson_resident_share * r_data_b = calloc(residents, sizeof(oroth_peranson_resident_share));
-
-			for (int kk = 0; kk < residents; kk++) {
-				r_data_a[kk] = (oroth_peranson_resident_share) {
-					.preferences = &r_prefs_a[kk*rratings_max],
-					.preferences_bound = rratings_max
-				};
-				r_data_b[kk] = (oroth_peranson_resident_share) {
-					.preferences = &r_prefs_b[kk*rratings_max],
-					.preferences_bound = rratings_max
-				};
-			}
-
-			oroth_peranson_preference_share * h_prefs_a = calloc(hospitals*hratings_max, sizeof(oroth_peranson_preference_share));
-			oroth_peranson_preference_share * h_prefs_b = calloc(hospitals*hratings_max, sizeof(oroth_peranson_preference_share));
-			oroth_peranson_hospital_share * h_data_a = calloc(hospitals, sizeof(oroth_peranson_hospital_share));
-			oroth_peranson_hospital_share * h_data_b = calloc(hospitals, sizeof(oroth_peranson_hospital_share));
-
-			for (int kk = 0; kk < hospitals; kk++) {
-				h_data_a[kk] = (oroth_peranson_hospital_share) {
-					.preferences = &h_prefs_a[kk*hratings_max],
-					.preferences_bound = hratings_max,
-					.positions_available_share = positions_max
-				};
-				h_data_b[kk] = (oroth_peranson_hospital_share) {
-					.preferences = &h_prefs_b[kk*hratings_max],
-					.preferences_bound = hratings_max,
-					.positions_available_share = positions_max
-				};
-			}
-
-			int samples = SAMPLES;
-
-			for (int kk = 0; kk < samples; kk++) {
-				for (int ll = 0; ll < residents; ll++) {
-					uint32_t ratings = unsafe_rand_range(rratings_min, rratings_max);
-					shuffle(rperm, hospitals);
-					qsort(rperm, sizeof(uint32_t), ratings, uint32cmp);
-					for (int jj = 0; jj < ratings; jj++) rperm2[jj] = jj;
-					shuffle(rperm2, ratings);
-
-					for (int jj = 0; jj < rratings_max; jj++) {
-						uint32_t hid = rperm[jj];
-						uint32_t rank;
-						if (jj < ratings) {
-							rank = rperm2[jj];	
-						} else {
-							rank = -1;	
-						}
-						uint32_t rnd_id = unsafe_rand_range(0, 0xFFFFFFFF);
-						uint32_t rnd_rank = unsafe_rand_range(0, 0xFFFFFFFF);
-						r_prefs_a[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
-						r_prefs_b[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id ^ hid, 2);
-						r_prefs_a[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
-						r_prefs_b[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
-					}
-				}
-
-				for (int ll = 0; ll < hospitals; ll++) {
-					uint32_t positions = unsafe_rand_range(positions_min, positions_max);
-					uint32_t rnd_positions = unsafe_rand_range(0, 0xFFFFFFFF);
-					h_data_a[ll].positions_available_share = feedOblivInt(rnd_positions, 1);
-					h_data_b[ll].positions_available_share = feedOblivInt(rnd_positions ^ positions, 2);
-
-					uint32_t ratings = min(hratings_max, positions * unsafe_rand_range(hratings_per_position_min, hratings_per_position_max));
-					shuffle(hperm, residents);
-					qsort(hperm, sizeof(uint32_t), ratings, uint32cmp);
-					for (int jj = 0; jj < ratings; jj++) hperm2[jj] = jj;
-					shuffle(hperm2, ratings);
-
-					for (int jj = 0; jj < hratings_max; jj++) {
-						uint32_t rid = hperm[jj];
-						uint32_t rank;
-						if (jj < ratings) {
-							rank = hperm2[jj];	
-						} else {
-							rank = -1;	
-						}
-						uint32_t rnd_id = unsafe_rand_range(0, 0xFFFFFFFF);
-						uint32_t rnd_rank = unsafe_rand_range(0, 0xFFFFFFFF);
-						h_prefs_a[ll * hratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
-						h_prefs_b[ll * hratings_max + jj].id_share = feedOblivInt(rnd_id ^ rid, 2);
-						h_prefs_a[ll * hratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
-						h_prefs_b[ll * hratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
-					}
-				}
-
-				uint64_t startTime = current_timestamp();
-				oroth_peranson_preference_package * pkg = oroth_peranson_preference_package_from_shares(r_data_a, r_data_b, residents, h_data_a, h_data_b, hospitals, positions_max);
-				oroth_peranson_output * output = oroth_peranson(pkg);
-				uint64_t runtime = current_timestamp() - startTime;
-
-				oroth_peranson_preference_package_free(pkg);
-				oroth_peranson_output_free(output);
-				free(pkg);
-				free(output);
-
-				fprintf(stdout, ",%llu", runtime);
-				fflush(stdout);
-				tally += runtime;
-
-				
-			}
-
-			free(rperm);
-			free(rperm2);
-			free(hperm);
-			free(hperm2);
-			free(r_data_a);
-			free(r_data_b);
-			free(h_data_a);
-			free(h_data_b);
-			free(r_prefs_a);
-			free(r_prefs_b);
-			free(h_prefs_a);
-			free(h_prefs_b);
-
-			fprintf(stdout, "\n");
-			fprintf(stderr, "ROTH PERANSON (residents:%d, resident rankings bound:%d, hospitals:%d, hospital rankings bound:%d, max positions:%d): %llu microseconds avg\n", residents, rratings_max, hospitals, hratings_max, positions_max, tally/samples);
+		for (int kk = 0; kk < proposers; kk++) {
+			p_data_a[kk] = (oroth_peranson_proposer_share) {
+				.preferences = &p_prefs_a[kk*pratings_max],
+				.preferences_bound = pratings_max
+			};
+			p_data_b[kk] = (oroth_peranson_proposer_share) {
+				.preferences = &p_prefs_b[kk*pratings_max],
+				.preferences_bound = pratings_max
+			};
 		}
 
+		oroth_peranson_preference_share * r_prefs_a = calloc(reviewers*rratings_max, sizeof(oroth_peranson_preference_share));
+		oroth_peranson_preference_share * r_prefs_b = calloc(reviewers*rratings_max, sizeof(oroth_peranson_preference_share));
+		oroth_peranson_reviewer_share * r_data_a = calloc(reviewers, sizeof(oroth_peranson_reviewer_share));
+		oroth_peranson_reviewer_share * r_data_b = calloc(reviewers, sizeof(oroth_peranson_reviewer_share));
+
+		for (int kk = 0; kk < reviewers; kk++) {
+			r_data_a[kk] = (oroth_peranson_reviewer_share) {
+				.preferences = &r_prefs_a[kk*rratings_max],
+				.preferences_bound = rratings_max,
+				.positions_available_share = positions_max
+			};
+			r_data_b[kk] = (oroth_peranson_reviewer_share) {
+				.preferences = &r_prefs_b[kk*rratings_max],
+				.preferences_bound = rratings_max,
+				.positions_available_share = positions_max
+			};
+		}
+
+		for (int kk = 0; kk < samples; kk++) {
+			for (int ll = 0; ll < proposers; ll++) {
+				uint32_t ratings = unsafe_rand_range(pratings_min, pratings_max);
+				shuffle(pperm, reviewers);
+				qsort(pperm, sizeof(uint32_t), ratings, uint32cmp);
+				for (int jj = 0; jj < ratings; jj++) pperm2[jj] = jj;
+				shuffle(pperm2, ratings);
+
+				for (int jj = 0; jj < pratings_max; jj++) {
+					uint32_t rid = pperm[jj];
+					uint32_t rank;
+					if (jj < ratings) {
+						rank = pperm2[jj];	
+					} else {
+						rank = -1;	
+					}
+					uint32_t rnd_id = unsafe_rand_range(0, 0xFFFFFFFF);
+					uint32_t rnd_rank = unsafe_rand_range(0, 0xFFFFFFFF);
+					p_prefs_a[ll * pratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
+					p_prefs_b[ll * pratings_max + jj].id_share = feedOblivInt(rnd_id ^ rid, 2);
+					p_prefs_a[ll * pratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
+					p_prefs_b[ll * pratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
+				}
+			}
+
+			for (int ll = 0; ll < reviewers; ll++) {
+				uint32_t positions = unsafe_rand_range(positions_min, positions_max);
+				uint32_t rnd_positions = unsafe_rand_range(0, 0xFFFFFFFF);
+				r_data_a[ll].positions_available_share = feedOblivInt(rnd_positions, 1);
+				r_data_b[ll].positions_available_share = feedOblivInt(rnd_positions ^ positions, 2);
+
+				uint32_t ratings = unsafe_rand_range(rratings_min, rratings_max);
+				shuffle(rperm, proposers);
+				qsort(rperm, sizeof(uint32_t), ratings, uint32cmp);
+				for (int jj = 0; jj < ratings; jj++) rperm2[jj] = jj;
+				shuffle(rperm2, ratings);
+
+				for (int jj = 0; jj < rratings_max; jj++) {
+					uint32_t pid = rperm[jj];
+					uint32_t rank;
+					if (jj < ratings) {
+						rank = rperm2[jj];	
+					} else {
+						rank = -1;	
+					}
+					uint32_t rnd_id = unsafe_rand_range(0, 0xFFFFFFFF);
+					uint32_t rnd_rank = unsafe_rand_range(0, 0xFFFFFFFF);
+					r_prefs_a[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id, 1);
+					r_prefs_b[ll * rratings_max + jj].id_share = feedOblivInt(rnd_id ^ pid, 2);
+					r_prefs_a[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank, 1);
+					r_prefs_b[ll * rratings_max + jj].rank_share = feedOblivInt(rnd_rank ^ rank, 2);
+				}
+			}
+
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+			int64_t xortime = -current_timestamp();
+			int64_t xorgates = -yaoGateCount();
+#else
+			int64_t runtime = -current_timestamp();
+#endif
+
+			oroth_peranson_preference_package * pkg = oroth_peranson_preference_package_from_shares(p_data_a, p_data_b, proposers, r_data_a, r_data_b, reviewers, positions_max);
+
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+			xortime += current_timestamp();
+			xorgates += yaoGateCount();
+#endif
+
+			oroth_peranson_output * output = oroth_peranson(pkg);
+
+
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+			oroth_peranson_benchmark_output times = output->times;
+			fprintf(stdout, ",%llu,%llu,%llu,%llu,%llu,%llu,%llu,%llu", xortime, xorgates, times.setup_time, times.setup_gates, times.permutation_time, times.permutation_gates, times.proposereject_time, times.proposereject_gates);
+			fflush(stdout);
+			xorgatestally += xorgates;
+			xortimetally += xortime;
+			tally.setup_time += times.setup_time;
+			tally.setup_gates += times.setup_gates;
+			tally.permutation_time += times.permutation_time;
+			tally.permutation_gates += times.permutation_gates;
+			tally.proposereject_time += times.proposereject_time;
+			tally.proposereject_gates += times.proposereject_gates;
+#else
+			runtime += current_timestamp();
+			fprintf(stdout, ",%llu", runtime);
+			fflush(stdout);
+			tally += runtime;
+#endif
+
+			oroth_peranson_preference_package_free(pkg);
+			oroth_peranson_output_free(output);
+			free(pkg);
+			free(output);
+			
+		}
+
+		free(pperm);
+		free(pperm2);
+		free(rperm);
+		free(rperm2);
+		free(p_data_a);
+		free(p_data_b);
+		free(r_data_a);
+		free(r_data_b);
+		free(p_prefs_a);
+		free(p_prefs_b);
+		free(r_prefs_a);
+		free(r_prefs_b);
+
+		fprintf(stdout, "\n");
+#ifdef OMATCH_EXTENDED_BENCHMARK 			
+		fprintf(stderr, "ROTH PERANSON (proposers:%d, proposer rankings bound:%d, reviewers:%d, reviewer rankings bound:%d, max positions:%d): xor: (%llu microseconds, %llu gates), setup: (%llu microseconds, %llu gates), permutation: (%llu microseconds, %llu gates), propose/reject: (%llu microseconds, %llu gates)\n", proposers, pratings_max, reviewers, rratings_max, positions_max, xortimetally/samples, xorgatestally/samples, tally.setup_time/samples, tally.setup_gates/samples, tally.permutation_time/samples, tally.permutation_gates/samples, tally.proposereject_time/samples, tally.proposereject_gates/samples);
+#else
+		fprintf(stderr, "ROTH PERANSON (proposers:%d, proposer rankings bound:%d, reviewers:%d, reviewer rankings bound:%d, max positions:%d): %llu microseconds avg\n", proposers, pratings_max, reviewers, rratings_max, positions_max, tally/samples);
+#endif
 	}
 
 }

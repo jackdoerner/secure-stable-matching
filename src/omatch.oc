@@ -150,154 +150,161 @@ void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv ui
 
 
 typedef struct oroth_peranson_tentative_match {
-	obliv int32_t rid;
-	obliv int32_t hrank;
-	obliv int32_t rnext;
+	obliv int32_t pid;
+	obliv int32_t rrank;
+	obliv int32_t pnext;
 } oroth_peranson_tentative_match;
 
 typedef struct oroth_peranson_augmented_match {
-	obliv int32_t rid;
-	obliv int32_t hrank;
-	obliv int32_t rnext;
-	uint32_t hospital_positions_bound;
+	obliv int32_t pid;
+	obliv int32_t rrank;
+	obliv int32_t pnext;
+	uint32_t reviewer_positions_bound;
 } oroth_peranson_augmented_match;
 
 typedef struct oroth_peranson_pairing {
+	obliv int32_t pid;
+	obliv int32_t prank;
 	obliv int32_t rid;
 	obliv int32_t rrank;
-	obliv int32_t hid;
-	obliv int32_t hrank;
-	obliv int32_t rnext;
+	obliv int32_t pnext;
 } oroth_peranson_pairing;
 
 static obliv char orp_pref_cmp(OcCopy * cpy, void * el1raw, void * el2raw) {
 	oroth_peranson_preference * el1 = ((oroth_peranson_preference *) el1raw);
 	oroth_peranson_preference * el2 = ((oroth_peranson_preference *) el2raw);
 
-	return osign64((osign64((obliv int64_t)((obliv uint32_t)el1->rid) - (obliv int64_t)((obliv uint32_t)el2->rid)) << 2) + (osign64((obliv int64_t)((obliv uint32_t)el1->hid) - (obliv int64_t)((obliv uint32_t)el2->hid)) << 1) + (el1->is_h - el2->is_h));
+	return osign64((osign64((obliv int64_t)((obliv uint32_t)el1->pid) - (obliv int64_t)((obliv uint32_t)el2->pid)) << 2) + (osign64((obliv int64_t)((obliv uint32_t)el1->rid) - (obliv int64_t)((obliv uint32_t)el2->rid)) << 1) + (el1->is_r - el2->is_r));
 }
 
 static obliv char orp_pair_cmp(OcCopy * cpy, void * el1raw, void * el2raw) {
 	oroth_peranson_pairing * el1 = (oroth_peranson_pairing *) el1raw;
 	oroth_peranson_pairing * el2 = (oroth_peranson_pairing *) el2raw;
-	return osign64((obliv int64_t)((obliv uint32_t)el1->rrank) - (obliv int64_t)((obliv uint32_t)el2->rrank));
+	return osign64((obliv int64_t)((obliv uint32_t)el1->prank) - (obliv int64_t)((obliv uint32_t)el2->prank));
 }
 
 void orp_hStatusFunction(OcCopy * cpy, void * oramBlock, void * extBlock) obliv {
-	obliv uint32_t * thisHospitalData = (obliv uint32_t *) oramBlock;
+	obliv uint32_t * thisReviewerData = (obliv uint32_t *) oramBlock;
 	oroth_peranson_augmented_match * lowestTentativeMatch = (oroth_peranson_augmented_match *) extBlock;
-	oroth_peranson_tentative_match * thisHospitalTentativeMatches = &thisHospitalData[1];
+	oroth_peranson_tentative_match * thisReviewerTentativeMatches = &thisReviewerData[1];
 	obliv bool swapThisRound;
 	obliv uint32_t temp[3];
 	OcCopy cpy;
 	~obliv() cpy = ocCopyIntN(3);
 
-	for (size_t jj = 0; jj < lowestTentativeMatch->hospital_positions_bound; jj++) {
-		swapThisRound = (jj < thisHospitalData[0] & ((lowestTentativeMatch->hrank < thisHospitalTentativeMatches[jj].hrank) | thisHospitalTentativeMatches[jj].hrank == 0));
-		ocSwapCondN(&cpy,&thisHospitalTentativeMatches[jj],lowestTentativeMatch,&temp,&swapThisRound, 1);
+	for (size_t jj = 0; jj < lowestTentativeMatch->reviewer_positions_bound; jj++) {
+		swapThisRound = (jj < thisReviewerData[0] & ((lowestTentativeMatch->rrank < thisReviewerTentativeMatches[jj].rrank) | thisReviewerTentativeMatches[jj].rrank == 0));
+		ocSwapCondN(&cpy,&thisReviewerTentativeMatches[jj],lowestTentativeMatch,&temp,&swapThisRound, 1);
 	}
 }
 
-oroth_peranson_preference_package * oroth_peranson_preference_package_from_shares(oroth_peranson_resident_share * ra, oroth_peranson_resident_share * rb, size_t resident_count, oroth_peranson_hospital_share * ha, oroth_peranson_hospital_share * hb, size_t hospital_count, size_t hospital_positions_bound) {
+oroth_peranson_preference_package * oroth_peranson_preference_package_from_shares(oroth_peranson_proposer_share * pa, oroth_peranson_proposer_share * pb, size_t proposer_count, oroth_peranson_reviewer_share * ra, oroth_peranson_reviewer_share * rb, size_t reviewer_count, size_t reviewer_positions_bound) {
 
-	size_t r_preferences_bound = 0; size_t h_preferences_bound = 0;
-	for (size_t ii = 0; ii < resident_count; ii++) r_preferences_bound = max(max(r_preferences_bound, ra[ii].preferences_bound), rb[ii].preferences_bound);
-	for (size_t ii = 0; ii < hospital_count; ii++) h_preferences_bound = max(max(h_preferences_bound, ha[ii].preferences_bound), hb[ii].preferences_bound);
+	size_t p_preferences_bound = 0; size_t r_preferences_bound = 0;
+	for (size_t ii = 0; ii < proposer_count; ii++) p_preferences_bound = max(max(p_preferences_bound, pa[ii].preferences_bound), pb[ii].preferences_bound);
+	for (size_t ii = 0; ii < reviewer_count; ii++) r_preferences_bound = max(max(r_preferences_bound, ra[ii].preferences_bound), rb[ii].preferences_bound);
 
 	oroth_peranson_preference_package * result = malloc(sizeof(oroth_peranson_preference_package));
-	result->resident_count = resident_count;
-	result->hospital_count = hospital_count;
+	result->proposer_count = proposer_count;
+	result->reviewer_count = reviewer_count;
+	result->p_preferences_bound = p_preferences_bound;
 	result->r_preferences_bound = r_preferences_bound;
-	result->h_preferences_bound = h_preferences_bound;
-	result->r_prefs = calloc(resident_count * r_preferences_bound, sizeof(oroth_peranson_preference));
-	result->h_prefs = calloc(hospital_count * h_preferences_bound, sizeof(oroth_peranson_preference));
-	result->h_positions_available = calloc(hospital_count, sizeof(obliv uint32_t));
-	result->h_positions_bound = hospital_positions_bound;
+	result->p_prefs = calloc(proposer_count * p_preferences_bound, sizeof(oroth_peranson_preference));
+	result->r_prefs = calloc(reviewer_count * r_preferences_bound, sizeof(oroth_peranson_preference));
+	result->r_positions_available = calloc(reviewer_count, sizeof(obliv uint32_t));
+	result->r_positions_bound = reviewer_positions_bound;
 	
-	for (size_t ii = 0; ii < resident_count; ii++) {
+	for (size_t ii = 0; ii < proposer_count; ii++) {
+
+		size_t jj = 0;
+		for (; jj < min(pa[ii].preferences_bound, pb[ii].preferences_bound); jj++) {
+			result->p_prefs[ii * p_preferences_bound + jj].pid = ii;
+			result->p_prefs[ii * p_preferences_bound + jj].rid = pa[ii].preferences[jj].id_share ^ pb[ii].preferences[jj].id_share;
+			result->p_prefs[ii * p_preferences_bound + jj].is_r = false;
+			result->p_prefs[ii * p_preferences_bound + jj].rank = pa[ii].preferences[jj].rank_share ^ pb[ii].preferences[jj].rank_share;
+		}
+		for (; jj < p_preferences_bound; jj++) {
+			result->p_prefs[ii * p_preferences_bound + jj].pid = ii;
+			result->p_prefs[ii * p_preferences_bound + jj].rid = -1;
+			result->p_prefs[ii * p_preferences_bound + jj].is_r = false;
+			result->p_prefs[ii * p_preferences_bound + jj].rank = -1;
+		}
+	}
+
+	for (size_t ii = 0; ii < reviewer_count; ii++) {
+		result->r_positions_available[ii] = ra[ii].positions_available_share ^ rb[ii].positions_available_share;
 
 		size_t jj = 0;
 		for (; jj < min(ra[ii].preferences_bound, rb[ii].preferences_bound); jj++) {
 			result->r_prefs[ii * r_preferences_bound + jj].rid = ii;
-			result->r_prefs[ii * r_preferences_bound + jj].hid = ra[ii].preferences[jj].id_share ^ rb[ii].preferences[jj].id_share;
-			result->r_prefs[ii * r_preferences_bound + jj].is_h = false;
+			result->r_prefs[ii * r_preferences_bound + jj].pid = ra[ii].preferences[jj].id_share ^ rb[ii].preferences[jj].id_share;
+			result->r_prefs[ii * r_preferences_bound + jj].is_r = true;
 			result->r_prefs[ii * r_preferences_bound + jj].rank = ra[ii].preferences[jj].rank_share ^ rb[ii].preferences[jj].rank_share;
 		}
 		for (; jj < r_preferences_bound; jj++) {
+			result->r_prefs[ii * r_preferences_bound + jj].pid = -1;
 			result->r_prefs[ii * r_preferences_bound + jj].rid = ii;
-			result->r_prefs[ii * r_preferences_bound + jj].hid = -1;
-			result->r_prefs[ii * r_preferences_bound + jj].is_h = false;
+			result->r_prefs[ii * r_preferences_bound + jj].is_r = true;
 			result->r_prefs[ii * r_preferences_bound + jj].rank = -1;
-		}
-	}
-
-	for (size_t ii = 0; ii < hospital_count; ii++) {
-		result->h_positions_available[ii] = ha[ii].positions_available_share ^ hb[ii].positions_available_share;
-
-		size_t jj = 0;
-		for (; jj < min(ha[ii].preferences_bound, hb[ii].preferences_bound); jj++) {
-			result->h_prefs[ii * h_preferences_bound + jj].hid = ii;
-			result->h_prefs[ii * h_preferences_bound + jj].rid = ha[ii].preferences[jj].id_share ^ hb[ii].preferences[jj].id_share;
-			result->h_prefs[ii * h_preferences_bound + jj].is_h = true;
-			result->h_prefs[ii * h_preferences_bound + jj].rank = ha[ii].preferences[jj].rank_share ^ hb[ii].preferences[jj].rank_share;
-		}
-		for (; jj < h_preferences_bound; jj++) {
-			result->h_prefs[ii * h_preferences_bound + jj].rid = -1;
-			result->h_prefs[ii * h_preferences_bound + jj].hid = ii;
-			result->h_prefs[ii * h_preferences_bound + jj].is_h = true;
-			result->h_prefs[ii * h_preferences_bound + jj].rank = -1;
 		}
 	}
 
 	OcCopy cpy_orppref = ocCopyBoolN(sizeof(oroth_peranson_preference)/sizeof(obliv bool));
 
-	omerge_batcher_multiple(&cpy_orppref, result->h_prefs, h_preferences_bound, h_preferences_bound * hospital_count, orp_pref_cmp);
+	omerge_batcher_multiple(&cpy_orppref, result->r_prefs, r_preferences_bound, r_preferences_bound * reviewer_count, orp_pref_cmp);
 
 	return result;
 }
 
 void oroth_peranson_preference_package_free(oroth_peranson_preference_package * pkg) {
+	free(pkg->p_prefs);
 	free(pkg->r_prefs);
-	free(pkg->h_prefs);
-	free(pkg->h_positions_available);
+	free(pkg->r_positions_available);
 }
 
 oroth_peranson_output * oroth_peranson(oroth_peranson_preference_package * pkg) {
 	/*
 		preferences will be sorted in ID order and have tuples of (ID, ranking) as values. Unranked IDs will be
-		omitted. All hospitals/residents will have preferences lists of the same length, but they will not
+		omitted. All reviewers/proposers will have preferences lists of the same length, but they will not
 		necesarily use all available slots in their ranking. (-1, -1) indicates an empty slot.	
 	*/
+
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+	oroth_peranson_benchmark_output times;
+	times.setup_time = -current_timestamp();
+	times.setup_gates = -yaoGateCount();
+#endif
+
 	OcCopy cpy2 = ocCopyIntN(2);
 	OcCopy cpy_orppref = ocCopyBoolN(sizeof(oroth_peranson_preference)/sizeof(obliv bool));
 	OcCopy cpy_orppair = ocCopyIntN(4);
 	OcCopy cpy_orppairfull = ocCopyIntN(5);
 
-	uint32_t resident_count = pkg->resident_count;
-	uint32_t hospital_count = pkg->hospital_count;
+	uint32_t proposer_count = pkg->proposer_count;
+	uint32_t reviewer_count = pkg->reviewer_count;
+	uint32_t p_preferences_bound = pkg->p_preferences_bound;
 	uint32_t r_preferences_bound = pkg->r_preferences_bound;
-	uint32_t h_preferences_bound = pkg->h_preferences_bound;
-	uint32_t h_positions_bound = pkg->h_positions_bound;
-	size_t pLen = hospital_count * h_preferences_bound + resident_count * r_preferences_bound;
+	uint32_t r_positions_bound = pkg->r_positions_bound;
+	size_t pLen = reviewer_count * r_preferences_bound + proposer_count * p_preferences_bound;
 
 	oroth_peranson_preference * mergedPrefs = calloc(pLen, sizeof(oroth_peranson_preference));
 
-	ocCopyN(&cpy_orppref, mergedPrefs, pkg->r_prefs, resident_count * r_preferences_bound);
-	ocCopyN(&cpy_orppref, &mergedPrefs[resident_count*r_preferences_bound], pkg->h_prefs, hospital_count * h_preferences_bound);
+	ocCopyN(&cpy_orppref, mergedPrefs, pkg->p_prefs, proposer_count * p_preferences_bound);
+	ocCopyN(&cpy_orppref, &mergedPrefs[proposer_count*p_preferences_bound], pkg->r_prefs, reviewer_count * r_preferences_bound);
 	
-	omerge_batcher(&cpy_orppref, mergedPrefs, resident_count*r_preferences_bound, pLen, orp_pref_cmp);
+	omerge_batcher(&cpy_orppref, mergedPrefs, proposer_count*p_preferences_bound, pLen, orp_pref_cmp);
 
-	oqueue * prefQueue = oqueue_new_static(&cpy_orppair, resident_count*r_preferences_bound);
+	oqueue * prefQueue = oqueue_new_static(&cpy_orppair, proposer_count*p_preferences_bound);
 
 	for (size_t ii = 1; ii < pLen; ii++) {
-		obliv if ((mergedPrefs[ii - 1].rid == mergedPrefs[ii].rid) & (mergedPrefs[ii - 1].hid == mergedPrefs[ii].hid) & mergedPrefs[ii].rid >= 0 & mergedPrefs[ii].hid >= 0) {
-			//hospital is always sorted last
+		obliv if ((mergedPrefs[ii - 1].pid == mergedPrefs[ii].pid) & (mergedPrefs[ii - 1].rid == mergedPrefs[ii].rid) & mergedPrefs[ii].pid >= 0 & mergedPrefs[ii].rid >= 0) {
+			//reviewer is always sorted last
 			oroth_peranson_pairing tempPairing = {
+				.pid = mergedPrefs[ii].pid,
+				.prank = mergedPrefs[ii-1].rank,
 				.rid = mergedPrefs[ii].rid,
-				.rrank = mergedPrefs[ii-1].rank,
-				.hid = mergedPrefs[ii].hid,
-				.hrank = mergedPrefs[ii].rank,
-				.rnext = 0
+				.rrank = mergedPrefs[ii].rank,
+				.pnext = 0
 			};
 			oqueue_push(prefQueue, &tempPairing);
 		}
@@ -305,120 +312,137 @@ oroth_peranson_output * oroth_peranson(oroth_peranson_preference_package * pkg) 
 
 	free(mergedPrefs);
 
-	oroth_peranson_pairing * preferences = calloc(2 * resident_count * r_preferences_bound - resident_count, sizeof(oroth_peranson_pairing));
+	oroth_peranson_pairing * preferences = calloc(2 * proposer_count * p_preferences_bound - proposer_count, sizeof(oroth_peranson_pairing));
 
 	oroth_peranson_pairing nextPairing;
 	oroth_peranson_pairing * nextPairingRef = &nextPairing;
 	oqueue_pop(&nextPairing, prefQueue);
 
-	for (size_t ii = 0; ii < resident_count; ii ++) {
-		for (size_t jj = 0; jj < r_preferences_bound; jj++) {
-			obliv if (nextPairing.rid == ii) {
-				preferences[ii * r_preferences_bound + jj].rid = nextPairing.rid;
-				preferences[ii * r_preferences_bound + jj].rrank = nextPairing.rrank;
-				preferences[ii * r_preferences_bound + jj].hid = nextPairing.hid;
-				preferences[ii * r_preferences_bound + jj].hrank = nextPairing.hrank;
+	for (size_t ii = 0; ii < proposer_count; ii ++) {
+		for (size_t jj = 0; jj < p_preferences_bound; jj++) {
+			obliv if (nextPairing.pid == ii) {
+				preferences[ii * p_preferences_bound + jj].pid = nextPairing.pid;
+				preferences[ii * p_preferences_bound + jj].prank = nextPairing.prank;
+				preferences[ii * p_preferences_bound + jj].rid = nextPairing.rid;
+				preferences[ii * p_preferences_bound + jj].rrank = nextPairing.rrank;
 				obliv if (oqueue_empty(prefQueue)) {
-					nextPairing.rid = -1;
+					nextPairing.pid = -1;
 				} else {
 					oqueue_pop(nextPairingRef, prefQueue);
 				}
 			} else {
-				preferences[ii * r_preferences_bound + jj].rid = -1;
-				preferences[ii * r_preferences_bound + jj].rrank = -1;
-				preferences[ii * r_preferences_bound + jj].hid = -1;
-				preferences[ii * r_preferences_bound + jj].hrank = -1;
+				preferences[ii * p_preferences_bound + jj].pid = -1;
+				preferences[ii * p_preferences_bound + jj].prank = -1;
+				preferences[ii * p_preferences_bound + jj].rid = -1;
+				preferences[ii * p_preferences_bound + jj].rrank = -1;
 			}
 		}
 	}
 
-	for (size_t ii = 0; ii < resident_count; ii ++) {
-		osort_batcher(&cpy_orppairfull, element(&cpy_orppairfull,preferences,ii * r_preferences_bound), r_preferences_bound, orp_pair_cmp);
+	for (size_t ii = 0; ii < proposer_count; ii ++) {
+		osort_batcher(&cpy_orppairfull, element(&cpy_orppairfull,preferences,ii * p_preferences_bound), p_preferences_bound, orp_pair_cmp);
 	}
 
 	oqueue_free(prefQueue);
 
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+	uint64_t ct = current_timestamp();
+	uint64_t ygc = yaoGateCount();
+	times.setup_time += ct;
+	times.setup_gates += ygc;
+	times.permutation_time = -ct;
+	times.permutation_gates = -ygc;
+#endif
+
 	oroth_peranson_pairing thisPref;
 	obliv uint32_t oPrefPointer;
 
-	obliv uint32_t * startingLinks = calloc(resident_count, sizeof(obliv uint32_t));
-	obliv uint32_t * permutation = calloc(2 * resident_count * r_preferences_bound - resident_count, sizeof(obliv uint32_t));
-	obliv uint32_t * permutationInverse = calloc(2 * resident_count * r_preferences_bound - resident_count, sizeof(obliv uint32_t));
-	for (size_t ii = 0; ii < 2 * resident_count * r_preferences_bound - resident_count; ii++) {
+	obliv uint32_t * startingLinks = calloc(proposer_count, sizeof(obliv uint32_t));
+	obliv uint32_t * permutation = calloc(2 * proposer_count * p_preferences_bound - proposer_count, sizeof(obliv uint32_t));
+	obliv uint32_t * permutationInverse = calloc(2 * proposer_count * p_preferences_bound - proposer_count, sizeof(obliv uint32_t));
+	for (size_t ii = 0; ii < 2 * proposer_count * p_preferences_bound - proposer_count; ii++) {
 		permutation[ii] = ii;
 	}
 
-	OcPermNetwork w = ocPermNetworkRandom(2 * resident_count * r_preferences_bound - resident_count);
+	OcPermNetwork w = ocPermNetworkRandom(2 * proposer_count * p_preferences_bound - proposer_count);
 	ocPermNetworkApply(&w,&ocCopyInt,permutation);
 	ocPermInverseAssumingPerm(&w, permutationInverse, permutation);
 
-	for (size_t ii = 0; ii < resident_count; ii++) {
-		startingLinks[ii] = permutationInverse[ii * r_preferences_bound];
-		for (size_t jj = 0; jj < r_preferences_bound; jj++) {
-			if (jj + 1 < r_preferences_bound) {
-				obliv if (preferences[(ii * r_preferences_bound + jj + 1)].rid == -1) {
-					preferences[(ii * r_preferences_bound + jj)].rnext = -1;
+	for (size_t ii = 0; ii < proposer_count; ii++) {
+		startingLinks[ii] = permutationInverse[ii * p_preferences_bound];
+		for (size_t jj = 0; jj < p_preferences_bound; jj++) {
+			if (jj + 1 < p_preferences_bound) {
+				obliv if (preferences[(ii * p_preferences_bound + jj + 1)].pid == -1) {
+					preferences[(ii * p_preferences_bound + jj)].pnext = -1;
 				} else {
-					preferences[(ii * r_preferences_bound + jj)].rnext = permutationInverse[ii * r_preferences_bound + jj + 1];
+					preferences[(ii * p_preferences_bound + jj)].pnext = permutationInverse[ii * p_preferences_bound + jj + 1];
 				}
 			} else {
-				preferences[(ii * r_preferences_bound + jj)].rnext = -1;
+				preferences[(ii * p_preferences_bound + jj)].pnext = -1;
 			}
 		}
 	}
 
-	oqueue * rQueueUnconsidered = oqueue_static_from_array(&ocCopyInt, resident_count, startingLinks);
+	oqueue * pQueueUnconsidered = oqueue_static_from_array(&ocCopyInt, proposer_count, startingLinks);
 	free(startingLinks);
 
-	obliv uint32_t nextDummy = permutationInverse[resident_count * r_preferences_bound];
+	obliv uint32_t nextDummy = permutationInverse[proposer_count * p_preferences_bound];
 
-	for (size_t ii = resident_count * r_preferences_bound; ii < 2 * resident_count * r_preferences_bound - resident_count - 1; ii++) {
-		preferences[ii].rnext = permutationInverse[ii + 1];
+	for (size_t ii = proposer_count * p_preferences_bound; ii < 2 * proposer_count * p_preferences_bound - proposer_count - 1; ii++) {
+		preferences[ii].pnext = permutationInverse[ii + 1];
 	}
 
-	preferences[2 * resident_count * r_preferences_bound - resident_count - 1].rnext = -1;
+	preferences[2 * proposer_count * p_preferences_bound - proposer_count - 1].pnext = -1;
 
 	free(permutation);
 	free(permutationInverse);
 
-
 	ocPermNetworkApply(&w,&cpy_orppairfull,preferences);
 	ocPermNetworkCleanup(&w);
+
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+	ct = current_timestamp();
+	ygc = yaoGateCount();
+	times.permutation_time += ct;
+	times.permutation_gates += ygc;
+	times.proposereject_time = -ct;
+	times.proposereject_gates = -ygc;
+#endif
 
 	oroth_peranson_pairing nextPotentialPairing;
 
 	uint32_t prefPointer;
 	obliv bool solutionFound = false;
 
-	OcCopy cpyhpt = ocCopyIntN((sizeof(oroth_peranson_tentative_match) * h_positions_bound) / sizeof(obliv uint32_t) + 1);
-	obliv uint32_t * hospitalTentativeMatchesSeed = calloc(hospital_count, sizeof(oroth_peranson_tentative_match) * h_positions_bound + sizeof(obliv uint32_t));
-	for (size_t ii = 0; ii < hospital_count; ii ++) {
-		hospitalTentativeMatchesSeed[ii * (sizeof(oroth_peranson_tentative_match) * h_positions_bound / sizeof(obliv uint32_t) + 1)] = pkg->h_positions_available[ii];
+	OcCopy cpyhpt = ocCopyIntN((sizeof(oroth_peranson_tentative_match) * r_positions_bound) / sizeof(obliv uint32_t) + 1);
+	obliv uint32_t * reviewerTentativeMatchesSeed = calloc(reviewer_count, sizeof(oroth_peranson_tentative_match) * r_positions_bound + sizeof(obliv uint32_t));
+	for (size_t ii = 0; ii < reviewer_count; ii ++) {
+		reviewerTentativeMatchesSeed[ii * (sizeof(oroth_peranson_tentative_match) * r_positions_bound / sizeof(obliv uint32_t) + 1)] = pkg->r_positions_available[ii];
 	}
-	oram * hospitalTentativeMatches = oram_from_array(ORAM_TYPE_AUTO, &cpyhpt, hospital_count, hospitalTentativeMatchesSeed);
-	free(hospitalTentativeMatchesSeed);
+	oram * reviewerTentativeMatches = oram_from_array(ORAM_TYPE_AUTO, &cpyhpt, reviewer_count, reviewerTentativeMatchesSeed);
+	free(reviewerTentativeMatchesSeed);
 
-	oqueue_pop(&oPrefPointer, rQueueUnconsidered);
+	oqueue_pop(&oPrefPointer, pQueueUnconsidered);
 
-	for (size_t ii = 0; ii < resident_count * r_preferences_bound; ii++) {
+	for (size_t ii = 0; ii < proposer_count * p_preferences_bound; ii++) {
 		revealOblivInt(&prefPointer, oPrefPointer, 0);
 		ocCopy(&cpy_orppairfull, &nextPotentialPairing, element(&cpy_orppairfull, preferences, prefPointer));
 
 		obliv if (solutionFound) {
-			oPrefPointer = nextPotentialPairing.rnext;
+			oPrefPointer = nextPotentialPairing.pnext;
 		} else {
 			oroth_peranson_augmented_match lowestTentativeMatch;
-			lowestTentativeMatch.hospital_positions_bound = h_positions_bound;
-			lowestTentativeMatch.rid = nextPotentialPairing.rid + 1;
-			lowestTentativeMatch.hrank = nextPotentialPairing.hrank + 1;
-			lowestTentativeMatch.rnext = nextPotentialPairing.rnext;
+			lowestTentativeMatch.reviewer_positions_bound = r_positions_bound;
+			lowestTentativeMatch.pid = nextPotentialPairing.pid + 1;
+			lowestTentativeMatch.rrank = nextPotentialPairing.rrank + 1;
+			lowestTentativeMatch.pnext = nextPotentialPairing.pnext;
 
-			oram_apply(hospitalTentativeMatches, &lowestTentativeMatch, orp_hStatusFunction, nextPotentialPairing.hid);
+			oram_apply(reviewerTentativeMatches, &lowestTentativeMatch, orp_hStatusFunction, nextPotentialPairing.rid);
 
-			obliv if (lowestTentativeMatch.rid != 0 & lowestTentativeMatch.rnext >= 0) {
-				oPrefPointer = lowestTentativeMatch.rnext;
-			} else obliv if (oqueue_empty(rQueueUnconsidered) == false) {
-				obliv bool queueworked = oqueue_pop(&oPrefPointer, rQueueUnconsidered);
+			obliv if (lowestTentativeMatch.pid != 0 & lowestTentativeMatch.pnext >= 0) {
+				oPrefPointer = lowestTentativeMatch.pnext;
+			} else obliv if (oqueue_empty(pQueueUnconsidered) == false) {
+				obliv bool queueworked = oqueue_pop(&oPrefPointer, pQueueUnconsidered);
 			} else {
 				solutionFound = true;
 				oPrefPointer = nextDummy;
@@ -426,30 +450,37 @@ oroth_peranson_output * oroth_peranson(oroth_peranson_preference_package * pkg) 
 		}
 	}
 
-	oqueue_free(rQueueUnconsidered);
+	oqueue_free(pQueueUnconsidered);
 	free(preferences);
 
-	obliv uint32_t * thisHospitalData = calloc(1, sizeof(oroth_peranson_tentative_match) * h_positions_bound + sizeof(obliv uint32_t));
-	oroth_peranson_tentative_match * thisHospitalTentativeMatches = &thisHospitalData[1];
+	obliv uint32_t * thisReviewerData = calloc(1, sizeof(oroth_peranson_tentative_match) * r_positions_bound + sizeof(obliv uint32_t));
+	oroth_peranson_tentative_match * thisReviewerTentativeMatches = &thisReviewerData[1];
 
 	oroth_peranson_output * output = calloc(1, sizeof(oroth_peranson_output));
-	output->hospitals = calloc(hospital_count, sizeof(oroth_peranson_hospital_output));
-	output->hospital_count = hospital_count;
-	output->positions_bound = h_positions_bound;
+	output->reviewers = calloc(reviewer_count, sizeof(oroth_peranson_reviewer_output));
+	output->reviewer_count = reviewer_count;
+	output->positions_bound = r_positions_bound;
 
-	for (size_t ii = 0; ii < hospital_count; ii++) {
-		output->hospitals[ii].matches = calloc(h_positions_bound, sizeof(obliv int32_t));
-		oram_read(thisHospitalData, hospitalTentativeMatches, ii);
-		for (size_t jj = 0; jj < h_positions_bound; jj++) {
-			output->hospitals[ii].matches[jj] = thisHospitalTentativeMatches[jj].rid - 1;
+	for (size_t ii = 0; ii < reviewer_count; ii++) {
+		output->reviewers[ii].matches = calloc(r_positions_bound, sizeof(obliv int32_t));
+		oram_read(thisReviewerData, reviewerTentativeMatches, ii);
+		for (size_t jj = 0; jj < r_positions_bound; jj++) {
+			output->reviewers[ii].matches[jj] = thisReviewerTentativeMatches[jj].pid - 1;
 		}
 	}
 
-	oram_free(hospitalTentativeMatches);
-	free(thisHospitalData);
+	oram_free(reviewerTentativeMatches);
+	free(thisReviewerData);
+
+#ifdef OMATCH_EXTENDED_BENCHMARK 
+	times.proposereject_time += current_timestamp();
+	times.proposereject_gates += yaoGateCount();
+	output->times = times;
+#endif
+
 	return output;
 }
 
 void oroth_peranson_output_free(oroth_peranson_output * output) {
-	free(output->hospitals);
+	free(output->reviewers);
 }

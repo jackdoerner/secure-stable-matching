@@ -4,11 +4,21 @@
 
 static const char TESTNAME[] = "oqueue";
 
-char* testName() {
+char* get_test_name() {
 	return TESTNAME;
 }
 
-void testMain(void*varg) {
+char* get_supplementary_options_string() {
+	return NULL;
+}
+
+struct option* get_long_options() {
+	return NULL;
+}
+
+void print_supplementary_help() {}
+
+void test_main(void*varg) {
 
 	{
 
