@@ -11,26 +11,26 @@ Features
 
 * Batcher Sorting and Merging
 * Big Integer math
-..* Division via Knuth's Algorithm D
-..* Karatsuba-Comba Multiplication
-..* Square Root via Newton's Method
+  * Division via Knuth's Algorithm D
+  * Karatsuba-Comba Multiplication
+  * Square Root via Newton's Method
 * Binary Search
 * Graph Algorithms
-..* Breadth First Search (Naive Method)
+  * Breadth First Search (Naive Method)
 * Oblivious Data Structures
-..* Queue
+  * Queue
 * ORAM
-..* Circuit ORAM
-..* Linear Scan ORAM
-..* Square Root ORAM
+  * Circuit ORAM
+  * Linear Scan ORAM
+  * Square Root ORAM
 * Hash Functions
-..* ChaCha20
-..* Salsa20
-..* Scrypt
-..* SHA256 and SHA512
+  * ChaCha20
+  * Salsa20
+  * Scrypt
+  * SHA256 and SHA512
 * Stable Matching
-..* Gale-Shapley
-..* Roth-Peranson
+  * Gale-Shapley
+  * Roth-Peranson
 
 
 Installing
