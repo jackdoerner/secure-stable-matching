@@ -1,0 +1,8 @@
+#ifndef OBLIV_MATCH_TEXTBOOK
+#define OBLIV_MATCH_TEXTBOOK
+
+#include <obliv.oh>
+
+void ogale_shapley_textbook(obliv uint32_t * output, obliv uint32_t * mPrefs, obliv uint32_t * wPrefs, int n);
+
+#endif

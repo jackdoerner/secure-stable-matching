@@ -1,0 +1,147 @@
+#include <obliv.oh>
+#include "omatch_textbook.oh"
+#include "oram.oh"
+#include "test_generic.h"
+
+#define TEXT_HELP_SUPPLEMENTARY "\
+  -n \x1b[4mNUMBER\x1b[0m, --pairs=\x1b[4mNUMBER\x1b[0m \n\t\tsimulate \x1b[4mNUMBER\x1b[0m pairs of participants\n\n\
+  -o \x1b[4mTYPE\x1b[0m, --oram-type=\x1b[4mTYPE\x1b[0m \n\t\tforce all ORAMs to be \x1b[4mTYPE\x1b[0m ORAMs. Valid types are \033[1msqrt\033[0m, \033[1mcircuit\033[0m, and \033[1mlinear\033[0m.\n\n\
+  -i \x1b[4mNUMBER\x1b[0m, --samples=\x1b[4mNUMBER\x1b[0m \n\t\trun \x1b[4mNUMBER\x1b[0m iterations of the benchmark\n\n"
+
+static const char TESTNAME[] = "gs_textbook_benchmark";
+static const char options_string[] = "n:o:i:";
+static struct option long_options[] = {
+	{"pairs", required_argument, NULL, 'n'},
+	{"oram-type", required_argument, NULL, 'o'},
+	{"samples", required_argument, NULL, 'i'},
+	{0, 0, 0, 0}
+};
+
+char* get_test_name() {
+	return TESTNAME;
+}
+
+char* get_supplementary_options_string() {
+	return options_string;
+}
+
+struct option* get_long_options() {
+	return long_options;
+}
+
+void print_supplementary_help() {
+	fprintf(stderr, TEXT_HELP_SUPPLEMENTARY);
+}
+
+void shuffle(uint32_t *array, size_t n) {
+	if (n > 1) {
+		size_t i;
+		for (i = 0; i < n - 1; i++) 
+		{
+		  size_t j = i + rand() / (RAND_MAX / (n - i) + 1);
+		  int t = array[j];
+		  array[j] = array[i];
+		  array[i] = t;
+		}
+	}
+}
+
+void test_main(void*varg) {
+
+	#ifdef ORAM_OVERRIDE
+	oram_set_default_type(ORAM_OVERRIDE);
+	#endif
+
+	int pairs = 1;
+	int samples = 1;
+
+	args_t * args_pass = varg;
+	int arg;
+	optind = 0; // this allows us to getopt a second time
+	while ((arg = getopt_long(args_pass->argc, args_pass->argv, options_string, long_options, NULL)) != -1) {
+		if (arg == 'n') {
+			pairs = atoi(optarg);
+			if (pairs <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == 'o') {
+			if (strcmp(optarg,"sqrt") == 0) {
+				oram_set_default_type(ORAM_TYPE_SQRT);
+			} else if (strcmp(optarg,"circuit") == 0) {
+				oram_set_default_type(ORAM_TYPE_CIRCUIT);
+			} else if (strcmp(optarg,"linear") == 0) {
+				oram_set_default_type(ORAM_TYPE_LINEAR);
+			} else {
+				fprintf (stderr, "Invalid argument for -%c.\n", arg);
+				return;
+			}
+		} else if (arg == 'i') {
+			samples = atoi(optarg);
+			if (samples <= 0) {
+				fprintf (stderr, "Argument for -%c must be positive.\n", arg);
+				return;
+			}
+		} else if (arg == '?' || arg == ':') {
+			if (optopt == 'n' || optopt == 'o' || optopt == 'i') {
+				fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+				return;
+			} else {
+				fprintf (stderr, "Option -%c not recognized.\n", optopt);
+				return;
+			}
+		} else {
+			abort();
+		}
+	}
+
+	fprintf(stdout, "# GALE SHAPLEY (pair count, sample 1, sample 2, ... sample n)\n");
+	fflush(stdout);
+
+	{
+		uint64_t tally = 0;
+
+		fprintf(stdout, "%d", pairs);
+		fflush(stdout);
+
+		uint32_t * perm = malloc(pairs * sizeof(uint32_t));
+		for (int kk = 0; kk < pairs; kk++) {
+			perm[kk] = kk;
+		}
+
+		obliv uint32_t * mPrefs = calloc(pairs * pairs, sizeof(obliv uint32_t));
+		obliv uint32_t * wPrefs = calloc(pairs * pairs, sizeof(obliv uint32_t));
+		obliv uint32_t * output = calloc(pairs, sizeof(obliv uint32_t));
+
+		for (int kk = 0; kk < samples; kk++) {
+			for (int ll = 0; ll < pairs; ll++) {
+				shuffle(perm, pairs);
+				for (int jj = 0; jj < pairs; jj++) {
+					mPrefs[ll * pairs + jj] = feedOblivInt(perm[jj], 2);
+				}
+				for (int jj = 0; jj < pairs; jj++) {
+					wPrefs[ll * pairs + jj] = feedOblivInt(perm[jj], 1);
+				}
+			}
+
+			uint64_t startTime = current_timestamp();
+			ogale_shapley_textbook(output, mPrefs, wPrefs, pairs);
+			uint64_t runtime = current_timestamp() - startTime;
+
+			fprintf(stdout, ",%llu", runtime);
+			fflush(stdout);
+			tally += runtime;
+
+			
+		}
+
+		free(perm);
+		free(mPrefs);
+		free(wPrefs);
+		free(output);
+
+		fprintf(stdout, "\n");
+		fprintf(stderr, "GALE SHAPLEY (pairs:%d): %llu microseconds avg\n", pairs, tally/samples);
+	}
+
+}

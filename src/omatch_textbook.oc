@@ -1,4 +1,4 @@
-#include "omatch.oh"
+#include "omatch_textbook.oh"
 #include "oram.oh"
 #include "oqueue.oh"
 #include "copy.oh"
@@ -21,7 +21,7 @@ static void wStatusFunction(OcCopy *cpy, void * oramBlock, void * extBlock) obli
 	}
 }
 
-void ogale_shapley(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv uint32_t * wPrefsRaw, int n) {
+void ogale_shapley_textbook(obliv uint32_t * output, obliv uint32_t * mPrefsRaw, obliv uint32_t * wPrefsRaw, int n) {
 
 	oram * mPrefs = oram_from_array(ORAM_TYPE_AUTO, &ocCopyInt, n * n, mPrefsRaw); // ordered by rank; elements represent partner index
 	oram * wPrefs = oram_new(ORAM_TYPE_AUTO, &ocCopyInt, n * n); // ordered by partner index; elements represent rank

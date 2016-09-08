@@ -1,7 +1,7 @@
 OBLIVCC = $(OBLIVC_PATH)/bin/oblivcc
 OBLIVCH = $(OBLIVC_PATH)/src/ext/oblivc
 OBLIVCA = $(OBLIVC_PATH)/_build/libobliv.a
-CFLAGS+= -O3 -I/usr/include -I . -I $(SRC_PATH)
+CFLAGS+= -O3 -I/usr/include -I . -I $(SRC_PATH) -DOMATCH_EXTENDED_BENCHMARK
 
 SRC_PATH=src/
 LIB_OUT_PATH=build/lib/
@@ -10,7 +10,7 @@ DEPS=ackutil.o copy.o copy.oo
 SQRT_ORAM_DEPS=decoder.oo shuffle.oo sqrtoram.oo waksman.o
 CKT_ORAM_DEPS=block.oo circuit_oram.oo linear_scan_oram.oo nonrecursive_oram.oo utils.oo
 ORAM_DEPS = $(SQRT_ORAM_DEPS:%=oram_sqrt/%)  $(CKT_ORAM_DEPS:%=oram_ckt/%) oram.oo
-OBJS=$(DEPS) $(ORAM_DEPS) omatch.oo oqueue.oo osort.oo
+OBJS=$(DEPS) $(ORAM_DEPS) omatch.oo omatch_textbook.oo oqueue.oo osort.oo
 
 TEST_PATH=tests/
 TEST_OUT_PATH=build/tests/
