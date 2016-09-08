@@ -165,8 +165,11 @@ void test_main(void * varg) {
 			abort();
 		}
 	}
-
+#ifdef OMATCH_EXTENDED_BENCHMARK 
 	fprintf(stdout, "# ROTH PERANSON (proposer count, proposer rankings bound, reviewer count, reviewer rankings bound, positions per reviewer, sample 1, sample 2, ... sample n)\n");
+#else
+	fprintf(stdout, "# ROTH PERANSON (proposer count, proposer rankings bound, reviewer count, reviewer rankings bound, positions per reviewer, sample 1 xor time, sample 1 xor gates, sample 1 setup time, sample 1 setup gates, sample 1 permutation time, sample 1 permutation gates, sample 1 propose/reject time, sample 1 propose/reject gates, sample 2, ... sample n)\n");
+#endif
 	fflush(stdout);
 
 	{

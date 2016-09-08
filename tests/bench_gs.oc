@@ -95,11 +95,12 @@ void test_main(void*varg) {
 		}
 	}
 
-	fprintf(stdout, "# GALE SHAPLEY (pair count, sample 1, sample 2, ... sample n)\n");
+	fprintf(stdout, "# GALE SHAPLEY (pair count, sample 1 time, sample 1 gates, sample 2 time, sample 2 gates, ... sample n time, sample n gates)\n");
 	fflush(stdout);
 
 	{
 		uint64_t tally = 0;
+		uint64_t tally_gates = 0;
 
 		fprintf(stdout, "%d", pairs);
 		fflush(stdout);
@@ -124,13 +125,16 @@ void test_main(void*varg) {
 				}
 			}
 
-			uint64_t startTime = current_timestamp();
+			uint64_t starttime = current_timestamp();
+			uint64_t startgates = yaoGateCount();
 			ogale_shapley(output, mPrefs, wPrefs, pairs);
-			uint64_t runtime = current_timestamp() - startTime;
+			uint64_t runtime = current_timestamp() - starttime;
+			uint64_t rungates = yaoGateCount() - startgates;
 
-			fprintf(stdout, ",%llu", runtime);
+			fprintf(stdout, ",%llu,%llu", runtime,rungates);
 			fflush(stdout);
 			tally += runtime;
+			tally_gates += rungates;
 
 			
 		}
@@ -141,7 +145,7 @@ void test_main(void*varg) {
 		free(output);
 
 		fprintf(stdout, "\n");
-		fprintf(stderr, "GALE SHAPLEY (pairs:%d): %llu microseconds avg\n", pairs, tally/samples);
+		fprintf(stderr, "GALE SHAPLEY (pairs:%d): %llu microseconds avg, %llu gates avg\n", pairs, tally/samples, tally_gates/samples);
 	}
 
 }
