@@ -1,7 +1,7 @@
 Secure Stable Matching at Scale
 =====
 
-This repository provides code to accompany the paper [Secure Stable Matching at Scale](http://oblivc.org/docs/matching.pdf) by Jack Doerner, David Evans, and abhi shelat, which appeared in the 23rd ACM Conference on Computer and Communications Security (CCS) and is included here. This software is, in essence, a version of the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit) pared down until it contains only what is necessary to reproduce the results presented. As such, it takes the form of a library, along with a small number of testing and benchmarking applications. Bear in mind, further development will take place in the [main ACK repository](https://bitbucket.org/jackdoerner/absentminded-crypto-kit).
+This repository provides code to accompany the paper [Secure Stable Matching at Scale](http://eprint.iacr.org/2016/861.pdf) by Jack Doerner, David Evans, and abhi shelat, which appeared in the 23rd ACM Conference on Computer and Communications Security (CCS) and is included here. This software is, in essence, a version of the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit) pared down until it contains only what is necessary to reproduce the results presented. As such, it takes the form of a library, along with a small number of testing and benchmarking applications. Bear in mind, further development will take place in the [main ACK repository](https://bitbucket.org/jackdoerner/absentminded-crypto-kit).
 
 
 Installing
@@ -23,15 +23,15 @@ Reproducing Results
 
 For the purpose of reproducing the results we report in our paper, we provide a suite of benchmark scripts in the `bench` directory. Each script must be executed on one machine as a server, and on another as a client. Scripts will run as server by default, and will output data and summaries to the `results` directory. Adding the `-c <address>` flag will cause the script to run as a client and connect to the specified server; in client mode the script will print a summary on the terminal, and will not save raw data. The full list of available benchmarks is as follows:
 
-* Secure Gale-Shapley Execution Time vs Pair Count (Figure 8) -
-* Secure Gale-Shapley Gate Count vs Pair Count (Table 1) -
+* Secure Gale-Shapley Execution Time vs Pair Count (Figure 8) - `gs_improved.sh` and `gs_textbook.sh`
+* Secure Gale-Shapley Gate Count vs Pair Count (Table 1) - `gs_improved.sh` and `gs_textbook.sh`
 * Secure Roth-Peranson Parametric Benchmark Results (Figure 9)
-	* Proposer Count (Figure 9a) - 
-	* Reviewer Count Figure (9b) -
-	* Proposer Preference Bound Figure (9c) -
-	* Reviewer Preference Bound Figure (9d) -
-	* Reviewer Position Bound Figure (9e) -
-* Secure Roth-Peranson NRMP Benchmark Results (Table 2) -
+	* Proposer Count (Figure 9a) - `rp_proposers.sh`
+	* Reviewer Count Figure (9b) - `rp_reviewers.sh`
+	* Proposer Preference Bound Figure (9c) - `rp_proposer_pref_bound.sh`
+	* Reviewer Preference Bound Figure (9d) - `rp_reviewer_pref_bound.sh`
+	* Reviewer Position Bound Figure (9e) - `rp_reviewer_pos_bound.sh`
+* Secure Roth-Peranson NRMP Benchmark Results (Table 2) - `rp_nrmp.sh`
 
 
 Running Tests and Benchmarks Manually
