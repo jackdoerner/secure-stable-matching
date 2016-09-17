@@ -7,9 +7,11 @@ This repository provides code to accompany the paper [Secure Stable Matching at 
 Installing
 =====
 
-1. You must first build [obliv-c](https://github.com/samee/obliv-c/), though it need not be installed in any particular location. In addition to obliv-c, you will need to install the package `openssl-dev` (or your distribution's equivalent). This is necessary only for test cases for SHA256 and SHA512.
+1. You must first build [obliv-c](https://github.com/samee/obliv-c/), though it need not be installed in any particular location.
 
-2. To compile ACK, set the path to obliv-c's main project directory via `export OBLIVC_PATH=<path to obliv-c>`, then run `make`.
+2. In addition to obliv-c, you will need to install the package `openssl-dev` (or your distribution's equivalent). This is necessary only for test cases for SHA256 and SHA512. In order to use our python graphing scripts, you will need your distribution's `python` (2.7) and `python-matplotlib` packages.
+
+3. To compile ACK, set the path to obliv-c's main project directory via `export OBLIVC_PATH=<path to obliv-c>`, then run `make`.
 
 
 Project Organization
@@ -21,7 +23,7 @@ Source for this project is divided into two directories: `src` contains code for
 Reproducing Results
 =====
 
-For the purpose of reproducing the results we report in our paper, we provide a suite of benchmark scripts in the `bench` directory. Each script must be executed on one machine as a server, and on another as a client. Scripts will run as server by default, and will output data and summaries to the `results` directory. Adding the `-c <address>` flag will cause the script to run as a client and connect to the specified server; in client mode the script will print a summary on the terminal, and will not save raw data. The full list of available benchmarks is as follows:
+For the purpose of reproducing the results we report in our paper, we provide a suite of benchmark scripts in the `tools/bench` directory. Each script must be executed on one machine as a server, and on another as a client. Scripts will run as server by default, and will output data and summaries to the `results/bench` directory. Adding the `-c <address>` flag will cause the script to run as a client and connect to the specified server; in client mode the script will print a summary on the terminal, and will not save raw data. The full list of available benchmarks is as follows:
 
 * Secure Gale-Shapley Execution Time vs Pair Count (Figure 8) - `gs_improved.sh` and `gs_textbook.sh`
 * Secure Gale-Shapley Gate Count vs Pair Count (Table 1) - `gs_improved.sh` and `gs_textbook.sh`
@@ -32,6 +34,8 @@ For the purpose of reproducing the results we report in our paper, we provide a 
 	* Reviewer Preference Bound Figure (9d) - `rp_reviewer_pref_bound.sh`
 	* Reviewer Position Bound Figure (9e) - `rp_reviewer_pos_bound.sh`
 * Secure Roth-Peranson NRMP Benchmark Results (Table 2) - `rp_nrmp.sh`
+
+For each of these benchmarking scripts, there is a matching python script in `tools/graph` which will parse the output and generate a graph identical to that found in the paper, which will be saved in `results/graph`.
 
 
 Running Tests and Benchmarks Manually
