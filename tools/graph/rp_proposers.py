@@ -31,7 +31,7 @@ init_plotting(3,3)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-data = get_nums("../../results/bench/samples_rp_proposers_sqrt.txt")
+data = get_nums("../../results/bench/summary_rp_proposers_sqrt.txt")
 
 for axis in [(ax, "time")]:
 
