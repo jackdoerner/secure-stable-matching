@@ -482,5 +482,8 @@ oroth_peranson_output * oroth_peranson(oroth_peranson_preference_package * pkg) 
 }
 
 void oroth_peranson_output_free(oroth_peranson_output * output) {
+	for (size_t ii = 0; ii < output->reviewer_count; ii++) {
+		free(output->reviewers[ii].matches);
+	}
 	free(output->reviewers);
 }
