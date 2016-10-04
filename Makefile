@@ -23,7 +23,7 @@ tests: $(TEST_BINS:%=$(TEST_OUT_PATH)/%)
 
 $(TEST_BINS:%=$(TEST_OUT_PATH)/%): $(TEST_OUT_PATH)/%: $(TEST_PATH)/%.oo $(TEST_DEPS:%=$(TEST_PATH)/%) $(ACKLIB)
 	mkdir -p $(TEST_OUT_PATH)
-	$(OBLIVCC) -o $@ $(OBLIVCA) $^ -lm -lssl -lcrypto
+	$(OBLIVCC) -o $@ $(OBLIVCA) $^ -lm
 
 $(ACKLIB): $(OBJS:%=$(SRC_PATH)/%)
 	mkdir -p $(LIB_OUT_PATH)
